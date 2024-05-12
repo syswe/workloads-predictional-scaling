@@ -1,0 +1,11 @@
+site_name: Predictive Horizontal Pod Autoscaler
+theme: material
+markdown_extensions:
+  - mdx_truly_sane_lists
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+plugins:
+  - search

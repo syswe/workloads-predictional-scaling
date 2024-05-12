@@ -1,0 +1,14 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: load-tester
+spec:
+  template:
+    spec:
+      containers:
+      - name: load-tester
+        image: load-tester
+        imagePullPolicy: IfNotPresent
+      restartPolicy: Never
+  backoffLimit: 0  # Ensures the job does not retry on failure
+
