@@ -1,129 +1,103 @@
-# Dynamic Holt Winters
+# Dinamik Holt-Winters PHPA
 
-This example shows how Holt-Winters can be used to with the Predictive Horizontal Pod Autoscaler (PHPA) to predict
-scaling demand based on seasonal data. This example is described as *dynamic* as it fetches it's tuning values from
-an external source at runtime, allowing these values to be dynamically calculated at runtime rather than being
-hardcoded.
+Bu örnek, mevsimsel verilere dayanarak ölçekleme talebini tahmin etmek için Predictive Horizontal Pod Autoscaler (PHPA) kullanımında Holt-Winters yönteminin nasıl kullanılabileceğini göstermektedir. Bu örneğe *dinamik* denmesinin sebebi, ayar değerlerinin sabit kodlanmış olmaması ve çalışma zamanında bir dış kaynaktan çekilerek dinamik olarak hesaplanabilmesidir.
 
-This example specifically uses a HTTP request to a tuning service to fetch the `alpha`, `beta` and `gamma` Holt Winters
-tuning values at runtime.
+Bu örnek, özellikle çalışma zamanında bir ayarlama servisine HTTP isteği göndererek `alpha`, `beta` ve `gamma` Holt-Winters ayar değerlerini çeker.
 
-This uses the Holt-Winters time series prediction method, which allows for defining seasons to predict how to scale.
-For example, defining a season as 24 hours,a deployment regularly has a higher CPU load between 3pm and 5pm, the model
-will gather data and once enough seasons have been gathered, will make predictions based on its knowledge of CPU load
-being higher between 3pm and 5pm, leading to pre-emptive scaling that will keep latency down and keep the system ready
-and responsive.
+Holt-Winters zaman serisi tahmin yöntemi, nasıl ölçekleneceğini tahmin etmek için mevsimleri tanımlamanıza olanak tanır. Örneğin, bir mevsim 24 saat olarak tanımlandığında, düzenli olarak 15:00 ile 17:00 arasında daha yüksek CPU yükü olan bir dağıtım, yeterli sayıda mevsim toplandıktan sonra, 15:00 ile 17:00 arasında CPU yükünün daha yüksek olduğu bilgisine dayanarak tahminler yapacak ve sistem hazır ve yanıt verir durumda tutulacak şekilde önceden ölçeklendirme yapacaktır.
 
-This example is a smaller scale of the example described above, with an interval time of 20 seconds, and a season of
-length 6 (6 * 20 = 120 seconds = 2 minutes). The example will store up to 4 previous seasons to make predictions with.
-The example includes a load tester, which runs for 30 seconds every minute.
+Bu örnek, yukarıda açıklanan örneğin daha küçük ölçekli bir versiyonudur; aralık zamanı 20 saniye ve bir mevsim uzunluğu 6'dır (6 * 20 = 120 saniye = 2 dakika). Örnek, tahmin yapmak için 4 önceki mevsimi saklayacaktır. Örneğe dahil olan yük test cihazı, her dakika 30 saniye çalışır.
 
-This is the result of running the example plotted, with red values being predicted values and blue values being actual
-values:
-![Predicted values overestimating but still fitting actual values](../../docs/img/holt_winters_prediction_vs_actual.svg)
-From this you can see that the prediction is overestimating, but still pre-emptively scaling - storing more seasons and
-adjusting alpha, beta and gamma values would reduce the overestimation and produce more accurate results.
+Bu, örneğin çalıştırılması sonucunda çizilen grafikle sonuçtur, kırmızı değerler tahmin edilen değerleri ve mavi değerler gerçek değerleri göstermektedir.
+Buradan, tahminin fazla tahmin yaptığı ancak hala önceden ölçeklendirme yaptığı görülebilir - daha fazla mevsim saklamak ve alpha, beta ve gamma değerlerini ayarlamak fazla tahmini azaltacak ve daha doğru sonuçlar üretecektir.
 
-## Requirements
+## Gereksinimler
 
-To set up this example and follow the steps listed here you need:
+Bu örneği kurmak ve burada listelenen adımları takip etmek için ihtiyacınız olanlar:
 
 - [kubectl](https://kubernetes.io/docs/tasks/tools/).
-- A Kubernetes cluster that kubectl is configured to use - [k3d](https://github.com/rancher/k3d) is good for local
-testing.
-- [helm](https://helm.sh/docs/intro/install/) to install the PHPA operator.
-- [jq](https://stedolan.github.io/jq/) to format some JSON output.
+- kubectl'in yapılandırıldığı bir Kubernetes kümesi - yerel testler için [k3d veya Docker-Desktop] iyi bir seçenektir.
+- PHPA operatörünü yüklemek için [helm](https://helm.sh/docs/intro/install/).
+- Bazı JSON çıktılarını formatlamak için [jq](https://stedolan.github.io/jq/).
 
-## Usage
+## Kullanım
 
-If you want to deploy this onto your cluster, you first need to install the Predictive Horizontal Pod Autoscaler
-Operator, follow the [installation guide for instructions for installing the
-operator](https://predictive-horizontal-pod-autoscaler.readthedocs.io/en/latest/user-guide/installation).
+Bu örneği kümenize dağıtmak istiyorsanız, önce Predictive Horizontal Pod Autoscaler Operatörünü yüklemelisiniz, operatörü yüklemek için [kurulum kılavuzunu](https://predictive-horizontal-pod-autoscaler.readthedocs.io/en/latest/user-guide/installation) takip edin.
 
-This example was based on the [Horizontal Pod Autoscaler
-Walkthrough](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/).
+Bu örnek, [Horizontal Pod Autoscaler Yürüyüşü](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/) üzerine kurulmuştur.
 
-1. Run this command to spin up the app/deployment to manage, called `php-apache`:
+1. `php-apache` adlı uygulamayı/dağıtımı yönetmek için bu komutu çalıştırın:
 
 ```bash
 kubectl apply -f deployment.yaml
 ```
 
-2. Run this command to build the tuning image and import it into your Kubernetes cluster:
+2. Ayarlama görüntüsünü oluşturmak ve Kubernetes kümenize aktarmak için bu komutu çalıştırın:
 
 ```bash
 docker build -t tuning tuning && k3d image import tuning
 ```
 
-3. Run this command to deploy the tuning service:
+3. Ayarlama servisini dağıtmak için bu komutu çalıştırın:
 
 ```bash
 kubectl apply -f tuning/tuning.yaml
 ```
 
-3. Run this command to start the autoscaler, pointing at the previously created deployment:
+4. Daha önce oluşturulan dağıtımı gösteren otoscaler'ı başlatmak için bu komutu çalıştırın:
 
 ```bash
 kubectl apply -f phpa.yaml
 ```
 
-4. Run this command to build the load tester image and import it into your Kubernetes cluster:
+5. Yük test cihazı görüntüsünü oluşturmak ve Kubernetes kümenize aktarmak için bu komutu çalıştırın:
 
 ```bash
 docker build -t load-tester load && k3d image import load-tester
 ```
 
-5. Run this command to deploy the load tester, note the time as it will run for 30 seconds every minute:
+6. Yük test cihazını dağıtmak için bu komutu çalıştırın, zamanı not alın çünkü her dakika 30 saniye çalışacaktır:
 
 ```bash
 kubectl apply -f load/load.yaml
 ```
 
-6. Run this command to see the autoscaler working and the log output it produces:
+7. Otoscaler'in çalıştığını ve ürettiği günlük çıktısını görmek için bu komutu çalıştırın:
 
 ```bash
 kubectl logs -l name=predictive-horizontal-pod-autoscaler -f
 ```
 
-7. Run this command to see the logs of the tuning service, it will report any time it is queried and it will print the
-value provided to it:
+8. Ayarlama servisinin günlüklerini görmek için bu komutu çalıştırın, sorgulandığı zaman rapor verecek ve kendisine sağlanan değeri yazdıracaktır:
 
 ```bash
 kubectl logs -l run=tuning -f
 ```
 
-8. Run this command to see the replica history for the autoscaler stored in a configmap and tracked by the autoscaler:
+9. Otoscaler tarafından saklanan ve takip edilen replica geçmişini görmek için bu komutu çalıştırın:
 
 ```bash
 kubectl get configmap predictive-horizontal-pod-autoscaler-dynamic-holt-winters-data -o=json | jq -r '.data.data | fromjson | .modelHistories["HoltWintersPrediction"].replicaHistory[] | .time,.replicas'
 ```
 
-Every minute the load tester will increase the load on the application we are autoscaling for 30 seconds. The PHPA will
-initially without any data just act like a Horizontal Pod Autoscaler and will reactively scale up to meet this demand
-as best as it can after the demand has already started. After the load tester has run a couple of times the PHPA will
-have built up enough data that it can start to make predictions ahead of time using the Holt Winters model, and it
-will start calculating these predictions and proactively scaling up ahead of time to meet demand that it expects based
-on the data collected in the past.
+Her dakika yük test cihazı, otoscale edilen uygulama üzerinde 30 saniye boyunca yükü artıracaktır. PHPA başlangıçta herhangi bir veri olmadan sadece bir Horizontal Pod Autoscaler gibi davranacak ve talep başladıktan sonra bu talebi karşılamak için en iyi şekilde tepkisel olarak ölçeklendirecektir. Yük test cihazı birkaç kez çalıştıktan sonra, PHPA yeterli veri toplamış olacak ve Holt Winters modelini kullanarak zamanından önce tahminler yapmaya başlayacak ve geçmişte toplanan verilere dayanarak beklenen talebi karşılamak için zamanından önce proaktif olarak ölçeklendirmeye başlayacaktır.
 
-## Explanation
+## Açıklama
 
-This example is split into four parts:
+Bu örnek dört bölüme ayrılmıştır:
 
-- The deployment to autoscale
+- Ölçeklendirilecek dağıtım
 - Predictive Horizontal Pod Autoscaler (PHPA)
-- Tuning Service
-- Load Tester
+- Ayarlama Servisi
+- Yük Test Cihazı
 
-### Deployment
+### Dağıtım
 
-The deployment to autoscale is a simple service that responds to HTTP requests, it uses the `k8s.gcr.io/hpa-example`
-image to return `OK!` to any HTTP GET requests. This deployment will have the number of pods assigned to it scaled up
-and down.
+Ölçeklendirilecek dağıtım, HTTP isteklerine yanıt veren basit bir servistir, `k8s.gcr.io/hpa-example` görüntüsünü kullanarak herhangi bir HTTP GET isteğine `OK!` döner. Bu dağıtım, atanmış pod sayısını artırıp azaltacak şekilde ölçeklendirilecektir.
 
 ### Predictive Horizontal Pod Autoscaler
 
-The PHPA contains some configuration for how the scaling should be applied, the configuration defines how the
-autoscaler will act:
+PHPA, ölçeklendirmenin nasıl uygulanacağına dair bazı yapılandırmalar içerir, bu yapılandırmalar otoscaler'in nasıl davranacağını tanımlar:
 
 ```yaml
 apiVersion: jamiethompson.me/v1alpha1
@@ -141,6 +115,8 @@ spec:
   behavior:
     scaleDown:
       stabilizationWindowSeconds: 30
+
+
   metrics:
   - type: Resource
     resource:
@@ -166,43 +142,32 @@ spec:
       seasonalPeriods: 6
       storedSeasons: 4
       trend: "additive"
-      seasonal: additive
+      seasonal: "additive"
 ```
 
-- `scaleTargetRef` is the resource the autoscaler is targeting for scaling.
-- `minReplicas` and `maxReplicas` are the minimum and maximum number of replicas the autoscaler can scale the resource
-between.
-- `syncPeriod` is how frequently this autoscaler will run in milliseconds, so this autoscaler will run every 20000
-milliseconds (20 seconds).
-- `behavior.scaleDown.stabilizationWindowSeconds` handles how quickly an autoscaler can scale down, ensuring that it
-will pick the highest evaluation that has occurred within the last time period described, by default it will pick the
-highest evaluation over the past 5 minutes. In this case it will pick the highest evaluation over the past 30 seconds.
-- `metrics` defines the metrics that the PHPA should use to scale with, in this example it will try to keep average
-CPU utilization at 50% per pod.
-- `models` - predictive models to apply.
-  - `type` - 'HoltWinters', using a Holt-Winters predictive model.
-  - `name` - Unique name of the model.
-  - `startInterval` - The model will only apply at the top of the next full minute
-  - `resetDuration` - The model's replica history will be cleared out if it's been longer than 5 minutes without any
-  data recorded (e.g. if the cluster is turned off).
-  - `holtWinters` - Holt-Winters specific configuration.
-    * `runtimeTuningFetchHook` - This is a [hook](https://predictive-horizontal-pod-autoscaler.readthedocs.io/en/latest/user-guide/hooks)
-    that is used to dynamically fetch the `alpha`, `beta` and `gamma` values at runtime, in this example it is using a
-    `HTTP` request to `http://tuning/holt_winters`.
-    * `seasonalPeriods` - the length of a season in base unit sync periods, for this example sync period is `20000`
-    (20 seconds), and season length is `6`, resulting in a season length of 20 * 6 = 120 seconds = 2 minutes.
-    * `storedSeasons` - the number of seasons to store, for this example `4`, if there are more than 4 seasons
-    stored, the oldest ones are removed.
-    * `trend` - Either `add`/`additive` or `mul`/`multiplicative`, defines the method for the trend element.
-    * `seasonal` - Either `add`/`additive` or `mul`/`multiplicative`, defines the method for the seasonal element.
+- `scaleTargetRef` otoscaler'in ölçeklendirmek için hedef aldığı kaynağı belirtir.
+- `minReplicas` ve `maxReplicas` otoscaler'in kaynağı ölçeklendirebileceği minimum ve maksimum replica sayılarını belirtir.
+- `syncPeriod` otoscaler'in ne sıklıkla çalışacağını milisaniye cinsinden belirtir, bu otoscaler her 20000 milisaniyede (20 saniye) bir çalışacaktır.
+- `behavior.scaleDown.stabilizationWindowSeconds` bir otoscaler'in ne kadar hızlı ölçek küçültebileceğini yönetir, varsayılan olarak geçmişte tanımlanan son zaman dilimi içinde meydana gelen en yüksek değerlendirmeyi seçer. Bu durumda geçmiş 30 saniye içinde meydana gelen en yüksek değerlendirmeyi seçecektir.
+- `metrics` PHPA'nın ölçeklendirme yaparken kullanması gereken metrikleri tanımlar, bu örnekte her podun ortalama CPU kullanımını %50 seviyesinde tutmaya çalışır.
+- `models` - uygulanacak tahmin modellerini içerir.
+  - `type` - 'HoltWinters', Holt-Winters tahmin modelini kullanır.
+  - `name` - Modelin adı.
+  - `startInterval` - Model sadece bir sonraki tam dakikanın başında uygulanacaktır.
+  - `resetDuration` - Modelin replica geçmişi, herhangi bir veri kaydedilmediği süre 5 dakikadan fazla olduğunda (örneğin, küme kapatıldığında) temizlenecektir.
+  - `holtWinters` - Holt-Winters'a özgü yapılandırma.
+    * `runtimeTuningFetchHook` - Bu, çalışma zamanında `alpha`, `beta` ve `gamma` değerlerini dinamik olarak çekmek için kullanılan bir [kancadır](https://predictive-horizontal-pod-autoscaler.readthedocs.io/en/latest/user-guide/hooks). Bu örnekte, `http://tuning/holt_winters` adresine `HTTP` isteği kullanılmaktadır.
+    * `seasonalPeriods` - bir mevsimin temel birim senkronizasyon periyotları cinsinden uzunluğu, bu örnekte senkronizasyon periyodu `20000` (20 saniye) ve mevsim uzunluğu `6`'dır, bu da 20 * 6 = 120 saniye = 2 dakika mevsim uzunluğu sonucunu verir.
+    * `storedSeasons` - saklanacak mevsim sayısı, bu örnekte `4`, eğer 4'ten fazla mevsim saklanırsa en eskileri kaldırılır.
+    * `trend` - 'add'/`additive` veya `mul`/`multiplicative`, trend elemanı için yöntemi tanımlar.
+    * `seasonal` - 'add'/`additive` veya `mul`/`multiplicative`, mevsimsel eleman için yöntemi tanımlar.
 
-### Tuning Service
+### Ayarlama Servisi
 
-The tuning service is a simple Flask service that returns the `alpha`, `beta` and `gamma` values in JSON form (in the
-format required by the Holt Winters runtime tuning). It also prints out the values provided to it by the Holt Winters
-request, these could be used to help calculate the tuning values.
+Ayarlama servisi, Holt Winters çalışma zamanı ayarlaması için gerekli formatta (JSON formunda) `alpha`, `beta` ve `gamma` değerlerini döndüren basit bir Flask servisidir. Ayrıca, Holt Winters iste
 
-### Load Tester
+ği tarafından kendisine sağlanan değerleri de yazdırır; bu değerler ayarlama değerlerinin hesaplanmasına yardımcı olabilir.
 
-This is a simple pod that runs a bash script to send HTTP requests as fast as possible to the `php-apache` deplyoment
-being autoscaled to simulate increased load.
+### Yük Test Uygulaması [TO-DO NEW METHODS]
+
+Bu, `php-apache` dağıtımına olabildiğince hızlı HTTP istekleri göndermek için bir bash script çalıştıran basit bir poddur. Artan yükü simüle etmek için kullanılır.

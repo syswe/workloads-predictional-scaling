@@ -1,64 +1,50 @@
-[![Build](https://github.com/jthomperoo/predictive-horizontal-pod-autoscaler/workflows/main/badge.svg)](https://github.com/jthomperoo/predictive-horizontal-pod-autoscaler/actions)
-[![go.dev](https://img.shields.io/badge/go.dev-reference-007d9c?logo=go&logoColor=white&style=flat)](https://pkg.go.dev/github.com/jthomperoo/predictive-horizontal-pod-autoscaler)
-[![Go Report Card](https://goreportcard.com/badge/github.com/jthomperoo/predictive-horizontal-pod-autoscaler)](https://goreportcard.com/report/github.com/jthomperoo/predictive-horizontal-pod-autoscaler)
-[![Documentation Status](https://readthedocs.org/projects/predictive-horizontal-pod-autoscaler/badge/?version=latest)](https://predictive-horizontal-pod-autoscaler.readthedocs.io/en/latest)
 [![License](https://img.shields.io/:license-apache-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
 
-# Predictive Horizontal Pod Autoscaler
+# Tahmin Edici Yatay Pod Ölçeklendirici (PHPA) ve Standart HPA Karşılaştırması
 
-Predictive Horizontal Pod Autoscalers (PHPAs) are Horizontal Pod Autoscalers (HPAs) with extra predictive capabilities,
-allowing you to autoscale using statistical models for ahead of time predictions.
+Tahmin Edici Yatay Pod Ölçeklendiriciler (PHPA), standart Yatay Pod Ölçeklendiriciler (HPA) ile aynı işlevselliğe sahiptir ancak ekstra tahmin kabiliyetlerine sahip olarak, istatistiksel modeller kullanarak zamandan önce tahminlerle ölçeklendirme yapmanızı sağlar.
 
-## Why would I use it?
+## Neden Kullanmalıyım?
 
-PHPAs can better scaling results by making proactive decisions to scale up ahead of demand, meaning that a
-resource does not have to wait for performance to degrade before autoscaling kicks in.
+PHPA'lar, talebin artmasından önce proaktif kararlar alarak daha iyi ölçeklendirme sonuçları sunar, bu sayede bir kaynağın performansı bozulmadan önce otomatik ölçeklendirme devreye girer.
 
-## What systems would need it?
+## Hangi Sistemler İçin Gerekli?
 
-Any systems that have regular/predictable demand peaks/troughs.
+Düzenli/tahmin edilebilir talep zirveleri/çukurları olan herhangi bir sistem.
 
-Some use cases:
+Bazı kullanım örnekleri:
 
-* A service that sees demand peak between 3pm and 5pm every week day, this is a regular and predictable load which
-could be pre-empted.
-* A service which sees a surge in demand at 12pm every day for 10 minutes, this is such a short time interval that
-by the time a regular HPA made the decision to scale up there could already be major performance/availablity issues.
+* Hafta içi her gün 15:00 ile 17:00 arasında talep zirvesi yaşayan bir servis, bu düzenli ve tahmin edilebilir yük önceden karşılanabilir.
+* Her gün öğlen 12:00'de 10 dakika süren talep artışı yaşayan bir servis, bu çok kısa zaman aralığı olduğu için, standart bir HPA karar verene kadar ciddi performans/erişilebilirlik sorunları yaşanabilir.
 
-PHPAs are not a silver bullet, and require tuning using real data for there to be any benefits of using it. A poorly
-tuned PHPA could easily end up being worse than a normal HPA.
+PHPA'lar her durum için mükemmel bir çözüm değildir ve gerçek verilerle ayar yapılarak kullanılması gerekir. Yanlış ayarlanmış bir PHPA, normal bir HPA'dan daha kötü sonuçlar verebilir.
 
-## How does it work?
+## Nasıl Çalışır?
 
-This project works by doing the same calculations as the Horizontal Pod Autoscaler does to determine how many replicas
-a resource should have, then applies statistical models against the calculated replica count and the replica history.
+Bu proje, bir kaynağın kaç replika sahip olması gerektiğini belirlemek için Yatay Pod Ölçeklendirici'nin yaptığı hesaplamaları yapar, ardından hesaplanan replika sayısına ve replika geçmişine istatistiksel modeller uygular.
 
-## Supported Kubernetes versions
+## Desteklenen Kubernetes Sürümleri
 
-The minimum Kubernetes version the autoscaler can run on is `v1.23` because it relies on the `autoscaling/v2` API which
-was only available in `v1.23` and above.
+Autoscaler'ın çalışabilmesi için minimum Kubernetes sürümü `v1.23`tür çünkü sadece `v1.23` ve üzeri sürümlerde `autoscaling/v2` API mevcuttur.
 
-The autoscaler is only tested against the latest Kubernetes version - if there are bugs that affect older Kubernetes
-versions we will try to fix them, but there is no guarantee of support.
+Autoscaler, sadece en yeni Kubernetes sürümüne karşı test edilmiştir - eğer eski Kubernetes sürümlerini etkileyen hatalar varsa bunları düzeltmeye çalışırız ancak destek garantisi yoktur.
 
-## Features
+## Özellikler
 
-* Functionally identical to Horizontal Pod Autoscaler for calculating replica counts without prediction.
-* Choice of statistical models to apply over Horizontal Pod Autoscaler replica counting logic.
-  * Holt-Winters Smoothing
-  * Linear Regression
-* Allows customisation of Kubernetes autoscaling options without master node access. Can therefore work on managed
-solutions such as EKS or GCP.
-  * CPU Initialization Period.
-  * Downscale Stabilization.
-  * Sync Period.
+* Tahmin olmadan replica sayısını hesaplamada Yatay Pod Ölçeklendirici ile fonksiyonel olarak aynı.
+* Yatay Pod Ölçeklendirici replika sayım mantığına uygulanacak istatistiksel model seçimi.
+  * Holt-Winters Yumuşatma
+  * Lineer Regresyon
+* Kubernetes ölçeklendirme seçeneklerini özelleştirmenize olanak tanır ve böylece EKS veya GCP gibi yönetilen çözümlerde çalışabilir.
+  * CPU Başlangıç Süresi.
+  * Ölçek Küçültme Stabilizasyonu.
+  * Senkronizasyon Periyodu.
 
-## What does a Predictive Horizontal Pod Autoscaler look like?
+## Bir Tahmin Edici Yatay Pod Ölçeklendirici Nasıl Görünür?
 
-PHPAs are designed to be as similar in configuration to Horizontal Pod Autoscalers as possible, with extra
-configuration options.
+PHPA'lar, ek konfigürasyon seçenekleri ile mümkün olduğunca Yatay Pod Ölçeklendiricilere benzer şekilde yapılandırılmıştır.
 
-PHPAs have their own custom resource:
+PHPA'lar kendi özel kaynaklarına sahiptir:
 
 ```yaml
 apiVersion: jamiethompson.me/v1alpha1
@@ -90,12 +76,11 @@ spec:
         historySize: 6
 ```
 
-This PHPA acts like a Horizontal Pod Autoscaler and autoscales to try and keep the target resource's CPU utilization at
-50%, but with the extra predictive layer of a linear regression model applied to the results.
+Bu PHPA, hedef kaynağın CPU kullanımını %50'de tutmaya çalışırken ekstra tahmin katmanı olarak lineer regresyon modeli uygulanmış bir Yatay Pod Ölçeklendirici gibi davranır.
 
-## Installation
+## Kurulum
 
-The operator for managing Predictive Horizontal Pod Autoscalers can be installed using Helm:
+Tahmin Edici Yatay Pod Ölçeklendiricileri yönetmek için operatör, Helm kullanılarak kurulabilir:
 
 ```bash
 VERSION=v0.13.2
@@ -103,47 +88,12 @@ HELM_CHART=predictive-horizontal-pod-autoscaler-operator
 helm install ${HELM_CHART} https://github.com/jthomperoo/predictive-horizontal-pod-autoscaler/releases/download/${VERSION}/predictive-horizontal-pod-autoscaler-${VERSION}.tgz
 ```
 
-## Quick start
+## Hızlı Başlangıç
 
-Check out the [getting started
-guide](https://predictive-horizontal-pod-autoscaler.readthedocs.io/en/latest/user-guide/getting-started/) and the
-[examples](./examples/) for ways to use Predictive Horizontal Pod Autoscalers.
+[Tanıtım kılavuzuna](https://predictive-horizontal-pod-autoscaler.readthedocs.io/en/latest/user-guide/getting-started/) ve [örnekler](./examples/) bölümüne göz atarak Tahmin Edici Yatay Pod Ölçeklendiricileri kullanmanın yollarını keşfedin.
 
-## More information
+## Daha Fazla Bilgi
 
-See the [wiki for more information, such as guides and
-references](https://predictive-horizontal-pod-autoscaler.readthedocs.io/en/latest/).
+Daha fazla bilgi, rehber ve referanslar için [wiki'yi ziyaret edin](https://predictive-horizontal-pod-autoscaler.readthedocs.io/en/latest/).
 
-See the [`examples/` directory](./examples) for working code samples.
-
-## Developing this project
-
-Developing this project requires these dependencies:
-
-* [Go](https://golang.org/doc/install) >= `1.20`
-* [Python](https://www.python.org/downloads/) == `3.8.x`
-* [Helm](https://helm.sh/) == `3.9.x`
-
-Any Python dependencies must be installed by running:
-
-```bash
-pip install -r requirements-dev.txt
-```
-
-This extensively uses the the [jthomperoo/k8shorizmetrics](https://github.com/jthomperoo/k8shorizmetrics) library
-to gather metrics and to evaluate them as the Kubernetes Horizontal Pod Autoscaler does.
-
-It is recommended to test locally using a local Kubernetes managment system, such as
-[k3d](https://github.com/rancher/k3d) (allows running a small Kubernetes cluster locally using Docker).
-
-You can deploy a PHPA example (see the [`examples/` directory](./examples) for choices) to test your changes.
-
-### Commands
-
-* `make run` - runs the PHPA locally against the cluster configured in your kubeconfig file.
-* `make docker` - builds the PHPA image.
-* `make lint` - lints the code.
-* `make format` - beautifies the code, must be run to pass the CI.
-* `make test` - runs the unit tests.
-* `make doc` - hosts the documentation locally at <https://localhost:8000>.
-* `make coverage` - opens up any generated coverage reports in the browser.
+Çalışan kod örnekleri için [`examples/` dizinine](./examples) bakın.

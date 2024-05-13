@@ -1,76 +1,60 @@
-# Simple Linear Example
+# Basit Lineer PHPA
 
-This example is showing a Predictive Horizontal Pod Autoscaler (PHPA) using a linear regression model.
+Bu örnek, lineer regresyon modeli kullanarak Predictive Horizontal Pod Autoscaler (PHPA) kurulumunu göstermektedir.
 
-## Requirements
+## Gereksinimler
 
-To set up this example and follow the steps listed here you need:
+Bu örneği kurmak ve burada listelenen adımları takip etmek için ihtiyacınız olanlar:
 
 - [kubectl](https://kubernetes.io/docs/tasks/tools/).
-- A Kubernetes cluster that kubectl is configured to use - [k3d](https://github.com/rancher/k3d) is good for local
-testing.
-- [helm](https://helm.sh/docs/intro/install/) to install the PHPA operator.
-- [jq](https://stedolan.github.io/jq/) to format some JSON output.
+- kubectl'in yapılandırıldığı bir Kubernetes kümesi - yerel testler için k3d veya Docker-Desktop iyi bir seçenektir.
+- PHPA operatörünü yüklemek için [helm](https://helm.sh/docs/intro/install/).
+- Bazı JSON çıktılarını formatlamak için [jq](https://stedolan.github.io/jq/).
 
-## Usage
+## Kullanım
 
-If you want to deploy this onto your cluster, you first need to install the Predictive Horizontal Pod Autoscaler
-Operator, follow the [installation guide for instructions for installing the
-operator](https://predictive-horizontal-pod-autoscaler.readthedocs.io/en/latest/user-guide/installation).
+Bu örneği kümenize dağıtmak istiyorsanız, önce Predictive Horizontal Pod Autoscaler Operatörünü yüklemelisiniz, operatörü yüklemek için kurulum dokümanını takip edin.
 
-This example was based on the [Horizontal Pod Autoscaler Walkthrough](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/).
+Bu örnek, Predictional Horizontal Pod Autoscaler üzerine kurgulanmıştır.
 
-1. Run this command to spin up the app/deployment to manage, called `php-apache`:
+1. `php-apache` adlı uygulamayı/dağıtımı yönetmek için bu komutu çalıştırın:
 
 ```bash
 kubectl apply -f deployment.yaml
 ```
 
-2. Run this command to start the autoscaler, pointing at the previously created deployment:
+2. Daha önce oluşturulan dağıtımı gösteren autoscaler'ı başlatmak için bu komutu çalıştırın:
 
 ```bash
 kubectl apply -f phpa.yaml
 ```
 
-3. Run this command to see the autoscaler working and the log output it produces:
+3. Otoscaler'in çalıştığını ve ürettiği günlük çıktısını görmek için bu komutu çalıştırın:
 
 ```bash
 kubectl logs -l name=predictive-horizontal-pod-autoscaler -f
 ```
 
-4. Run this command to increase the load:
+4. Yükü artırmak için bu komutu çalıştırın:
 
 ```bash
 kubectl run -i --tty load-generator --rm --image=busybox --restart=Never -- /bin/sh -c "while sleep 0.01; do wget -q -O- http://php-apache; done"
 ```
 
-5. Watch as the number of replicas increases.
-6. Run this command to see the replica history for the autoscaler stored in a configmap and tracked by the autoscaler:
+5. Replica sayısının arttığını izleyin.
+6. Otoscaler tarafından saklanan ve takip edilen replica geçmişini görmek için bu komutu çalıştırın:
 
 ```bash
 kubectl get configmap predictive-horizontal-pod-autoscaler-simple-linear-data -o=json | jq -r '.data.data | fromjson | .modelHistories["simple-linear"].replicaHistory[] | .time,.replicas'
 ```
 
-As the load is increased the replica count will increase as the PHPA detects average CPU utilization of the pods has
-gone above 50%, so will provision more pods to try and bring this value down. As the replica count changes the PHPA
-will store the history of replica changes that have been made, and will feed this data into the linear regression model
-every time the autoscaler runs too. This results in two values, the raw replica count calculated at the instant the
-autoscaler has run, and a predicted value that the model has calculated based on the replica count history. The resource
-will then be scaled to the greater of these two values (though there are other options than picking the maximum, see
-the [decisionType configuration option for more
-details](https://predictive-horizontal-pod-autoscaler.readthedocs.io/en/latest/reference/configuration/#decisiontype)).
+Yük arttıkça, PHPA podların ortalama CPU kullanımının %50'nin üzerine çıktığını tespit edecek ve bu değeri düşürmeye çalışmak için daha fazla pod sağlayacaktır. Replica sayısı değiştikçe, PHPA yapılan replica değişikliklerinin geçmişini saklayacak ve otoscaler her çalıştığında bu verileri lineer regresyon modeline besleyecektir. Bu, otoscaler'in çalıştığı anda hesaplanan ham replica sayısı ve modelin replica sayısı geçmişine dayanarak hesapladığı tahmini değer olmak üzere iki değer sonucu verir. Kaynak daha sonra bu iki değerden daha büyük olanına göre ölçeklendirilecektir (maksimum değeri seçmenin dışında başka seçenekler de vardır, daha fazla bilgi için [decisionType yapılandırma seçeneğine](https://predictive-horizontal-pod-autoscaler.readthedocs.io/en/latest/reference/configuration/#decisiontype) bakınız).
 
-An example of how this predictive scaling looks is this graph:
+Bu tahmini ölçeklendirmenin nasıl göründüğünü gösteren bir grafik örneğinde ham hesaplanan replica sayılarının ve tahmin edilen replica sayılarının karşılaştırıldığı, ham hesaplanan replica sayısının ani bir şekilde düştüğü ve lineer regresyonun hesaplanan geçmişe dayanarak daha pürüzsüz bir şekilde ölçek azaltma yaklaşımı aldığı replica sayısının azaldığını gösterir.
 
-![Calculated HPA values vs linear regression predicted values](../../docs/img/getting_started_linear_regression.svg)
+## Açıklama
 
-This shows the replica count decreasing, with the raw calculated replica counts and predicted replica counts compared.
-As the raw calculated replica count drops of drastically the linear regression takes a smoother scale down approach
-based on calculated history.
-
-## Explained
-
-This example uses the following YAML to define the autoscaler:
+Bu örnek, otoscaler'i tanımlamak için aşağıdaki YAML'i kullanır:
 
 ```yaml
 apiVersion: jamiethompson.me/v1alpha1
@@ -102,17 +86,9 @@ spec:
         historySize: 6
 ```
 
-- `scaleTargetRef` is the resource the autoscaler is targeting for scaling.
-- `minReplicas` and `maxReplicas` are the minimum and maximum number of replicas the autoscaler can scale the resource
-between.
-- `syncPeriod` is how frequently this autoscaler will run in milliseconds, so this autoscaler will run every 10000
-milliseconds (10 seconds).
-- `behavior.scaleDown.stabilizationWindowSeconds` handles how quickly an autoscaler can scale down, ensuring that it
-will pick the highest evaluation that has occurred within the last time period described, by default it will pick the
-highest evaluation over the past 5 minutes. To stop this from happening we have set the downscale stablilization to
-`0` to disable it.
-- `metrics` defines the metrics that the PHPA should use to scale with, in this example it will try to keep average
-CPU utilization at 50% per pod.
-- `models` contains the statistical models we're applying to the resulting replica count, this this example it's just
-a linear regression model that stores the past 6 replica counts (`historySize: 6`) and uses that to predict what the
-replica count will be 10000 milliseconds (10 seconds) in the future (`lookAhead: 10000`).
+- `scaleTargetRef` otoscaler'in ölçeklendirmek için hedef aldığı kaynağı belirtir.
+- `minReplicas` ve `maxReplicas` otoscaler'in kaynağı ölçeklendirebileceği minimum ve maksimum replica sayılarını belirtir.
+- `syncPeriod` otoscaler'in ne sıklıkla çalışacağını milisaniye cinsinden belirtir, bu otoscaler her 10000 milisaniyede (10 saniye) bir çalışacaktır.
+- `behavior.scaleDown.stabilizationWindowSeconds` bir otoscaler'in ne kadar hızlı ölçek küçültebileceğini yönetir, varsayılan olarak geçmişte tanımlanan son zaman dilimi içinde meydana gelen en yüksek değerlendirmeyi seçer. Bu durumu engellemek için aşağı ölçekleme stabilizasyonunu `0` olarak ayarladık.
+- `metrics` PHPA'nın ölçeklendirme yaparken kullanması gereken metrikleri tanımlar, bu örnekte her podun ortalama CPU kullanımını %50 seviyesinde tutmaya çalışır.
+- `models` elde edilen replica sayısına uygulanan istatistiksel modelleri içerir, bu örnekte sadece geçmişteki 6 replica sayısını saklayan (`historySize: 6`) ve bu verileri kullanarak 10000 milisaniye (10 saniye) sonra replica sayısının ne olacağını tahmin eden bir lineer regresyon modeli bulunmaktadır (`lookAhead: 10000`).
