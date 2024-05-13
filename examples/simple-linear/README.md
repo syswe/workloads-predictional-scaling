@@ -1,4 +1,4 @@
-# Basit Lineer Regresyon Kullanan Predictive Horizontal Pod Autoscaler (PHPA) İçin Yük Testi
+# Basit Lineer Regresyon Kullanan Predictive Horizontal Pod Autoscaler (PHPA) İçin Yük Testi ve Karşılaştırma
 
 ## Giriş
 

@@ -1,6 +1,6 @@
 ### Predictive Horizontal Pod Autoscaler (PHPA) Kullanarak Dinamik Holt-Winters
 
-## Dinamik Holt-Winters PHPA İçin Detaylı Yük Testi
+## Dinamik Holt-Winters PHPA İçin Yük Testi ve Karşılaştırma
 
 ### Giriş
 
