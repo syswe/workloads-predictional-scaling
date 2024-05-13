@@ -1,6 +1,6 @@
-# Configuration
+# Konfigürasyon
 
-Predictive Horizontal Pod Autoscalers have a number of configuration options available.
+Predictive Horizontal Pod Autoscaler'lar için bir dizi konfigürasyon seçeneği mevcuttur.
 
 ## minReplicas
 
@@ -8,11 +8,9 @@ Predictive Horizontal Pod Autoscalers have a number of configuration options ava
 minReplicas: 2
 ```
 
-The lower limit for the number of replicas to which the autoscaler can scale down to. `minReplicas` is allowed to be 0
-if at least one Object or External metric is configured. Scaling is active as long as at least one metric value is
-available.
+Otomatik ölçekleyicinin ölçeklendirebileceği minimum replika sayısı sınırı. En az bir Nesne veya Harici metrik yapılandırılmışsa `minReplicas` 0 olabilir. En az bir metrik değeri mevcut olduğu sürece ölçeklendirme aktiftir.
 
-Default value: `1`.
+Varsayılan değer: `1`.
 
 ## maxReplicas
 
@@ -20,10 +18,10 @@ Default value: `1`.
 maxReplicas: 15
 ```
 
-The upper limit for the number of replicas to which the autoscaler can scale up.
-It cannot be less than minReplicas.
+Otomatik ölçekleyicinin ölçeklendirebileceği maksimum replika sayısı sınırı.
+MinReplicas değerinden küçük olamaz.
 
-Default value: `10`.
+Varsayılan değer: `10`.
 
 ## syncPeriod
 
@@ -31,14 +29,13 @@ Default value: `10`.
 syncPeriod: 10000
 ```
 
-Equivalent to `--horizontal-pod-autoscaler-sync-period`; the frequency with which the PHPA calculates replica counts and
-scales in milliseconds.
+`--horizontal-pod-autoscaler-sync-period` ile eşdeğerdir; PHPA'nın replika sayılarını hesaplama ve ölçeklendirme sıklığı milisaniye cinsindendir.
 
-Set in milliseconds.
+Milisaniye cinsinden ayarlanır.
 
-Default value: `15000` (15 seconds).
+Varsayılan değer: `15000` (15 saniye).
 
-Set in milliseconds.
+Milisaniye cinsinden ayarlanır.
 
 ## cpuInitializationPeriod
 
@@ -46,12 +43,11 @@ Set in milliseconds.
 cpuInitializationPeriod: 150
 ```
 
-Equivalent to `--horizontal-pod-autoscaler-cpu-initialization-period`; the period after pod start when CPU samples
-might be skipped.
+`--horizontal-pod-autoscaler-cpu-initialization-period` ile eşdeğerdir; pod başlatıldıktan sonraki CPU örneklerinin atlanabileceği dönem.
 
-Set in seconds.
+Saniye cinsinden ayarlanır.
 
-Default value: `300` (5 minutes).
+Varsayılan değer: `300` (5 dakika).
 
 ## initialReadinessDelay
 
@@ -59,12 +55,11 @@ Default value: `300` (5 minutes).
 initialReadinessDelay: 45
 ```
 
-Equivalent to `--horizontal-pod-autoscaler-initial-readiness-delay`; the period after pod start during which readiness
-changes will be treated as initial readiness.
+`--horizontal-pod-autoscaler-initial-readiness-delay` ile eşdeğerdir; pod başlatıldıktan sonraki hazır olma durumunun başlangıç hazır olma durumu olarak kabul edileceği dönem.
 
-Set in seconds.
+Saniye cinsinden ayarlanır.
 
-Default value: `30` (30 seconds).
+Varsayılan değer: `30` (30 saniye).
 
 ## tolerance
 
@@ -72,10 +67,9 @@ Default value: `30` (30 seconds).
 tolerance: 0.25
 ```
 
-Equivalent to `--horizontal-pod-autoscaler-tolerance`; the minimum change (from 1.0) in the desired-to-actual metrics
-ratio for the horizontal pod autoscaler to consider scaling.
+`--horizontal-pod-autoscaler-tolerance` ile eşdeğerdir; yatay pod otomatik ölçekleyicisinin ölçeklendirmeyi dikkate alması için istenen-gerçek metrik oranındaki minimum değişiklik (1.0'dan).
 
-Default value: `0.1`.
+Varsayılan değer: `0.1`.
 
 ## decisionType
 
@@ -83,32 +77,31 @@ Default value: `0.1`.
 decisionType: mean
 ```
 
-Decider on which evaluation to pick if there are multiple models provided.
+Birden fazla model sağlanmışsa hangi değerlendirmeyi seçeceğini belirler.
 
-Possible values:
+Olası değerler:
 
-- **maximum** - pick the highest evaluation of the models.
-- **minimum** - pick the lowest evaluation of the models.
-- **mean** - calculate the mean number of replicas (rounded to nearest integer) between the models.
-- **median** - calculate the median number of replicas between the models.
+- **maximum** - modellerin en yüksek değerlendirmesini seçer.
+- **minimum** - modellerin en düşük değerlendirmesini seçer.
+- **mean** - modeller arasındaki ortalama replika sayısını (en yakın tam sayıya yuvarlanmış) hesaplar.
+- **median** - modeller arasındaki medyan replika sayısını hesaplar.
 
-Default value: `maximum`.
+Varsayılan değer: `maximum`.
 
 ## behavior
 
-Scaling behavior to apply.
+Uygulanacak ölçeklendirme davranışı.
 
-Intended to be feature equivalent to Kubernetes HPA behavior.
+Kubernetes HPA davranışı ile eşdeğer olacak şekilde tasarlanmıştır.
 
-See the [Horizontal Pod Autoscaler docs
-here](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#configurable-scaling-behavior).
+[Horizontal Pod Autoscaler dokümanlarına](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#configurable-scaling-behavior) bakın.
 
 ## models
 
-List of statistical models to apply.
-See [the models section for details](../../user-guide/models).
+Uygulanacak istatistiksel modellerin listesi.
+Detaylar için [modeller bölümüne](../../user-guide/models) bakın.
 
 ## metrics
 
-List of metrics to target for evaluating replica counts.
-See [the metrics section for details](../../user-guide/metrics).
+Replika sayılarını değerlendirmek için hedeflenecek metriklerin listesi.
+Detaylar için [metrikler bölümüne](../../user-guide/metrics) bakın.

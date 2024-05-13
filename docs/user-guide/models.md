@@ -1,33 +1,23 @@
-# Models
+# Modeller
 
-## Shared Configuration
+## Ortak Konfigürasyon
 
-All models share these properties:
+Tüm modeller şu özellikleri paylaşır:
 
-- **type** - The type of the model, for example 'Linear'.
-- **name** - The name of the model, must be unique and not shared by multiple models.
-- **perSyncPeriod** - The frequency that the model is used to recalculate and store values - tied to the sync period as
-a base unit, with a value of `1` resulting in the model being recalculated every sync period, a value of `2` meaning
-recalculated every other sync period, `3` waits for two sync periods after every calculation and so on.
-- **calculationTimeout** - The timeout for calculating using an algorithm, if this timeout is exceeded the calculation
-is skipped. Defaults set based on the algorithm used, see below.
-- **startInterval** - The [duration](https://pkg.go.dev/time#ParseDuration) that the model should start to apply from.
-For example a value of `1m` would mean the model would only start to apply at the top of the next minute. This is
-useful if you have seasonal data that you need the model synced to, such as Holt-Winters, which allows you to do things
-like making sure the model defines the start of a Holt-Winters season as starting at midnight (with the season being)
-and lasting the whole day.
-- **resetDuration** - The [duration](https://pkg.go.dev/time#ParseDuration) that the model can go for without recording
-any data before the data is too old and is cleared out. A new start time will be calculated from the `startInterval`
-if it's provided at this point too.
+- **type** - Modelin türü, örneğin 'Linear'.
+- **name** - Modelin adı, benzersiz olmalı ve birden fazla model tarafından paylaşılmamalıdır.
+- **perSyncPeriod** - Modelin değerleri yeniden hesaplama ve depolama sıklığı - temel birim olarak senkronizasyon periyoduna bağlıdır, `1` değeri her senkronizasyon periyodunda modelin yeniden hesaplanmasına, `2` değeri her iki senkronizasyon periyodunda bir yeniden hesaplanmasına, `3` her hesaplamadan sonra iki senkronizasyon periyodu beklemesine ve bu şekilde devam eder.
+- **calculationTimeout** - Bir algoritma kullanarak hesaplama zaman aşımı, bu zaman aşımı aşılırsa hesaplama atlanır. Algoritmaya bağlı olarak varsayılan olarak ayarlanır, aşağıya bakın.
+- **startInterval** - Modelin uygulanmaya başlaması gereken [süre](https://pkg.go.dev/time#ParseDuration). Örneğin, `1m` değeri, modelin sadece bir sonraki dakikanın başında uygulanmaya başlayacağı anlamına gelir. Bu, mevsimsel verilerin modele senkronize edilmesi gerektiğinde kullanışlıdır, örneğin Holt-Winters gibi, modelin bir Holt-Winters mevsiminin başlangıcını gece yarısı olarak tanımlamasını sağlamak ve tüm gün boyunca sürmesini sağlamak gibi.
+- **resetDuration** - Modelin veri kaydetmeden geçebileceği [süre](https://pkg.go.dev/time#ParseDuration), veri çok eski olduğunda temizlenir. Bu noktada sağlanmışsa `startInterval`dan yeni bir başlangıç zamanı hesaplanacaktır.
 
-All models use `syncPeriod` as a base unit, so if the sync period is defined as `10000` (10 seconds), the models will
-base their timings and calculations as multiples of 10 seconds.
+Tüm modeller `syncPeriod` temel birimini kullanır, bu nedenle senkronizasyon periyodu `10000` (10 saniye) olarak tanımlanmışsa, modeller zamanlama ve hesaplamalarını 10 saniyenin katları olarak baz alır.
 
-## Linear Regression
+## Lineer Regresyon
 
-The linear regression model uses a default calculation timeout of `30000` (30 seconds).
+Lineer regresyon modeli, varsayılan hesaplama zaman aşımı olarak `30000` (30 saniye) kullanır.
 
-Example:
+Örnek:
 ```yaml
 models:
   - type: Linear
@@ -38,27 +28,25 @@ models:
       lookAhead: 10000
       historySize: 6
 ```
-The **linear** component of the configuration handles configuration of the Linear regression options:
+Konfigürasyonun **linear** bileşeni, Lineer regresyon seçeneklerinin konfigürasyonunu yönetir:
 
-- **lookAhead** - sets up the model to try to predict `10 seconds` ahead of time (time in milliseconds).
-- **historySize** - sets up the model to store the past `6` evaluations and to use these for predictions. If there
-are `> 6` evaluations, the oldest will be removed.
+- **lookAhead** - Modeli `10 saniye` önceden tahmin etmeye ayarlamak (milisaniye cinsinden zaman).
+- **historySize** - Modeli geçmiş `6` değerlendirmeyi depolamak ve bu değerlendirmeleri tahminler için kullanmak üzere ayarlar. Eğer `> 6` değerlendirme varsa, en eski olanı kaldırılır.
 
-For a more detailed example, [see the example in
-`/examples/simple-linear`](https://github.com/jthomperoo/predictive-horizontal-pod-autoscaler/tree/master/examples/simple-linear).
+Daha detaylı bir örnek için, [simple-linear örneğine](https://github.com/jthomperoo/predictive-horizontal-pod-autoscaler/tree/master/examples/simple-linear) bakın.
 
-## Holt-Winters Time Series prediction
+## Holt-Winters Zaman Serisi Tahmini
 
-The Holt-Winters time series model uses a default calculation timeout of `30000` (30 seconds).
+Holt-Winters zaman serisi modeli, varsayılan hesaplama zaman aşımı olarak `30000` (30 saniye) kullanır.
 
-Example:
+Örnek:
 ```yaml
 models:
 - type: HoltWinters
   name: simple-holt-winters
   perSyncPeriod: 1
   startInterval: 60s
-  startIntervalResetDuration: 5m
+  resetDuration: 5m
   holtWinters:
     alpha: 0.9
     beta: 0.9
@@ -69,50 +57,37 @@ models:
     seasonal: additive
 ```
 
-The **holtWinters** component of the configuration handles configuration of the Linear regression options:
+Konfigürasyonun **holtWinters** bileşeni, Holt-Winters seçeneklerinin konfigürasyonunu yönetir:
 
-- **alpha**, **beta**, **gamma** - these are the smoothing coefficients for level, trend and seasonality respectively,
-requires tweaking and analysis to be able to optimise. See [here](https://github.com/jthomperoo/holtwinters) or
-[here](https://grisha.org/blog/2016/01/29/triple-exponential-smoothing-forecasting/) for more details.
-- **seasonalPeriods** - the length of a season in base unit sync periods, for example if your sync period was `10000`
-(10 seconds), and your repeated season was 60 seconds long, this value would be `6`.
-- **storedSeasons** - the number of seasons to store, for example `4`, if there are `>4` seasons stored, the oldest
-season will be removed.
-- **trend** - Either `add`/`additive` or `mul`/`multiplicative`, defines the method for the trend element.
-- **seasonal** - Either `add`/`additive` or `mul`/`multiplicative`, defines the method for the seasonal element.
+- **alpha**, **beta**, **gamma** - Bunlar sırasıyla seviye, eğilim ve mevsimsellik için yumuşatma katsayılarıdır, optimize edebilmek için ayarlama ve analiz gerektirir. Daha fazla bilgi için [buraya](https://github.com/jthomperoo/holtwinters) veya [buraya](https://grisha.org/blog/2016/01/29/triple-exponential-smoothing-forecasting/) bakın.
+- **seasonalPeriods** - Temel birim senkronizasyon periyotlarındaki bir mevsimin uzunluğu, örneğin senkronizasyon periyodunuz `10000` (10 saniye) ise ve tekrar eden mevsiminiz 60 saniye uzunluğunda ise, bu değer `6` olur.
+- **storedSeasons** - Saklanacak mevsim sayısı, örneğin `4`, eğer `>4` mevsim saklanmışsa, en eski mevsim kaldırılacaktır.
+- **trend** - `add`/`additive` veya `mul`/`multiplicative` olabilir, eğilim öğesi için yöntemi tanımlar.
+- **seasonal** - `add`/`additive` veya `mul`/`multiplicative` olabilir, mevsimsel öğe için yöntemi tanımlar.
 
-This is the model in action, taken from the `simple-holt-winters` example:
-![Predicted values overestimating but still fitting actual values](../img/holt_winters_prediction_vs_actual.svg)
-The red value is the predicted values, the blue value is the actual values. From this you can see that the prediction
-is overestimating, but still pre-emptively scaling - storing more seasons and adjusting alpha, beta and gamma values
-would reduce the overestimation and produce more accurate results.
+Bu modelin çalışması, `simple-holt-winters` örneğinden alınmıştır:
+![Tahmin edilen değerlerin aşırı tahmin edilmesi ancak yine de gerçek değerlere uyum sağlaması](../img/holt_winters_prediction_vs_actual.svg)
+Kırmızı değer tahmin edilen değerlerdir, mavi değer ise gerçek değerlerdir. Buradan tahminin aşırı tahmin edildiğini, ancak yine de önceden ölçeklendirdiğini görebilirsiniz - daha fazla mevsim depolamak ve alpha, beta ve gamma değerlerini ayarlamak, aşırı tahminleri azaltacak ve daha doğru sonuçlar üretecektir.
 
-For a more detailed example, [see the example in
-`/examples/simple-holt-winters`](https://github.com/jthomperoo/predictive-horizontal-pod-autoscaler/tree/master/examples/simple-holt-winters).
+Daha detaylı bir örnek için, [simple-holt-winters örneğine](https://github.com/jthomperoo/predictive-horizontal-pod-autoscaler/tree/master/examples/simple-holt-winters) bakın.
 
-### Advanced tuning
+### Gelişmiş Ayarlama
 
-There are more configuration options for the Holt-Winters algorithm, which in this project uses the
-[statsmodels](https://www.statsmodels.org/) Python package. These are the additional configuration options, which are
-documented by the [Holt-Winters Exponential Smoothing statsmodels
-documentation](https://www.statsmodels.org/dev/generated/statsmodels.tsa.holtwinters.ExponentialSmoothing.html) - the
-names of the variables in this documentation map to the camelcase names described here.
+Bu projede [statsmodels](https://www.statsmodels.org/) Python paketini kullanan Holt-Winters algoritması için daha fazla konfigürasyon seçeneği bulunmaktadır. Bunlar, [Holt-Winters Exponential Smoothing statsmodels dokümantasyonunda](https://www.statsmodels.org/dev/generated/statsmodels.tsa.holtwinters.ExponentialSmoothing.html) belgelenen ek konfigürasyon seçenekleridir - bu dokümandaki değişken isimleri burada tanımlanan camelcase isimlere eşlenir.
 
-- **dampedTrend** - Boolean value to determine if the trend should be damped.
-- **initializationMethod** - Which initialization method to use, see statsmodels for details, either `estimated`,
-`heuristic`, `known`, or `legacy-heuristic`
-- **initialLevel** - The initial level value, required if `initializationMethod` is `known`.
-- **initialTrend** - The initial trend value, required if `initializationMethod` is `known`.
-- **initialSeasonal** - The initial seasonal value, required if `initializationMethod` is `known`.
+- **dampedTrend** - Eğilimin sönümlenip sönümlenmeyeceğini belirleyen Boolean değeri.
+- **initializationMethod** - Hangi başlatma yönteminin kullanılacağını belirler, ayrıntılar için statsmodels'e bakın, `estimated`, `heuristic`, `known` veya `legacy-heuristic` olabilir.
+- **initialLevel** - İlk seviye değeri, `initializationMethod` `known` ise gereklidir.
+- **initialTrend** - İlk eğilim değeri, `initializationMethod` `known` ise gereklidir.
+- **initialSeasonal** - İlk mevsimsel değer, `initializationMethod` `known` ise gereklidir.
 
-### Holt-Winters Runtime Tuning
+### Holt-Winters Çalışma Zamanı Ayarlaması
 
-The PHPA supports dynamically fetching the tuning values for the Holt-Winters algorithm (`alpha`, `beta`, and `gamma`).
+PHPA, Holt-Winters algoritması için (`alpha`, `beta` ve `gamma`) ayarlama değerlerini dinamik olarak alma desteğine sahiptir.
 
-This is done using a `hook` system, to see more information of how the dynamic hook system works [visit the hooks
-user guide](./hooks.md)
+Bu, bir `hook` sistemi kullanılarak yapılır, dinamik hook sisteminin nasıl çalıştığı hakkında daha fazla bilgi için [hook kullanıcı kılavuzunu](./hooks.md) ziyaret edin.
 
-For example, a hook using a HTTP request to fetch the values of runtime is configured as:
+Örneğin, çalışma zamanı değerlerini almak için HTTP isteği kullanan bir hook şu şekilde yapılandırılır:
 
 ```yaml
 models:
@@ -120,7 +95,7 @@ models:
   name: simple-holt-winters
   perSyncPeriod: 1
   startInterval: 60s
-  startIntervalResetDuration: 5m
+  resetDuration: 5m
   holtWinters:
     runtimeTuningFetchHook:
       type: "http"
@@ -137,31 +112,27 @@ models:
     seasonal: additive
 ```
 
-> Note this uses the `parameterMode: body` instead of `parameterMode: query`, this is because for large amounts of
-> data the URL generated can become too long and invalid. See
-> [#89](https://github.com/jthomperoo/predictive-horizontal-pod-autoscaler/issues/89).
+> Not: Bu `parameterMode: body` kullanır, `parameterMode: query` yerine, çünkü büyük miktarda veri için oluşturulan URL çok uzun ve geçersiz hale gelebilir. Daha fazla bilgi için [#89](https://github.com/jthomperoo/predictive-horizontal-pod-autoscaler/issues/89) bakın.
 
-The hook is defined with the name `runtimeTuningFetchHook`.
+Hook, `runtimeTuningFetchHook` adıyla tanımlanmıştır.
 
-The supported hook types for the PHPA are:
+PHPA için desteklenen hook türleri şunlardır:
 
-- HTTP requests
+- HTTP istekleri
 
-The process is as follows:
+Süreç şu şekildedir:
 
-1. PHPA begins Holt-Winters calculation.
-2. The values are initially set to any hardcoded values supplied in the configuration.
-3. A runtime tuning configuration has been supplied, using this configuration a hook is executed (for example a HTTP
-request is sent).
-  - This hook will provide as input data in JSON that includes the current model, and an array of timestamped
-  previous scaling decisions (referred to as `evaluations`, [see below](#request-format)).
-  - The response should conform to the expected JSON structure ([see below](#response-format)).
-4. If the hook execution is successful, and the response is valid, the tuning values are extracted and any provided
-values overwrite the hardcoded values.
-5. If all required tuning values are provided the tuning values are used to calculate.
+1. PHPA, Holt-Winters hesaplamasına başlar.
+2. Değerler başlangıçta konfigürasyonda belirtilen sabit değerler
 
-The tuning values can be both hardcoded and fetched at runtime, for example the `alpha` value could be calculated at
-runtime, and the `beta` and `gamma` values could be hardcoded in configuration:
+ olarak ayarlanır.
+3. Bir çalışma zamanı ayarlama konfigürasyonu sağlanmışsa, bu konfigürasyonu kullanarak bir hook çalıştırılır (örneğin, bir HTTP isteği gönderilir).
+  - Bu hook, JSON'da girdi verileri olarak mevcut modeli ve zaman damgalı önceki ölçeklendirme kararlarından oluşan bir dizi (bu değerlere `evaluations` denir, [istek formatına bakın](#request-format)) içerecektir.
+  - Yanıt, beklenen JSON yapısına uygun olmalıdır ([yanıt formatına bakın](#response-format)).
+4. Hook yürütme başarılı olursa ve yanıt geçerliyse, ayarlama değerleri çıkarılır ve sağlanan değerler sabit değerlerin yerini alır.
+5. Gerekli tüm ayarlama değerleri sağlanırsa, ayarlama değerleri hesaplama için kullanılır.
+
+Ayarlama değerleri hem sabitlenmiş hem de çalışma zamanında alınabilir, örneğin `alpha` değeri çalışma zamanında hesaplanabilir ve `beta` ve `gamma` değerleri konfigürasyonda sabitlenmiş olabilir:
 
 ```yaml
 models:
@@ -186,8 +157,7 @@ models:
     seasonal: additive
 ```
 
-Or the values could be provided, and if they are not returned by the external source the hardcoded values will be used
-as a backup:
+Veya değerler sağlanabilir ve dış kaynak tarafından döndürülmezse, sabitlenmiş değerler yedek olarak kullanılabilir:
 
 ```yaml
 models:
@@ -213,12 +183,11 @@ models:
     seasonal: additive
 ```
 
-If any value is missing, the PHPA will report it as an error (e.g.
-`No alpha tuning value provided for Holt-Winters prediction`) and not calculate and scale.
+Herhangi bir değer eksikse, PHPA bunu bir hata olarak raporlar (örneğin, `Holt-Winters tahmini için alpha ayarlama değeri sağlanmadı`) ve hesaplama ve ölçeklendirme yapmaz.
 
-#### Request Format
+#### İstek Formatı
 
-The data that the external source will recieve will be formatted as:
+Dış kaynağın alacağı veri şu şekilde formatlanır:
 
 ```json
 {
@@ -261,27 +230,26 @@ The data that the external source will recieve will be formatted as:
     {
       "time": "2020-10-19T19:13:00Z",
       "replicas": 0
-    },
+    }
   ]
 }
 ```
 
-This provides information around the model being used, how it is configured, and previous replica values
-(`replicaHistory`). This data could be used to help calculate the tuning values, or it could be ignored.
+Bu, kullanılan model, nasıl yapılandırıldığı ve önceki replika değerleri (`replicaHistory`) hakkında bilgi sağlar. Bu veri, ayarlama değerlerini hesaplamaya yardımcı olmak için kullanılabilir veya görmezden gelinebilir.
 
-#### Response Format
+#### Yanıt Formatı
 
-The response that the external tuning source should return must be in JSON, and in the following format:
+Dış ayarlama kaynağının döndürmesi gereken yanıt JSON formatında ve aşağıdaki yapıda olmalıdır:
 
 ```json
 {
-  "alpha": <alpha_value>,
-  "beta": <beta_value>,
-  "gamma": <gamma_value>
+  "alpha": <alpha_değeri>,
+  "beta": <beta_değeri>,
+  "gamma": <gamma_değeri>
 }
 ```
 
-This is a simple JSON structure, for example:
+Bu basit bir JSON yapısıdır, örneğin:
 
 ```json
 {
@@ -291,8 +259,7 @@ This is a simple JSON structure, for example:
 }
 ```
 
-Each of these values is optional, for example perhaps only the `alpha` and `beta` should be runtime, and `gamma` should
-rely on the hardcoded configuration value, this response would be valid:
+Bu değerlerin her biri isteğe bağlıdır, örneğin sadece `alpha` ve `beta` runtime olmalı ve `gamma` sabitlenmiş konfigürasyon değerine dayanmalıysa, bu yanıt geçerli olacaktır:
 
 ```json
 {
@@ -301,5 +268,4 @@ rely on the hardcoded configuration value, this response would be valid:
 }
 ```
 
-For a more detailed example, [see the example in
-`/examples/dynamic-holt-winters`](https://github.com/jthomperoo/predictive-horizontal-pod-autoscaler/tree/master/examples/dynamic-holt-winters).
+Daha detaylı bir örnek için, [dynamic-holt-winters örneğine](https://github.com/jthomperoo/predictive-horizontal-pod-autoscaler/tree/master/examples/dynamic-holt-winters) bakın.

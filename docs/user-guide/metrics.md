@@ -1,6 +1,6 @@
-# Metrics
+# Metrikler
 
-Deciding which metrics to use is done by using `MetricSpecs`, which are a key part of HPAs, and look like this:
+Hangi metriklerin kullanılacağını belirlemek için `MetricSpecs` kullanılır, bunlar HPAs'in anahtar bir parçasıdır ve şu şekilde görünür:
 
 ```yaml
 - type: Resource
@@ -11,8 +11,7 @@ Deciding which metrics to use is done by using `MetricSpecs`, which are a key pa
       averageUtilization: 50
 ```
 
-To send these specs to the Predictive HPA, add a config option called `metrics` to the PHPA, with a multiline string
-containing the metric list. For example:
+Bu spesifikasyonları Predictive HPA'ya göndermek için, PHPA'ya metrik listesini içeren çok satırlı bir dize ile `metrics` adında bir yapılandırma seçeneği ekleyin. Örneğin:
 
 ```yaml
 metrics:
@@ -24,11 +23,8 @@ metrics:
       averageUtilization: 50
 ```
 
-This allows porting over existing Kubernetes HPA metric configurations to the Predictive Horizontal Pod Autoscaler.
-Equivalent to K8s HPA metric specs; which are [demonstrated in this HPA
-walkthrough](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-multiple-metrics-and-custom-metrics).
-Can hold multiple values as it is an array.
+Bu, mevcut Kubernetes HPA metrik yapılandırmalarını Predictive Horizontal Pod Autoscaler'a aktarmanıza olanak tanır. K8s HPA metrik spesifikasyonlarına eşdeğerdir; bunlar [bu HPA
+rehberinde](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-multiple-metrics-and-custom-metrics) gösterilmiştir.
+Bir dizi olduğundan birden fazla değeri tutabilir.
 
-See the [Horizontal Pod Autoscaler
-documentation](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/) for a full list of supported
-metrics (the Predictive Horizontal Pod Autoscaler intends to be functionally equivalent).
+Desteklenen metriklerin tam listesi için [Horizontal Pod Autoscaler dokümantasyonuna](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/) bakın (Predictive Horizontal Pod Autoscaler işlevsel olarak eşdeğer olmayı amaçlamaktadır).

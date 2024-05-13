@@ -1,40 +1,41 @@
-# Getting Started
+Here is the updated and translated `docs/user-guide/getting-started.md` for your repository, including the instructions for setting up Kubernetes using Docker Desktop instead of k3d:
 
-This guide will walk through the first steps for deploying a simple Predictive Horizontal Pod Autoscaler (PHPA). This
-guide will demonstrate how to deploy a PHPA that uses a linear regression to predict future load based on CPU usage.
+---
 
-To see the final result of this guide, check out the [Simple Linear Regression
-example](https://github.com/jthomperoo/predictive-horizontal-pod-autoscaler/tree/master/examples/simple-linear).
+# Başlarken
 
-## Prerequisites
+Bu kılavuz, basit bir Tahmin Edici Yatay Pod Ölçeklendirici (PHPA) dağıtmanın ilk adımlarını gösterecektir. Bu kılavuz, CPU kullanımına dayalı olarak gelecekteki yükü tahmin etmek için lineer regresyon kullanan bir PHPA'nın nasıl dağıtılacağını gösterecektir.
 
-This guide requires the following tools installed:
+Bu kılavuzun nihai sonucunu görmek için [Basit Lineer Regresyon
+örneğine](https://github.com/jthomperoo/predictive-horizontal-pod-autoscaler/tree/master/examples/simple-linear) göz atın.
+
+## Ön Koşullar
+
+Bu kılavuz aşağıdaki araçların kurulu olmasını gerektirir:
 
 - [kubectl](https://kubernetes.io/docs/tasks/tools/#kubectl) == `v1`
 - [helm](https://helm.sh/docs/intro/install/) == `v3`
-- [k3d](https://k3d.io/#installation) == `v5`
+- [Docker Desktop](https://www.docker.com/products/docker-desktop) == `v4`
 - [jq](https://stedolan.github.io/jq/) >= `v1.6`
 
-## Set up the cluster
+## Küme Kurulumu
 
-This guide uses [k3d](https://k3d.io/) to handle provisioning a local K8s server, but you can use any K8s server (you
-may already have one set up). If you already have a K8s server configured with the metrics server enabled, skip this
-step and move on to the next step.
+Bu kılavuz, yerel bir Kubernetes sunucusu sağlamak için [Docker Desktop](https://www.docker.com/products/docker-desktop) kullanır, ancak herhangi bir Kubernetes sunucusunu kullanabilirsiniz (zaten bir tane kurulmuş olabilir). Eğer zaten bir Kubernetes sunucusu metrik sunucusu etkinleştirilmiş olarak yapılandırılmışsa, bu adımı atlayıp bir sonraki adıma geçin.
 
-To provision a new cluster using k3d run the following command:
+Docker Desktop ile bir Kubernetes kümesi kurmak için şu adımları izleyin:
 
-```bash
-k3d cluster create phpa-test-cluster
-```
+1. Docker Desktop'u açın ve ayarları açın.
+2. "Kubernetes" sekmesine gidin.
+3. "Enable Kubernetes" seçeneğini işaretleyin.
+4. "Apply & Restart" düğmesine tıklayın.
 
-## Install the Predictive Horizontal Pod Autoscaler Operator onto your cluster
+## Predictive Horizontal Pod Autoscaler Operatörünü Kümenize Yükleyin
 
-Installing PHPAs requires you to have installed the PHPA operator first onto your cluster.
+PHPAs yüklemek için öncelikle PHPA operatörünün kümenize yüklenmiş olması gerekmektedir.
 
-In this guide we are using `v0.13.2` of the PHPA operator, but check out the [installation
-guide](./installation.md) for more up to date instructions for later releases.
+Bu kılavuzda `v0.13.2` sürümünü kullanıyoruz, ancak daha yeni sürümler için [kurulum kılavuzuna](./installation.md) göz atın.
 
-Run the following commands to install the PHPA operator:
+PHPA operatörünü yüklemek için aşağıdaki komutları çalıştırın:
 
 ```bash
 VERSION=v0.13.2
@@ -42,13 +43,13 @@ HELM_CHART=predictive-horizontal-pod-autoscaler-operator
 helm install ${HELM_CHART} https://github.com/jthomperoo/predictive-horizontal-pod-autoscaler/releases/download/${VERSION}/predictive-horizontal-pod-autoscaler-${VERSION}.tgz
 ```
 
-You can check the PHPA operator has been deployed properly by running:
+PHPA operatörünün düzgün bir şekilde dağıtıldığını kontrol etmek için şu komutu çalıştırabilirsiniz:
 
 ```bash
 helm status predictive-horizontal-pod-autoscaler-operator
 ```
 
-You should get a response like this:
+Aşağıdaki gibi bir yanıt almalısınız:
 
 ```bash
 NAME: predictive-horizontal-pod-autoscaler-operator
@@ -61,16 +62,13 @@ NOTES:
 Thanks for installing predictive-horizontal-pod-autoscaler.
 ```
 
-If you get a response that says release not found then the install has not worked correctly.
+Eğer "release not found" şeklinde bir yanıt alırsanız, kurulum doğru çalışmamış demektir.
 
-## Create a deployment to autoscale
+## Otomatik Ölçeklendirme İçin Bir Dağıtım Oluşturun
 
-We now need to create a test application to scale up and down based on load. In this guide we are using an example
-container provided by the Kubernetes docs for testing the Horizontal Pod Autoscaler; the test application will simply
-respond `OK!` to any request sent to it. This will allow us to adjust how many requests we are sending to the
-application to simulate greater and lesser load.
+Şimdi, yük temelinde yukarı ve aşağı ölçeklenecek bir test uygulaması oluşturmanız gerekiyor. Bu kılavuzda, Yatay Pod Ölçeklendirici'yi test etmek için Kubernetes dokümantasyonunda sağlanan bir örnek konteyneri kullanıyoruz; test uygulaması, kendisine gönderilen her talebe `OK!` yanıtı verecektir. Bu, uygulamaya gönderdiğimiz istek sayısını ayarlayarak daha büyük ve daha küçük yükleri simüle etmemizi sağlar.
 
-Create a new file called `deployment.yaml` and copy the following YAML into the file:
+`deployment.yaml` adında yeni bir dosya oluşturun ve aşağıdaki YAML'ı dosyaya kopyalayın:
 
 ```yaml
 apiVersion: apps/v1
@@ -119,29 +117,28 @@ spec:
   type: ClusterIP
 ```
 
-This YAML sets up two K8s resources:
+Bu YAML, iki Kubernetes kaynağı oluşturur:
 
-- A [Deployment](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/) to provision some containers to
-run our test application that we will scale up and down.
-- A [Service](https://kubernetes.io/docs/concepts/services-networking/service/) to expose our test application so we
-can send it HTTP requests to affect the CPU load.
+- [Deployment](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/): Test uygulamamızı çalıştırmak için bazı konteynerler sağlar ve yukarı ve aşağı ölçeklendirir.
+- [Service](https://kubernetes.io/docs/concepts/services-networking/service/): Test uygulamamızı HTTP istekleri göndererek CPU yükünü etkilemek için expose eder.
 
-Now deploy the application to the K8s cluster by running:
+Uygulamayı Kubernetes kümesine dağıtmak için şu komutu çalıştırın:
 
 ```bash
 kubectl apply -f deployment.yaml
 ```
 
-You can check the test application has been deployed by running:
+Test uygulamasının dağıtıldığını kontrol etmek için şu komutu çalıştırabilirsiniz:
 
 ```bash
 kubectl get pods
 ```
 
-## Create a linear regression autoscaler
+## Lineer Regresyon Otomatik Ölçeklendirici Oluşturun
 
-Now we need to set up the autoscaler. This autoscaler will be configured to watch our test application's CPU usage and
-apply a linear regression to predict ahead of time what the replica count should be.
+Şimdi otomatik ölçeklendiriciyi ayarlamamız gerekiyor. Bu otomatik ölçeklendirici, test uygulamamızın CPU kullanımını izlemek ve gelecekteki replika sayısını tahmin etmek için lineer regresyon kullanacak şekilde yapılandırılacaktır.
+
+`phpa.yaml` adında yeni bir dosya oluşturun ve aşağıdaki YAML'ı dosyaya kopyalayın:
 
 ```yaml
 apiVersion: jamiethompson.me/v1alpha1
@@ -176,28 +173,19 @@ spec:
   syncPeriod: 10000
 ```
 
-This autoscaler works by using the same logic that the Horizontal Pod Autoscaler uses to calculate the number of
-replicas a target deployment should have, in this example it tries to make sure that the average CPU utilization is
-`50%`. Once it calculates this Horizontal Pod Autoscaler target value, it then stores it and combines it with previous
-calculations, feeding it into a linear regression model to try and fit a better prediction.
+Bu otomatik ölçeklendirici, hedef bir dağıtımın sahip olması gereken replika sayısını hesaplamak için Yatay Pod Ölçeklendirici'nin kullandığı aynı mantığı kullanır, bu örnekte, ortalama CPU kullanımının `%50` olmasını sağlamaya çalışır. Bu Yatay Pod Ölçeklendirici hedef değerini hesapladıktan sonra, bunu depolar ve önceki hesaplamalarla birleştirir, lineer regresyon modeline besleyerek daha iyi bir tahmin yapmaya çalışır.
 
-This example is not hugely practical, it serves primarily as a demonstration, as such it only stores the last 60 seconds
-worth of replica target values and tries to fit this into a linear regression. You can see some sample results in
-this graph:
+Bu örnek çok pratik değildir, esas olarak bir gösterim olarak hizmet eder, bu nedenle yalnızca son 60 saniyelik replika hedef değerlerini depolar ve bunu lineer regresyon ile tahmin etmeye çalışır. Aşağıdaki grafikte bazı örnek sonuçları görebilirsiniz:
 
-![Calculated HPA values vs linear regression predicted values](../img/getting_started_linear_regression.svg)
+![HPA tarafından hesaplanan değerler ve lineer regresyon tahmin edilen değerler](../img/getting_started_linear_regression.svg)
 
-This shows how as the calculated value drops rapidly from `10` target replicas to `0`, the linear regression results in
-a smoothing effect on the actual scaling that takes place; instead it drops from `10` to `5` to `2` and finally to `1`.
+Bu grafik, hesaplanan değerin `10` hedef replika değerinden `0`a hızla düşerken, lineer regresyonun ölçeklendirme üzerinde yumuşatma etkisi yarattığını gösterir; bunun yerine `10`dan `5`e, sonra `2`ye ve son olarak `1`e düşer.
 
-The predictive elements are not only for scaling downwards, they could also predict ahead of time an increase in the
-required number of replicas, for example with a sequence of increasing calculated replicas (`[1, 3, 5]`) it could
-preemptively scale to `7` after applying a linear regression.
+Tahmin unsurları sadece aşağı doğru ölçeklendirme için değil, aynı zamanda gelecekteki replika sayısında bir artışı önceden tahmin etmek için de kullanılabilir, örneğin artan hesaplanan replika dizisi (`[1, 3, 5]`) ile lineer regresyon uygulayarak `7`ye ölçeklendirebilir.
 
-The key elements of the PHPA YAML defined above are:
+Yukarıdaki PHPA YAML'ının ana unsurları şunlardır:
 
-- The autoscaler is targeting our test application; identifying it by the fact it is a `Deployment` with the name
-`php-apache`:
+- Otomatik ölçeklendirici, test uygulamamızı hedeflemektedir; bunun `php-apache` adlı bir `Deployment` olduğunu belirler:
 
 ```yaml
 scaleTargetRef:
@@ -206,21 +194,22 @@ scaleTargetRef:
   name: php-apache
 ```
 
-- The minimum and maximum replicas that the deployment can be autoscaled to are set to the range `0-10`:
+- Dağıtımın otomatik olarak ölçeklendirileb
+
+ileceği minimum ve maksimum replika sayısı `0-10` aralığında ayarlanmıştır:
 
 ```yaml
 minReplicas: 1
 maxReplicas: 10
 ```
 
-- The frequency that the autoscaler calculates a new target replica value is set to 10 seconds (`10000 ms`).
+- Otomatik ölçeklendiricinin yeni bir hedef replika değeri hesaplama sıklığı 10 saniye olarak ayarlanmıştır (`10000 ms`).
 
 ```yaml
 syncPeriod: 10000
 ```
 
-- The *downscale stabilization* value for the autoscaler is set to `0`, meaning it will only use the latest autoscaling
-target and will not pick the highest across a window of time.
+- Otomatik ölçeklendirici için *downscale stabilization* değeri `0` olarak ayarlanmıştır, bu da yalnızca en son otomatik ölçeklendirme hedefini kullanacağı ve bir zaman penceresi boyunca en yüksek olanı seçmeyeceği anlamına gelir.
 
 ```yaml
 behavior:
@@ -228,11 +217,10 @@ behavior:
     stabilizationWindowSeconds: 0
 ```
 
-- A single *model* is configured as a linear regression model.
-  - The linear regression is set to run every time the autoscaler is run (every sync period), in this example it is
-    every 10 seconds (`perSyncPeriod: 1`).
-  - The linear regression is predicting 10 seconds into the future (`lookAhead: 10000`).
-  - The linear regression uses a maximum of `6` previous target values for predicting (`storedValues: 6`).
+- Tek bir *model* lineer regresyon modeli olarak yapılandırılmıştır.
+  - Lineer regresyon, otomatik ölçeklendiricinin her çalıştırıldığında (her senkronizasyon periyodunda) çalışacak şekilde ayarlanmıştır, bu örnekte her 10 saniyede bir (`perSyncPeriod: 1`).
+  - Lineer regresyon, gelecekte 10 saniye sonrasını tahmin eder (`lookAhead: 10000`).
+  - Lineer regresyon, tahmin için maksimum `6` önceki hedef değeri kullanır (`storedValues: 6`).
 
 ```yaml
 models:
@@ -244,18 +232,15 @@ models:
       historySize: 6
 ```
 
-- The `decisionType` is set to be `maximum`, meaning that the target replicas will be set to whichever is higher
-  between the calculated HPA value and the predicted model value.
+- `decisionType` `maximum` olarak ayarlanmıştır, bu da hedef replika sayısının hesaplanan HPA değeri ve tahmin edilen model değeri arasındaki en yüksek değere ayarlanacağı anlamına gelir.
 
 ```yaml
 decisionType: "maximum"
 ```
 
-- The *metrics* defines the normal Horizontal Pod Autoscaler rules to apply for autoscaling, the results of which
-  will have the models applied to for prediction.
-    - The metric targeted is the CPU resource of the deployment.
-    - The targeted value is that CPU utilization across the test application's containers should be `50%`, if it goes
-    too far above this there are not enough pods, and if it goes too far below this there are too many pods.
+- *metrics*, otomatik ölçeklendirme için normal Yatay Pod Ölçeklendirici kurallarını tanımlar, sonuçlar tahmin için modellere uygulanacaktır.
+  - Hedeflenen metrik, dağıtımın CPU kaynağıdır.
+  - Hedef değer, test uygulamasının konteynerleri arasındaki CPU kullanımının `%50` olmasıdır, bu değerin çok üzerine çıkarsa yeterli pod yoktur, çok altına düşerse çok fazla pod vardır.
 
 ```yaml
 metrics:
@@ -267,59 +252,55 @@ metrics:
         type: Utilization
 ```
 
-Now deploy the autoscaler to the K8s cluster by running:
+Şimdi otomatik ölçeklendiriciyi Kubernetes kümesine dağıtmak için şu komutu çalıştırın:
 
 ```bash
 kubectl apply -f phpa.yaml
 ```
 
-You can check the autoscaler has been deployed by running:
+Otomatik ölçeklendiricinin dağıtıldığını kontrol etmek için şu komutu çalıştırabilirsiniz:
 
 ```bash
 kubectl get phpa simple-linear
 ```
 
-## Apply load and monitor the autoscaling process
+## Yük Uygulama ve Otomatik Ölçeklendirme Sürecini İzleme
 
-You can monitor the autoscaling process by running:
+Otomatik ölçeklendirme sürecini izlemek için şu komutu çalıştırabilirsiniz:
 
 ```bash
 kubectl logs -l name=predictive-horizontal-pod-autoscaler -f
 ```
 
-This is looking at the operators logs, these are the brains of the autoscaling program and will report how all
-autoscaling decisions are done.
+Bu, operatörün loglarına bakar, bunlar otomatik ölçeklendirme programının beyni olup, tüm otomatik ölçeklendirme kararlarının nasıl yapıldığını raporlar.
 
-You can see the targets calculated by the HPA logic before the linear regression has been applied to them by querying
-the autoscaler's config map:
+HPA mantığı tarafından hesaplanan hedeflerin lineer regresyon uygulanmadan önceki hallerini görmek için otomatik ölçeklendiricinin konfigürasyon haritasını sorgulayabilirsiniz:
 
 ```bash
 kubectl get configmap predictive-horizontal-pod-autoscaler-simple-linear-data -o=json | jq -r '.data.data | fromjson | .modelHistories["simple-linear"].replicaHistory[] | .time,.replicas'
 ```
 
-This prints out all of the timestamped replica counts that the PHPA will use for its prediction.
+Bu, PHPA'nın tahmin için kullanacağı zaman damgalı tüm replika sayılarını yazdırır.
 
-You can increase the load by starting a new container, and looping to send a bunch of HTTP requests to our test
-application:
+Yeni bir konteyner başlatarak ve test uygulamamıza bir dizi HTTP isteği göndererek yükü artırabilirsiniz:
 
 ```bash
 kubectl run -it --rm load-generator --image=busybox /bin/sh
 ```
 
-To start making requests from this container, run:
+Bu konteynerden istek göndermeye başlamak için şu komutu çalıştırın:
 
 ```bash
 while true; do wget -q -O- http://php-apache.default.svc.cluster.local; done
 ```
 
-You can stop this request loop by hitting *Ctrl+c*.
+Bu istek döngüsünü durdurmak için *Ctrl+c* tuşlarına basabilirsiniz.
 
-Try and start increasing the load, then stopping, you should be able to see a difference between the calculated HPA
-values and the target values predicted by the linear regression.
+Yükü artırmayı deneyin, ardından durdurun, hesaplanan HPA değerleri ile lineer regresyon tarafından tahmin edilen hedef değerler arasında bir fark görebilmelisiniz.
 
-## Delete the cluster and clean up
+## Küme ve Temizlik İşlemini Silme
 
-Once you have finished testing the autoscaler, you can clean up any K8s resources by running:
+Otomatik ölçeklendiriciyi test etmeyi bitirdikten sonra, herhangi bir Kubernetes kaynağını temizlemek için şu komutu çalıştırabilirsiniz:
 
 ```bash
 HELM_CHART=predictive-horizontal-pod-autoscaler-operator
@@ -328,15 +309,12 @@ kubectl delete -f phpa.yaml
 helm uninstall ${HELM_CHART}
 ```
 
-If you are using k3d you can clean up the entire cluster by running:
+Eğer Docker Desktop kullanıyorsanız, tüm kümeyi temizlemek için şu komutu çalıştırabilirsiniz:
 
 ```bash
-k3d cluster delete phpa-test-cluster
+docker system prune --volumes
 ```
 
-## Conclusion
+## Sonuç
 
-This guide is intended to provide a simple walkthrough of how to install and use the PHPA, the concepts outlined here
-can be used to deploy autoscalers with different predictive models. Check out the [examples in the project Git
-repository to see more
-samples](https://github.com/jthomperoo/predictive-horizontal-pod-autoscaler/tree/master/examples).
+Bu kılavuz, PHPA'yı nasıl kurup kullanacağınızı gösteren basit bir yürüyüş sağlamak için tasarlanmıştır, burada ana hatları verilen kavramlar, farklı tahmin modelleriyle otomatik ölçeklendiriciler dağıtmak için kullanılabilir. Daha fazla örnek görmek için proje Git deposundaki [örneklere](https://github.com/jthomperoo/predictive-horizontal-pod-autoscaler/tree/master/examples) göz atın.

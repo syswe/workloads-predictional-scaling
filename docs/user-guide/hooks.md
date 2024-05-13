@@ -1,17 +1,14 @@
 # Hooks
 
-Hooks specify how user logic should be called by the Predictive Horizontal Pod Autoscaler.
+Hooks, Predictive Horizontal Pod Autoscaler'ın kullanıcı mantığını nasıl çağırması gerektiğini belirtir.
 
 ## http
 
-The http hook allows defining an HTTP request for the autoscaler to make. Any relevant information will be provided to
-the target of the request by HTTP parameters - either `query` or `body` parameters. An error is signified by a status
-code that is not defined to be successful in the configuration; if this kind of error occurs the autoscaler will
-capture the response body and log it.
+HTTP hook, otomatik ölçeklendiricinin yapacağı bir HTTP isteğini tanımlamanıza olanak tanır. İstek hedefiyle ilgili bilgiler, HTTP parametreleri - `query` veya `body` parametreleri olarak sağlanır. Konfigürasyonda başarılı olarak tanımlanmayan bir durum kodu hatayı belirtir; böyle bir hata oluşursa, otomatik ölçeklendirici yanıt gövdesini yakalar ve kaydeder.
 
-### Example
+### Örnek
 
-This is an example configuration of the http hook for runtime tuning fetching with Holt Winters:
+Bu, Holt Winters ile çalışma zamanı ayarlamalarını almak için http hook örnek konfigürasyonudur:
 
 ```yaml
 holtWinters:
@@ -28,28 +25,21 @@ holtWinters:
       parameterMode: query
 ```
 
-Breaking this example down:
+Bu örneği açıklayalım:
 
-- `type` = the type of the hook, for this example it is an `http` hook.
-- `timeout` = the maximum time the hook can take in milliseconds, for this
-  example it is `2500` (2.5 seconds), if it takes longer than this it will count
-  the hook as failing.
-- `http` = configuration of the HTTP request.
-  - `method` = the HTTP method of the HTTP request.
-  - `url` = the URL to target with the HTTP request.
-  - `successCodes` = a list of success codes defining how to determine if the
-    request is successful - if the request responds with a code not on this list
-    it will be assumed to be a failure.
-  - `headers` = a dictionary of headers that can be provided with the request,
-    in this example the key is `exampleHeader` and the value is
-    `exampleHeaderValue`. This is an optional parameter.
-  - `parameterMode` = the mode for passing parameters to the target; either
-    `query` - as a query parameter, or `body` - as a body parameter. In this
-    example it is by query parameter.
+- `type` = hook türü, bu örnekte `http` hook'tur.
+- `timeout` = hook'un alabileceği maksimum süre milisaniye cinsindendir, bu
+  örnekte `2500` (2.5 saniye), bu süreden daha uzun sürerse hook başarısız sayılacaktır.
+- `http` = HTTP isteğinin konfigürasyonu.
+  - `method` = HTTP isteğinin HTTP yöntemi.
+  - `url` = HTTP isteğiyle hedeflenecek URL.
+  - `successCodes` = isteğin başarılı olup olmadığını belirleyen başarı kodları listesi - bu listede olmayan bir kodla yanıt verilirse isteğin başarısız olduğu varsayılacaktır.
+  - `headers` = istekle sağlanabilecek başlıkların sözlüğü, bu örnekte anahtar `exampleHeader` ve değer `exampleHeaderValue`dir. Bu isteğe bağlı bir parametredir.
+  - `parameterMode` = parametreleri hedefe iletme modu; `query` - sorgu parametresi olarak veya `body` - gövde parametresi olarak. Bu örnekte sorgu parametresi olarak iletilir.
 
-### POST Example
+### POST Örneği
 
-This is an example using HTTP `POST` and information passed as a body parameter.
+Bu, HTTP `POST` kullanarak ve bilgilerin gövde parametresi olarak iletildiği bir örnektir.
 
 ```yaml
 runtimeTuningFetchHook:
