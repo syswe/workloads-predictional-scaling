@@ -1,173 +1,321 @@
-# Dinamik Holt-Winters PHPA
+### Predictive Horizontal Pod Autoscaler (PHPA) Kullanarak Dinamik Holt-Winters
 
-Bu örnek, mevsimsel verilere dayanarak ölçekleme talebini tahmin etmek için Predictive Horizontal Pod Autoscaler (PHPA) kullanımında Holt-Winters yönteminin nasıl kullanılabileceğini göstermektedir. Bu örneğe *dinamik* denmesinin sebebi, ayar değerlerinin sabit kodlanmış olmaması ve çalışma zamanında bir dış kaynaktan çekilerek dinamik olarak hesaplanabilmesidir.
+## Dinamik Holt-Winters PHPA İçin Detaylı Yük Testi
 
-Bu örnek, özellikle çalışma zamanında bir ayarlama servisine HTTP isteği göndererek `alpha`, `beta` ve `gamma` Holt-Winters ayar değerlerini çeker.
+### Giriş
 
-Holt-Winters zaman serisi tahmin yöntemi, nasıl ölçekleneceğini tahmin etmek için mevsimleri tanımlamanıza olanak tanır. Örneğin, bir mevsim 24 saat olarak tanımlandığında, düzenli olarak 15:00 ile 17:00 arasında daha yüksek CPU yükü olan bir dağıtım, yeterli sayıda mevsim toplandıktan sonra, 15:00 ile 17:00 arasında CPU yükünün daha yüksek olduğu bilgisine dayanarak tahminler yapacak ve sistem hazır ve yanıt verir durumda tutulacak şekilde önceden ölçeklendirme yapacaktır.
+Bu belge, Dinamik Holt-Winters Predictive Horizontal Pod Autoscaler (PHPA) kullanarak gerçekleştirilen yük test senaryosunun detaylı açıklamasını sağlar ve bunu standart Horizontal Pod Autoscaler (HPA) ile karşılaştırır. Amacımız, PHPA'nın performansını ve ölçeklendirme davranışını değişken yük koşulları altında değerlendirmektir.
 
-Bu örnek, yukarıda açıklanan örneğin daha küçük ölçekli bir versiyonudur; aralık zamanı 20 saniye ve bir mevsim uzunluğu 6'dır (6 * 20 = 120 saniye = 2 dakika). Örnek, tahmin yapmak için 4 önceki mevsimi saklayacaktır. Örneğe dahil olan yük test cihazı, her dakika 30 saniye çalışır.
+### Test Kurulumu
 
-Bu, örneğin çalıştırılması sonucunda çizilen grafikle sonuçtur, kırmızı değerler tahmin edilen değerleri ve mavi değerler gerçek değerleri göstermektedir.
-Buradan, tahminin fazla tahmin yaptığı ancak hala önceden ölçeklendirme yaptığı görülebilir - daha fazla mevsim saklamak ve alpha, beta ve gamma değerlerini ayarlamak fazla tahmini azaltacak ve daha doğru sonuçlar üretecektir.
+#### Yük Test Edici İçin Dockerfile
 
-## Gereksinimler
+Yük test edici ortamını kurmak için bir `Dockerfile` oluşturun:
 
-Bu örneği kurmak ve burada listelenen adımları takip etmek için ihtiyacınız olanlar:
+```Dockerfile
+FROM alpine:3.6
 
-- [kubectl](https://kubernetes.io/docs/tasks/tools/).
-- kubectl'in yapılandırıldığı bir Kubernetes kümesi - yerel testler için [k3d veya Docker-Desktop] iyi bir seçenektir.
-- PHPA operatörünü yüklemek için [helm](https://helm.sh/docs/intro/install/).
-- Bazı JSON çıktılarını formatlamak için [jq](https://stedolan.github.io/jq/).
+RUN apk add --no-cache wget coreutils
 
-## Kullanım
+COPY load_tester.sh /load_tester.sh
 
-Bu örneği kümenize dağıtmak istiyorsanız, önce Predictive Horizontal Pod Autoscaler Operatörünü yüklemelisiniz, operatörü yüklemek için [kurulum kılavuzunu](https://predictive-horizontal-pod-autoscaler.readthedocs.io/en/latest/user-guide/installation) takip edin.
+RUN chmod +x /load_tester.sh
 
-Bu örnek, [Horizontal Pod Autoscaler Yürüyüşü](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/) üzerine kurulmuştur.
-
-1. `php-apache` adlı uygulamayı/dağıtımı yönetmek için bu komutu çalıştırın:
-
-```bash
-kubectl apply -f deployment.yaml
+CMD [ "/bin/sh", "/load_tester.sh" ]
 ```
 
-2. Ayarlama görüntüsünü oluşturmak ve Kubernetes kümenize aktarmak için bu komutu çalıştırın:
+#### Yük Test Edici Betiği
 
-```bash
-docker build -t tuning tuning && k3d image import tuning
+### Test Senaryosu: Dinamik Yük Artışı ve Azalışı
+
+Bu test senaryosu, dinamik yük artışı ve azalışını simüle eden bir yük test betiği (`load_tester.sh`) kullanarak, Predictive Horizontal Pod Autoscaler (PHPA) ve standart Horizontal Pod Autoscaler (HPA) performansını değerlendirmektedir. Test senaryosu, belirli bir süre boyunca değişken bir yük oluşturur ve bu yükü uygulamaya göndererek ölçeklendirme davranışlarını gözlemler.
+
+#### Test Betiği: `load_tester.sh`
+
+Aşağıda, test betiği `load_tester.sh`'nin detaylı açıklaması bulunmaktadır:
+
+```sh
+#!/bin/sh
+increment=1            # Her döngü arasında 1 dakika bekleme süresi.
+total_duration=10      # Toplam test süresi 10 dakika.
+start_time=$(date +%s) # Başlangıç zamanını kaydet.
+
+# Dinamik yük artışı ve azalışı simülasyonu
+i=0
+while true; do
+    # Geçen süreyi hesapla
+    current_time=$(date +%s)
+    elapsed=$(((current_time - start_time) / 60)) # Dakika cinsinden geçen süre
+
+    if [ $elapsed -ge $total_duration ]; then
+        echo "Test süresi doldu: Toplam süre ${elapsed} dakika."
+        break
+    fi
+
+    # Yük hesaplaması: Testin başında ve sonunda yüksek, ortada düşük
+    if [ $elapsed -lt 3 ];then
+        count=40 # İlk 3 dakikada yüksek yük
+    elif [ $elapsed -lt 7 ]; then
+        count=10 # 4 dakika boyunca yükü düşük tut
+    else
+        count=40 # Son 3 dakikada yüksek yük
+    fi
+
+    echo "${elapsed} dakika: Gönderilen paralel istek sayısı: $count"
+    j=1
+    while [ $j -le $count ]; do
+        timeout 60 wget -q -O- http://php-apache &
+        j=$(expr $j + 1)
+    done
+    wait
+    sleep $increment
+done
 ```
 
-3. Ayarlama servisini dağıtmak için bu komutu çalıştırın:
+#### Betiğin Çalışma Mantığı
 
-```bash
-kubectl apply -f tuning/tuning.yaml
-```
+1. **Başlangıç Ayarları**:
+    - `increment=1`: Her döngü arasında 1 dakika bekleme süresi.
+    - `total_duration=10`: Toplam test süresi 10 dakika.
+    - `start_time=$(date +%s)`: Testin başlangıç zamanını kaydeder.
 
-4. Daha önce oluşturulan dağıtımı gösteren otoscaler'ı başlatmak için bu komutu çalıştırın:
+2. **Döngü Başlangıcı**:
+    - `i=0`: Döngü sayacı başlatılır.
+    - `while true; do`: Sonsuz döngü başlatılır. Bu döngü, test süresi dolana kadar çalışır.
 
-```bash
-kubectl apply -f phpa.yaml
-```
+3. **Geçen Süre Hesaplama**:
+    - `current_time=$(date +%s)`: Şu anki zaman kaydedilir.
+    - `elapsed=$(((current_time - start_time) / 60))`: Başlangıç zamanından itibaren geçen süre dakika cinsinden hesaplanır.
 
-5. Yük test cihazı görüntüsünü oluşturmak ve Kubernetes kümenize aktarmak için bu komutu çalıştırın:
+4. **Test Süresinin Kontrolü**:
+    - `if [ $elapsed -ge $total_duration ]; then`: Geçen süre toplam test süresine eşit veya daha fazla ise:
+        - Test süresinin dolduğu ve toplam sürenin ne kadar olduğu yazdırılır.
+        - `break`: Döngüden çıkılır.
 
-```bash
-docker build -t load-tester load && k3d image import load-tester
-```
+5. **Yük Hesaplaması**:
+    - `if [ $elapsed -lt 3 ]; then`: Eğer geçen süre 3 dakikadan az ise:
+        - `count=40`: İlk 3 dakika boyunca yüksek yük (40 paralel istek).
+    - `elif [ $elapsed -lt 7 ]; then`: Eğer geçen süre 7 dakikadan az ise:
+        - `count=10`: 4 dakika boyunca düşük yük (10 paralel istek).
+    - `else`: Eğer geçen süre 7 dakika veya daha fazla ise:
+        - `count=40`: Son 3 dakika boyunca yüksek yük (40 paralel istek).
 
-6. Yük test cihazını dağıtmak için bu komutu çalıştırın, zamanı not alın çünkü her dakika 30 saniye çalışacaktır:
+6. **Paralel İstek Gönderme**:
+    - `echo "${elapsed} dakika: Gönderilen paralel istek sayısı: $count"`: Mevcut dakikayı ve gönderilen paralel istek sayısını yazdırır.
+    - `j=1`: İç döngü sayacı başlatılır.
+    - `while [ $j -le $count ]; do`: `count` değeri kadar paralel istek gönderilir.
+        - `timeout 60 wget -q -O- http://php-apache &`: `wget` komutuyla `php-apache` servisine 60 saniye boyunca paralel istek gönderilir.
+        - `j=$(expr $j + 1)`: İç döngü sayacı artırılır.
+    - `wait`: Tüm paralel isteklerin tamamlanmasını bekler.
+    - `sleep $increment`: Bir sonraki döngüye geçmeden önce 1 dakika bekler.
 
-```bash
-kubectl apply -f load/load.yaml
-```
+7. **Döngü Sayacının Artırılması**:
+    - Döngü sayacı artırılır ve süreç tekrarlanır.
 
-7. Otoscaler'in çalıştığını ve ürettiği günlük çıktısını görmek için bu komutu çalıştırın:
+Bu betik, belirlenen süre boyunca değişken yük koşullarını simüle ederek, PHPA ve HPA'nın bu yük değişimlerine nasıl tepki verdiğini gözlemlemeyi sağlar. Testin başında ve sonunda yüksek yük, ortasında ise düşük yük uygulanarak, autoscaler'ların bu değişimlere nasıl uyum sağladığı incelenir.
 
-```bash
-kubectl logs -l name=predictive-horizontal-pod-autoscaler -f
-```
+#### Yük Test Edici İçin Kubernetes Job
 
-8. Ayarlama servisinin günlüklerini görmek için bu komutu çalıştırın, sorgulandığı zaman rapor verecek ve kendisine sağlanan değeri yazdıracaktır:
-
-```bash
-kubectl logs -l run=tuning -f
-```
-
-9. Otoscaler tarafından saklanan ve takip edilen replica geçmişini görmek için bu komutu çalıştırın:
-
-```bash
-kubectl get configmap predictive-horizontal-pod-autoscaler-dynamic-holt-winters-data -o=json | jq -r '.data.data | fromjson | .modelHistories["HoltWintersPrediction"].replicaHistory[] | .time,.replicas'
-```
-
-Her dakika yük test cihazı, otoscale edilen uygulama üzerinde 30 saniye boyunca yükü artıracaktır. PHPA başlangıçta herhangi bir veri olmadan sadece bir Horizontal Pod Autoscaler gibi davranacak ve talep başladıktan sonra bu talebi karşılamak için en iyi şekilde tepkisel olarak ölçeklendirecektir. Yük test cihazı birkaç kez çalıştıktan sonra, PHPA yeterli veri toplamış olacak ve Holt Winters modelini kullanarak zamanından önce tahminler yapmaya başlayacak ve geçmişte toplanan verilere dayanarak beklenen talebi karşılamak için zamanından önce proaktif olarak ölçeklendirmeye başlayacaktır.
-
-## Açıklama
-
-Bu örnek dört bölüme ayrılmıştır:
-
-- Ölçeklendirilecek dağıtım
-- Predictive Horizontal Pod Autoscaler (PHPA)
-- Ayarlama Servisi
-- Yük Test Cihazı
-
-### Dağıtım
-
-Ölçeklendirilecek dağıtım, HTTP isteklerine yanıt veren basit bir servistir, `k8s.gcr.io/hpa-example` görüntüsünü kullanarak herhangi bir HTTP GET isteğine `OK!` döner. Bu dağıtım, atanmış pod sayısını artırıp azaltacak şekilde ölçeklendirilecektir.
-
-### Predictive Horizontal Pod Autoscaler
-
-PHPA, ölçeklendirmenin nasıl uygulanacağına dair bazı yapılandırmalar içerir, bu yapılandırmalar otoscaler'in nasıl davranacağını tanımlar:
+Yük test ediciyi çalıştırmak için bir Kubernetes job tanımlayın `load_job.yaml`:
 
 ```yaml
-apiVersion: jamiethompson.me/v1alpha1
-kind: PredictiveHorizontalPodAutoscaler
+apiVersion: batch/v1
+kind: Job
 metadata:
-  name: dynamic-holt-winters
+  name: load-tester
 spec:
-  scaleTargetRef:
-    apiVersion: apps/v1
-    kind: Deployment
-    name: php-apache
-  minReplicas: 1
-  maxReplicas: 10
-  syncPeriod: 20000
-  behavior:
-    scaleDown:
-      stabilizationWindowSeconds: 30
-
-
-  metrics:
-  - type: Resource
-    resource:
-      name: cpu
-      target:
-        type: Utilization
-        averageUtilization: 50
-  models:
-  - type: HoltWinters
-    name: HoltWintersPrediction
-    startInterval: 60s
-    resetDuration: 5m
-    holtWinters:
-      runtimeTuningFetchHook:
-        type: "http"
-        timeout: 2500
-        http:
-          method: "GET"
-          url: "http://tuning/holt_winters"
-          successCodes:
-            - 200
-          parameterMode: body
-      seasonalPeriods: 6
-      storedSeasons: 4
-      trend: "additive"
-      seasonal: "additive"
+  template:
+    spec:
+      containers:
+      - name: load-tester
+        image: load-tester
+        imagePullPolicy: IfNotPresent
+      restartPolicy: Never
+  backoffLimit: 0  # Ensures the job does not retry on failure
 ```
 
-- `scaleTargetRef` otoscaler'in ölçeklendirmek için hedef aldığı kaynağı belirtir.
-- `minReplicas` ve `maxReplicas` otoscaler'in kaynağı ölçeklendirebileceği minimum ve maksimum replica sayılarını belirtir.
-- `syncPeriod` otoscaler'in ne sıklıkla çalışacağını milisaniye cinsinden belirtir, bu otoscaler her 20000 milisaniyede (20 saniye) bir çalışacaktır.
-- `behavior.scaleDown.stabilizationWindowSeconds` bir otoscaler'in ne kadar hızlı ölçek küçültebileceğini yönetir, varsayılan olarak geçmişte tanımlanan son zaman dilimi içinde meydana gelen en yüksek değerlendirmeyi seçer. Bu durumda geçmiş 30 saniye içinde meydana gelen en yüksek değerlendirmeyi seçecektir.
-- `metrics` PHPA'nın ölçeklendirme yaparken kullanması gereken metrikleri tanımlar, bu örnekte her podun ortalama CPU kullanımını %50 seviyesinde tutmaya çalışır.
-- `models` - uygulanacak tahmin modellerini içerir.
-  - `type` - 'HoltWinters', Holt-Winters tahmin modelini kullanır.
-  - `name` - Modelin adı.
-  - `startInterval` - Model sadece bir sonraki tam dakikanın başında uygulanacaktır.
-  - `resetDuration` - Modelin replica geçmişi, herhangi bir veri kaydedilmediği süre 5 dakikadan fazla olduğunda (örneğin, küme kapatıldığında) temizlenecektir.
-  - `holtWinters` - Holt-Winters'a özgü yapılandırma.
-    * `runtimeTuningFetchHook` - Bu, çalışma zamanında `alpha`, `beta` ve `gamma` değerlerini dinamik olarak çekmek için kullanılan bir [kancadır](https://predictive-horizontal-pod-autoscaler.readthedocs.io/en/latest/user-guide/hooks). Bu örnekte, `http://tuning/holt_winters` adresine `HTTP` isteği kullanılmaktadır.
-    * `seasonalPeriods` - bir mevsimin temel birim senkronizasyon periyotları cinsinden uzunluğu, bu örnekte senkronizasyon periyodu `20000` (20 saniye) ve mevsim uzunluğu `6`'dır, bu da 20 * 6 = 120 saniye = 2 dakika mevsim uzunluğu sonucunu verir.
-    * `storedSeasons` - saklanacak mevsim sayısı, bu örnekte `4`, eğer 4'ten fazla mevsim saklanırsa en eskileri kaldırılır.
-    * `trend` - 'add'/`additive` veya `mul`/`multiplicative`, trend elemanı için yöntemi tanımlar.
-    * `seasonal` - 'add'/`additive` veya `mul`/`multiplicative`, mevsimsel eleman için yöntemi tanımlar.
+### Tuning API Kurulumu
 
-### Ayarlama Servisi
+#### Tuning API İçin Dockerfile
 
-Ayarlama servisi, Holt Winters çalışma zamanı ayarlaması için gerekli formatta (JSON formunda) `alpha`, `beta` ve `gamma` değerlerini döndüren basit bir Flask servisidir. Ayrıca, Holt Winters iste
+Tuning API için bir `Dockerfile` oluşturun:
 
-ği tarafından kendisine sağlanan değerleri de yazdırır; bu değerler ayarlama değerlerinin hesaplanmasına yardımcı olabilir.
+```Dockerfile
+FROM python:3.8-slim
+# We copy just the requirements.txt first to leverage Docker cache
+COPY ./requirements.txt /app/requirements.txt
+WORKDIR /app
+# Install dependencies
+RUN pip install -r requirements.txt
+# Copy in source files
+COPY . /app
+ENTRYPOINT [ "python" ]
+CMD [ "api.py" ]
+```
 
-### Yük Test Uygulaması [TO-DO NEW METHODS]
+#### Tuning API Betiği
 
-Bu, `php-apache` dağıtımına olabildiğince hızlı HTTP istekleri göndermek için bir bash script çalıştıran basit bir poddur. Artan yükü simüle etmek için kullanılır.
+Tuning API'yi tanımlamak için bir `api.py` dosyası oluşturun:
+
+```python
+from flask import Flask, request
+import json
+
+app = Flask(__name__)
+
+ALPHA_VALUE = 0.9
+BETA_VALUE = 0.9
+GAMMA_VALUE = 0.9
+
+@app.route("/holt_winters")
+def metric():
+    app.logger.info('Received context: %s', request.data)
+
+    return json.dumps({
+        "alpha": ALPHA_VALUE,
+        "beta": BETA_VALUE,
+        "gamma": GAMMA_VALUE,
+    })
+
+if __name__ == "__main__":
+    app.run(debug=True, host="0.0.0.0")
+```
+
+#### Tuning API İçin Gereksinimler Dosyası
+
+Tuning API için bağımlılıkları belirtmek üzere bir `requirements.txt` dosyası oluşturun:
+
+```
+Flask==2.3.2
+```
+
+#### Tuning API İçin Kubernetes Deployment
+
+Tuning API'yi Kubernetes üzerinde dağıtmak için bir `tuning.yaml` dosyası oluşturun:
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    run: tuning
+  name: tuning
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: tuning
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        run: tuning
+    spec:
+      containers:
+      - image: tuning
+        imagePullPolicy: IfNotPresent
+        name: tuning
+        ports:
+        - containerPort: 5000
+          protocol: TCP
+        resources:
+          limits:
+            cpu: 500m
+          requests:
+            cpu: 200m
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tuning
+spec:
+  ports:
+  - port: 80
+    protocol
+
+: TCP
+    targetPort: 5000
+  selector:
+    run: tuning
+  sessionAffinity: None
+  type: ClusterIP
+```
+
+### Test Adımları
+
+1. **Yük Test Ediciyi Kurun ve Dağıtın**:
+   - Docker imajını oluşturun:
+     ```bash
+     docker build -t load-tester .
+     ```
+   - Kubernetes job'ını uygulayın:
+     ```bash
+     kubectl apply -f load_job.yaml
+     ```
+
+2. **Tuning API'yi Kurun ve Dağıtın**:
+   - Tuning API için Docker imajını oluşturun:
+     ```bash
+     docker build -t tuning .
+     ```
+   - Tuning API için Kubernetes deployment'ını uygulayın:
+     ```bash
+     kubectl apply -f tuning.yaml
+     ```
+
+3. **Ölçeklendirmeyi İzleyin**:
+   - PHPA'nın ölçeklendirme davranışını izlemek için şu komutu kullanın:
+     ```bash
+     kubectl get configmap predictive-horizontal-pod-autoscaler-dynamic-holt-winters-data -o=json | jq -r '.data.data | fromjson | .modelHistories["HoltWintersPrediction"].replicaHistory[] | .time,.replicas'
+     ```
+
+### Sonuçların Analizi
+
+PHPA'nın Dinamik Holt-Winters modeline karşı standart HPA'nın ölçeklendirme davranışını, zaman içinde replika sayısını analiz ederek karşılaştırın. Sonuçları aşağıdaki grafikte görebilirsiniz:
+
+![Holt Winters PHPA vs Normal HPA](holt-winters-phpa-vs-hpa.png)
+
+
+### Avantajlar:
+
+1. **Daha İyi Tahminleme**: Dynamic Holt-Winters modeli, trend ve mevsimsellik gibi zaman serisi özelliklerini dikkate alır, bu da yük değişimlerini daha doğru tahmin etmeye yardımcı olur.
+2. **Önceden Ölçeklendirme**: Beklenen yük artışlarına karşı önceden ölçeklendirme yaparak, kaynakların zamanında hazır olmasını sağlar, böylece kullanıcı deneyimi iyileştirilir.
+3. **Kaynak Kullanımı Optimizasyonu**: Gelecek yük tahminlerine dayalı ölçeklendirme, kaynak israfını azaltır ve maliyet optimizasyonuna katkıda bulunur.
+4. **Yük Dalgalanmalarına Uyum**: PHPA, yük dalgalanmalarını öğrenerek ve tahmin ederek ani yük değişimlerine daha hızlı ve etkin yanıt verir.
+5. **Esneklik**: Farklı yük senaryolarına ve iş yükü paternlerine esnek bir şekilde adapte olabilir, bu da çeşitli uygulama türleri için uygun hale getirir.
+
+### Dezavantajlar:
+
+1. **Karmaşıklık**: Modelin kurulumu ve ayarı, standart HPA'ya göre daha karmaşık ve teknik bilgi gerektirir.
+2. **Yanlış Tahminler**: Model parametrelerinin yanlış ayarlanması, tahmin hatalarına ve istenmeyen ölçeklendirme eylemlerine yol açabilir.
+3. **Bakım Gereksinimi**: Modelin doğru çalışmaya devam etmesi için düzenli bakım ve inceleme gereklidir.
+4. **Veriye Duyarlılık**: Yeterli ve kaliteli veri gerektirir; veri eksikliği veya kalitesiz veri model performansını olumsuz etkileyebilir.
+5. **Maliyet**: İleri düzey modelleme ve sürekli veri analizi, işletme maliyetlerini artırabilir.
+
+### Normal Horizontal Pod Autoscaler (HPA)
+
+### Avantajlar:
+
+1. **Kurulum Kolaylığı**: HPA, Kubernetes'in yerleşik bir özelliği olarak gelir ve basit metriklerle kolayca kurulabilir ve yönetilebilir.
+2. **Düşük Bakım**: Bir kez kurulduktan sonra, az bakım gerektirir ve genellikle otomatik olarak çalışır.
+3. **Anında Tepki**: Gerçek zamanlı metriklerle çalışır ve kaynak kullanımı belirli bir eşiği aştığında hızlı bir şekilde ölçeklendirme yapar.
+4. **Geniş Kabul ve Destek**: Kubernetes kullanıcıları arasında geniş bir kabul görmüştür ve çeşitli araçlar ve topluluk desteği ile desteklenmektedir.
+5. **Basit ve Güvenilir**: Yapılandırması kolaydır ve çoğu kullanım senaryosu için güvenilir sonuçlar sunar.
+
+### Dezavantajlar:
+
+1. **Reaktif Yaklaşım**: Yalnızca mevcut yük üzerine tepki verir, bu yüzden yük artışlarına proaktif bir yanıt veremez.
+2. **Esneklik Eksikliği**: Mevsimsellik veya trend gibi daha karmaşık yük desenlerini anlamakta ve buna göre ölçeklendirmede yetersiz kalabilir.
+3. **Ani Yük Değişimlerine Yavaş Yanıt**: Ani yük artışları durumunda, kaynaklar yeterince hızlı sağlanamayabilir, bu da performans sorunlarına yol açabilir.
+4. **Kaynak İsrafı**: Kısa süreli yük artışları, gereksiz yere fazla sayıda pod başlatılmasına neden olabilir.
+5. **Detaylı İzleme ve Tahmin Yok**: HPA, basit CPU ve bellek kullanımı gibi temel metriklerle çalışır ve daha detaylı kullanım veya tahmin yetenekleri sunmaz.
+
+
+### Sonuç
+
+Bu test senaryosu, Dynamic Holt-Winters PHPA'nın değişken yük koşullarına nasıl uyum sağladığını ve standart HPA ile karşılaştırıldığında performansını göstermektedir. Her iki yaklaşımın avantajlarını ve dezavantajlarını anlayarak, uygulama ihtiyaçlarınıza en uygun otomatik ölçeklendirme yöntemini seçebilirsiniz.
