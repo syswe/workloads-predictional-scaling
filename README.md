@@ -1,6 +1,6 @@
 [![License](https://img.shields.io/:license-apache-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
 
-# Tahmin Edici Yatay Pod Ölçeklendirici (PHPA) ve Standart HPA Karşılaştırması
+# Tahminsel Yatay Pod Ölçeklendirici (PHPA) ve Standart HPA Karşılaştırması
 
 Tahmin Edici Yatay Pod Ölçeklendiriciler (PHPA), standart Yatay Pod Ölçeklendiriciler (HPA) ile aynı işlevselliğe sahiptir ancak ekstra tahmin kabiliyetlerine sahip olarak, istatistiksel modeller kullanarak zamandan önce tahminlerle ölçeklendirme yapmanızı sağlar.
 
@@ -40,7 +40,7 @@ Autoscaler, sadece en yeni Kubernetes sürümüne karşı test edilmiştir - eğ
   * Ölçek Küçültme Stabilizasyonu.
   * Senkronizasyon Periyodu.
 
-## Bir Tahmin Edici Yatay Pod Ölçeklendirici Nasıl Görünür?
+## Bir Tahminsel Yatay Pod Ölçeklendirici Nasıl Görünür?
 
 PHPA'lar, ek konfigürasyon seçenekleri ile mümkün olduğunca Yatay Pod Ölçeklendiricilere benzer şekilde yapılandırılmıştır.
 
@@ -80,20 +80,10 @@ Bu PHPA, hedef kaynağın CPU kullanımını %50'de tutmaya çalışırken ekstr
 
 ## Kurulum
 
-Tahmin Edici Yatay Pod Ölçeklendiricileri yönetmek için operatör, Helm kullanılarak kurulabilir:
+Tahminsel Yatay Pod Ölçeklendiricileri yönetmek için operatör, Helm kullanılarak kurulabilir:
 
 ```bash
 VERSION=v0.13.2
 HELM_CHART=predictive-horizontal-pod-autoscaler-operator
 helm install ${HELM_CHART} https://github.com/jthomperoo/predictive-horizontal-pod-autoscaler/releases/download/${VERSION}/predictive-horizontal-pod-autoscaler-${VERSION}.tgz
 ```
-
-## Hızlı Başlangıç
-
-[Tanıtım kılavuzuna](https://predictive-horizontal-pod-autoscaler.readthedocs.io/en/latest/user-guide/getting-started/) ve [örnekler](./examples/) bölümüne göz atarak Tahmin Edici Yatay Pod Ölçeklendiricileri kullanmanın yollarını keşfedin.
-
-## Daha Fazla Bilgi
-
-Daha fazla bilgi, rehber ve referanslar için [wiki'yi ziyaret edin](https://predictive-horizontal-pod-autoscaler.readthedocs.io/en/latest/).
-
-Çalışan kod örnekleri için [`examples/` dizinine](./examples) bakın.

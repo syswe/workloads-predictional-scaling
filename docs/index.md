@@ -1,8 +1,8 @@
 [![License](https://img.shields.io/:license-apache-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
 
-# Tahmin Edici Yatay Pod Ölçeklendirici (PHPA)
+# Tahminsel Yatay Pod Ölçeklendirici (PHPA)
 
-Tahmin Edici Yatay Pod Ölçeklendiriciler (PHPA), ek tahmin yetenekleri ile donatılmış Yatay Pod Ölçeklendiricilerdir (HPA), önceden tahmin edilen istatistiksel modeller kullanarak otomatik ölçeklendirme yapmanızı sağlar.
+Tahminsel Yatay Pod Ölçeklendiriciler (PHPA), ek tahmin yetenekleri ile donatılmış Yatay Pod Ölçeklendiricilerdir (HPA), önceden tahmin edilen istatistiksel modeller kullanarak otomatik ölçeklendirme yapmanızı sağlar.
 
 ## Neden Kullanmalıyım?
 

@@ -11,4 +11,3 @@ spec:
         imagePullPolicy: IfNotPresent
       restartPolicy: Never
   backoffLimit: 0  # Ensures the job does not retry on failure
-

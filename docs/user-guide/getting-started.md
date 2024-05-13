@@ -4,7 +4,7 @@ Here is the updated and translated `docs/user-guide/getting-started.md` for your
 
 # Başlarken
 
-Bu kılavuz, basit bir Tahmin Edici Yatay Pod Ölçeklendirici (PHPA) dağıtmanın ilk adımlarını gösterecektir. Bu kılavuz, CPU kullanımına dayalı olarak gelecekteki yükü tahmin etmek için lineer regresyon kullanan bir PHPA'nın nasıl dağıtılacağını gösterecektir.
+Bu kılavuz, basit bir Tahminsel Yatay Pod Ölçeklendirici (PHPA) dağıtmanın ilk adımlarını gösterecektir. Bu kılavuz, CPU kullanımına dayalı olarak gelecekteki yükü tahmin etmek için lineer regresyon kullanan bir PHPA'nın nasıl dağıtılacağını gösterecektir.
 
 Bu kılavuzun nihai sonucunu görmek için [Basit Lineer Regresyon
 örneğine](https://github.com/jthomperoo/predictive-horizontal-pod-autoscaler/tree/master/examples/simple-linear) göz atın.
