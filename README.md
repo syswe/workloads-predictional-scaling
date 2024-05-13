@@ -33,8 +33,9 @@ Autoscaler, sadece en yeni Kubernetes sürümüne karşı test edilmiştir - eğ
 
 * Tahmin olmadan replica sayısını hesaplamada Yatay Pod Ölçeklendirici ile fonksiyonel olarak aynı.
 * Yatay Pod Ölçeklendirici replika sayım mantığına uygulanacak istatistiksel model seçimi.
-  * Holt-Winters Yumuşatma
+  * Holt-Winters
   * Lineer Regresyon
+  * Normal HPA
 * Kubernetes ölçeklendirme seçeneklerini özelleştirmenize olanak tanır ve böylece EKS veya GCP gibi yönetilen çözümlerde çalışabilir.
   * CPU Başlangıç Süresi.
   * Ölçek Küçültme Stabilizasyonu.
