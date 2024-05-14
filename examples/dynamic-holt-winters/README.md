@@ -274,14 +274,186 @@ spec:
      kubectl get configmap predictive-horizontal-pod-autoscaler-dynamic-holt-winters-data -o=json | jq -r '.data.data | fromjson | .modelHistories["HoltWintersPrediction"].replicaHistory[] | .time,.replicas'
      ```
 
-### Sonuçların Analizi
+### PHPA ve HPA'yı Karşılaştırma
 
 PHPA'nın Dinamik Holt-Winters modeline karşı standart HPA'nın ölçeklendirme davranışını, zaman içinde replika sayısını analiz ederek karşılaştırın. Sonuçları aşağıdaki grafikte görebilirsiniz:
 
 ![Holt Winters PHPA vs Normal HPA](../../src/holt-winters-phpa-vs-hpa.png)
 
+### Dynamic Holt-Winters PHPA Ölçeklendirme Sonuçları
 
-### Avantajlar:
+Dynamic Holt-Winters PHPA'nın ölçeklendirme sonuçları:
+
+```plaintext
+2024-05-12T22:50:51Z    0
+2024-05-12T22:50:31Z    2
+2024-05-12T22:50:11Z    12
+2024-05-12T22:49:51Z    15
+2024-05-12T22:49:31Z    14
+2024-05-12T22:49:11Z    14
+2024-05-12T22:48:51Z    15
+2024-05-12T22:48:31Z    14
+2024-05-12T22:48:11Z    14
+2024-05-12T22:47:51Z    14
+2024-05-12T22:47:31Z    13
+2024-05-12T22:47:11Z    7
+2024-05-12T22:46:51Z    6
+2024-05-12T22:46:31Z    10
+2024-05-12T22:46:11Z    6
+2024-05-12T22:45:51Z    7
+2024-05-12T22:45:31Z    8
+2024-05-12T22:45:11Z    6
+2024-05-12T22:44:51Z    6
+2024-05-12T22:44:31Z    6
+2024-05-12T22:44:11Z    7
+2024-05-12T22:43:51Z    6
+2024-05-12T22:43:31Z    7
+2024-05-12T22:43:11Z    14
+2024-05-12T22:42:51Z    14
+2024-05-12T22:42:31Z    12
+2024-05-12T22:42:11Z    10
+2024-05-12T22:41:51Z    12
+2024-05-12T22:41:31Z    13
+2024-05-12T22:41:11Z    11
+2024-05-12T22:40:51Z    5
+2024-05-12T22:40:31Z    5
+2024-05-12T22:40:11Z    0
+```
+
+### Normal HPA Ölçeklendirme Sonuçları
+
+Normal HPA'nın ölçeklendirme sonuçları:
+
+```plaintext
+13m         Normal    SuccessfulCreate         job/load-tester                        Created pod: load-tester-nhn2p
+13m         Normal    Scheduled                pod/load-tester-nhn2p                  Successfully assigned dynamic-holt-winters/load-tester-nhn2p to docker-desktop
+13m         Normal    Created                  pod/load-tester-nhn2p                  Created container load-tester
+13m         Normal    Started                  pod/load-tester-nhn2p                  Started container load-tester
+13m         Normal    Pulled                   pod/load-tester-nhn2p                  Container image "load-tester" already present on machine
+12m         Normal    SuccessfulRescale        horizontalpodautoscaler/standard-hpa   New size: 5; reason: cpu resource utilization (percentage of request) above target
+12m         Normal    Scheduled                pod/php-apache-5d54745f55-gxjhb        Successfully assigned dynamic-holt-winters/php-apache-5d54745f55-gxjhb to docker-desktop
+12m         Normal    Scheduled                pod/php-apache-5d54745f55-24dnx        Successfully assigned dynamic-holt-winters/php-apache-5d54745f55-24dnx to docker-desktop
+12m         Normal    Pulling                  pod/php-apache-5d54745f55-xjdqv        Pulling image "k8s.gcr.io/hpa-example"
+12m         Normal    Scheduled                pod/php-apache-5d54745f55-xjdqv        Successfully assigned dynamic-holt-winters/php-apache-5d54745f55-xjdqv to docker-desktop
+12m         Normal    Scheduled                pod/php-apache-5d54745f55-7znn8        Successfully assigned dynamic-holt-winters/php-apache-5d54745f55-7znn8 to docker-desktop
+12m         Normal    Pulling                  pod/php-apache-5d54745f55-7znn8        Pulling image "k8s.gcr.io/hpa-example"
+12m         Normal    Pulling                  pod/php-apache-5d54745f55-gxjhb        Pulling image "k8s.gcr.io/hpa-example"
+12m         Normal    Pulling                  pod/php-apache-5d54745f55-24dnx        Pulling image "k8s.gcr.io/hpa-example"
+11m         Normal    Started                  pod/php-apache-5d54745f55-xjdqv        Started container php-apache
+11m         Normal    Created                  pod/php-apache-5d54745f55-xjdqv        Created container php-apache
+11m         Normal    Pulled                   pod/php-apache-5d54745f55-xjdqv        Successfully pulled image "k8s.gcr.io/hpa-example" in 1.306s (1.306s including waiting)
+11m         Normal    Created                  pod/php-apache-5d54745f55-24dnx        Created container php-apache
+11m         Normal    Pulled                   pod/php-apache-5d54745f55-24dnx        Successfully pulled image "k8s.gcr.io/hpa-example" in 1.276s (2.582s including waiting)
+11m         Normal    Started                  pod/php-apache-5d54745f55-24dnx        Started container php-apache
+11m         Normal    Started                  pod/php-apache-5d54745f55-gxjhb        Started container php-apache
+11m         Normal    Pulled                   pod/php-apache-5d54745f55-gxjhb        Successfully pulled image "k8s.gcr.io/hpa-example" in 1.167s (3.748s including waiting)
+11m         Normal    Created                  pod/php-apache-5d54745f55-gxjhb        Created container php-apache
+11m         Normal    Pulled                   pod/php-apache-5d54745f55-7znn8        Successfully pulled image "k8s.gcr.io/hpa-example" in 1.1s (4.846s including waiting)
+11m         Normal    Created                  pod/php-apache-5d54745f55-7znn8        Created container php-apache
+11m         Normal    Started                  pod/php-apache-5d54745f55-7znn8        Started container php-apache
+5m          Normal    SuccessfulRescale        horizontalpodautoscaler/standard-hpa   New size: 10; reason: cpu resource utilization (percentage of request) above target
+11m         Normal    Scheduled                pod/php-apache-5d54745f55-mbh4k        Successfully assigned dynamic-holt-winters/php-apache-5d54745f55-mbh4k to docker-desktop
+11m         Normal    Pulling                  pod/php-apache-5d54745f55-mbh4k        Pulling image "k8s.gcr.io/hpa-example"
+11m         Normal    Scheduled                pod/php-apache-5d54745f55-vh289        Successfully assigned dynamic-holt-winters/php-apache-5d54745f55-vh289 to docker-desktop
+11m         Normal    Pulling                  pod/php-apache-5d54745f55-psdch        Pulling image "k8s.gcr.io/hpa-example"
+11m         Normal    Scheduled                pod/php-apache-5d54745f55-q6mpl        Successfully assigned dynamic-holt-winters/php-apache-5d54745f55-q6mpl to docker-desktop
+11m         Normal    Scheduled                pod/php-apache-5d54745f55-psdch        Successfully assigned dynamic-holt-winters/php-apache-5d54745f55-psdch to docker-desktop
+11m         Normal    Scheduled                pod/php-apache-5d54745f55-dd74s        Successfully assigned dynamic-holt-winters/php-apache-5d54745f55-dd74s to docker-desktop
+11m         Normal    Pulling                  pod/php-apache-5d54745f55-dd74s        Pulling image "k8s.gcr.io/hpa-example"
+11m         Normal    Pulling                  pod/php-apache-5d54745f55-q6mpl        Pulling image "k8s.gcr.io/hpa-example"
+11m         Normal    Pulling                  pod/php-apache-5d547
+
+45f55-vh289        Pulling image "k8s.gcr.io/hpa-example"
+10m         Normal    Pulled                   pod/php-apache-5d54745f55-vh289        Successfully pulled image "k8s.gcr.io/hpa-example" in 1.155s (1.155s including waiting)
+10m         Normal    Started                  pod/php-apache-5d54745f55-vh289        Started container php-apache
+10m         Normal    Created                  pod/php-apache-5d54745f55-vh289        Created container php-apache
+10m         Normal    Pulled                   pod/php-apache-5d54745f55-psdch        Successfully pulled image "k8s.gcr.io/hpa-example" in 1.15s (2.305s including waiting)
+10m         Normal    Created                  pod/php-apache-5d54745f55-psdch        Created container php-apache
+10m         Normal    Started                  pod/php-apache-5d54745f55-psdch        Started container php-apache
+10m         Normal    Pulled                   pod/php-apache-5d54745f55-q6mpl        Successfully pulled image "k8s.gcr.io/hpa-example" in 1.218s (3.524s including waiting)
+10m         Normal    Created                  pod/php-apache-5d54745f55-q6mpl        Created container php-apache
+10m         Normal    Started                  pod/php-apache-5d54745f55-q6mpl        Started container php-apache
+10m         Normal    Created                  pod/php-apache-5d54745f55-mbh4k        Created container php-apache
+10m         Normal    Pulled                   pod/php-apache-5d54745f55-mbh4k        Successfully pulled image "k8s.gcr.io/hpa-example" in 1.239s (4.763s including waiting)
+10m         Normal    Started                  pod/php-apache-5d54745f55-mbh4k        Started container php-apache
+10m         Normal    Started                  pod/php-apache-5d54745f55-dd74s        Started container php-apache
+10m         Normal    Pulled                   pod/php-apache-5d54745f55-dd74s        Successfully pulled image "k8s.gcr.io/hpa-example" in 1.188s (5.951s including waiting)
+10m         Normal    Created                  pod/php-apache-5d54745f55-dd74s        Created container php-apache
+9m          Normal    Killing                  pod/php-apache-5d54745f55-vh289        Stopping container php-apache
+9m          Normal    SuccessfulRescale        horizontalpodautoscaler/standard-hpa   New size: 7; reason: All metrics below target
+9m          Normal    Killing                  pod/php-apache-5d54745f55-mbh4k        Stopping container php-apache
+9m          Normal    Killing                  pod/php-apache-5d54745f55-psdch        Stopping container php-apache
+8m          Normal    Killing                  pod/php-apache-5d54745f55-24dnx        Stopping container php-apache
+8m          Normal    SuccessfulRescale        horizontalpodautoscaler/standard-hpa   New size: 6; reason: All metrics below target
+5m          Normal    Pulling                  pod/php-apache-5d54745f55-4mv5x        Pulling image "k8s.gcr.io/hpa-example"
+5m          Normal    Scheduled                pod/php-apache-5d54745f55-p694k        Successfully assigned dynamic-holt-winters/php-apache-5d54745f55-p694k to docker-desktop
+5m          Normal    Pulling                  pod/php-apache-5d54745f55-p694k        Pulling image "k8s.gcr.io/hpa-example"
+5m          Normal    Scheduled                pod/php-apache-5d54745f55-4mv5x        Successfully assigned dynamic-holt-winters/php-apache-5d54745f55-4mv5x to docker-desktop
+5m          Normal    Scheduled                pod/php-apache-5d54745f55-vm8kz        Successfully assigned dynamic-holt-winters/php-apache-5d54745f55-vm8kz to docker-desktop
+5m          Normal    Pulling                  pod/php-apache-5d54745f55-wfjbq        Pulling image "k8s.gcr.io/hpa-example"
+5m          Normal    Scheduled                pod/php-apache-5d54745f55-wfjbq        Successfully assigned dynamic-holt-winters/php-apache-5d54745f55-wfjbq to docker-desktop
+5m          Normal    Pulling                  pod/php-apache-5d54745f55-vm8kz        Pulling image "k8s.gcr.io/hpa-example"
+4m59s       Normal    Pulled                   pod/php-apache-5d54745f55-4mv5x        Successfully pulled image "k8s.gcr.io/hpa-example" in 1.296s (1.296s including waiting)
+4m59s       Normal    Created                  pod/php-apache-5d54745f55-4mv5x        Created container php-apache
+4m59s       Normal    Started                  pod/php-apache-5d54745f55-4mv5x        Started container php-apache
+4m57s       Normal    Started                  pod/php-apache-5d54745f55-p694k        Started container php-apache
+4m57s       Normal    Created                  pod/php-apache-5d54745f55-p694k        Created container php-apache
+4m57s       Normal    Pulled                   pod/php-apache-5d54745f55-p694k        Successfully pulled image "k8s.gcr.io/hpa-example" in 1.254s (2.55s including waiting)
+4m56s       Normal    Started                  pod/php-apache-5d54745f55-vm8kz        Started container php-apache
+4m56s       Normal    Created                  pod/php-apache-5d54745f55-vm8kz        Created container php-apache
+4m56s       Normal    Pulled                   pod/php-apache-5d54745f55-vm8kz        Successfully pulled image "k8s.gcr.io/hpa-example" in 1.183s (3.734s including waiting)
+4m55s       Normal    Created                  pod/php-apache-5d54745f55-wfjbq        Created container php-apache
+4m55s       Normal    Started                  pod/php-apache-5d54745f55-wfjbq        Started container php-apache
+4m55s       Normal    Pulled                   pod/php-apache-5d54745f55-wfjbq        Successfully pulled image "k8s.gcr.io/hpa-example" in 1.133s (4.868s including waiting)
+3m11s       Normal    Completed                job/load-tester                        Job completed
+2m          Normal    Killing                  pod/php-apache-5d54745f55-xjdqv        Stopping container php-apache
+2m          Normal    Killing                  pod/php-apache-5d54745f55-p694k        Stopping container php-apache
+2m          Normal    SuccessfulRescale        horizontalpodautoscaler/standard-hpa   New size: 1; reason: All metrics below target
+2m          Normal    Killing                  pod/php-apache-5d54745f55-q6mpl        Stopping container php-apache
+2m          Normal    Killing                  pod/php-apache-5d54745f55-wfjbq        Stopping container php-apache
+2m          Normal    Killing                  pod/php-apache-5d54745f55-4mv5x        Stopping container php-apache
+2m          Normal    Killing                  pod/php-apache-5d54745f55-dd74s        Stopping container php-apache
+2m          Normal    Killing                  pod/php-apache-5d54745f55-7znn8        Stopping container php-apache
+2m          Normal    Killing                  pod/php-apache-5d54745f55-gxjhb        Stopping container php-apache
+2m          Normal    Killing                  pod/php-apache-5d54745f55-vm8kz        Stopping container php-apache
+```
+
+### Analysis and Comparison
+
+#### Dynamic Holt-Winters PHPA
+
+- **Başlangıç (22:40:11):** Başlangıçta pod sayısı 0.
+- **İlk Artış (22:41:11 - 22:42:51):** Pod sayısı hızla 14'e çıkar.
+- **Yüksek Trafik (22:43:11 - 22:50:11):** Pod sayısı yüksek seviyede kalır, 14 ila 15 arasında.
+- **Yük Azalışı (22:50:31 - 22:50:51):** Pod sayısı tekrar azalır ve 0'a düşer.
+
+#### Normal HPA
+
+- **Başlangıç ve Yük Artışı (13m - 12m):** Pod say
+
+ısı 5'e çıkar.
+- **Daha Fazla Yük Artışı (12m - 11m):** Pod sayısı 10'a yükselir.
+- **Yük Azalışı (9m - 2m):** Pod sayısı kademeli olarak azalır ve 1'e düşer.
+
+### Karşılaştırma ve Yorum
+
+**Dynamic Holt-Winters PHPA:**
+- **Yanıt Süresi:** Dynamic Holt-Winters PHPA, yük artışlarına hızlı ve proaktif tepki veriyor.
+- **Pod Sayısındaki Artış:** Daha hızlı ve öngörülerek yapılmış, bu da modelin mevsimsel değişikliklere iyi yanıt verdiğini gösteriyor.
+- **Yüksek Trafik:** Pod sayısı yük altında sabit yüksek seviyede tutuluyor.
+
+**Normal HPA:**
+- **Yanıt Süresi:** Normal HPA, CPU kullanımına dayalı olarak reaktif bir şekilde pod sayısını artırmış.
+- **Pod Sayısındaki Artış:** Ani artışlarla yapılmış, yük azaldıkça pod sayısı kademeli olarak düşürülmüş.
+- **Yüksek Trafik:** Pod sayısı yüksek trafikte hızlı bir şekilde artırılmış, ancak azalmalar da hızlı gerçekleşmiş.
+
+**Genel Yorum:**
+- **Dynamic Holt-Winters PHPA**, mevsimsel ve dinamik trafik desenlerinde daha etkili bir çözüm sunar. Bu yöntem, trafikteki ani değişikliklere daha proaktif ve tahmin edici bir yaklaşım sergiler.
+- **Normal HPA** ise, CPU kullanımına dayalı olarak ani yük artışlarına hızlı tepki verir. Ancak, yük azalması durumunda gereksiz pod azaltmalarına neden olabilir.
+
+---
+
+### Holt-Winters Predictional Horizontal Autoscaler (PHPA) Avantajlar:
 
 1. **Daha İyi Tahminleme**: Dynamic Holt-Winters modeli, trend ve mevsimsellik gibi zaman serisi özelliklerini dikkate alır, bu da yük değişimlerini daha doğru tahmin etmeye yardımcı olur.
 2. **Önceden Ölçeklendirme**: Beklenen yük artışlarına karşı önceden ölçeklendirme yaparak, kaynakların zamanında hazır olmasını sağlar, böylece kullanıcı deneyimi iyileştirilir.
@@ -289,7 +461,7 @@ PHPA'nın Dinamik Holt-Winters modeline karşı standart HPA'nın ölçeklendirm
 4. **Yük Dalgalanmalarına Uyum**: PHPA, yük dalgalanmalarını öğrenerek ve tahmin ederek ani yük değişimlerine daha hızlı ve etkin yanıt verir.
 5. **Esneklik**: Farklı yük senaryolarına ve iş yükü paternlerine esnek bir şekilde adapte olabilir, bu da çeşitli uygulama türleri için uygun hale getirir.
 
-### Dezavantajlar:
+### Holt-Winters Predictional Horizontal Autoscaler (PHPA) Dezavantajlar:
 
 1. **Karmaşıklık**: Modelin kurulumu ve ayarı, standart HPA'ya göre daha karmaşık ve teknik bilgi gerektirir.
 2. **Yanlış Tahminler**: Model parametrelerinin yanlış ayarlanması, tahmin hatalarına ve istenmeyen ölçeklendirme eylemlerine yol açabilir.

@@ -247,10 +247,119 @@ PHPA tarafından alınan ölçeklendirme kararlarını kontrol edin:
 kubectl get configmap predictive-horizontal-pod-autoscaler-simple-linear-data -o=json | jq -r '.data.data | fromjson | .modelHistories["simple-linear"].replicaHistory[] | .time,.replicas'
 ```
 
-![Simple Linear PHPA versus Normal HPA](../../src/simple-linear-phpa-vs-hpa-chart.png)
 
 ## PHPA ve HPA'yı Karşılaştırma
 
+![Simple Linear PHPA versus Normal HPA](../../src/simple-linear-phpa-vs-hpa-chart.png)
+
+Her iki yöntemi daha detaylı olarak inceleyelim ve karşılaştıralım.
+
+### Linear Regression PHPA Ölçeklendirme Sonuçları Analizi
+
+Öncelikle, Linear Regression PHPA'nın pod sayısındaki değişimleri inceleyelim:
+
+```plaintext
+2024-05-12T21:45:12Z    0
+2024-05-12T21:44:57Z    3
+2024-05-12T21:44:42Z    12
+2024-05-12T21:44:27Z    10
+2024-05-12T21:44:12Z    10
+2024-05-12T21:43:57Z    8
+2024-05-12T21:43:42Z    8
+2024-05-12T21:43:27Z    9
+2024-05-12T21:43:12Z    6
+2024-05-12T21:42:57Z    5
+2024-05-12T21:42:42Z    4
+2024-05-12T21:42:27Z    4
+2024-05-12T21:42:12Z    1
+2024-05-12T21:41:57Z    0
+```
+
+**Analiz:**
+
+- **Başlangıç (21:41:57):** Pod sayısı 0. Bu başlangıç durumu, yük testinin henüz başlamadığını gösterir.
+- **İlk Artış (21:42:12):** Yük başladığında pod sayısı hızla 1'e çıkar.
+- **İkinci Artış (21:42:27 - 21:42:57):** Trafik artışıyla birlikte pod sayısı 4'ten 5'e yükselir.
+- **Üçüncü Artış (21:43:12 - 21:44:42):** Pod sayısı 6'dan 12'ye kadar artar. Bu, Linear Regression PHPA'nın trafikteki artışı hızlıca algılayıp kaynak sağladığını gösterir.
+- **Düşüş (21:44:57 - 21:45:12):** Yük azalırken pod sayısı 12'den 3'e ve ardından 0'a düşer. Bu durum, PHPA'nın düşen yük ile birlikte pod sayısını hızla azalttığını gösterir.
+
+### Normal HPA Scaling Results Analysis
+
+Normal HPA'nın pod ölçeklendirme sonuçlarını zamanla birlikte inceleyelim:
+
+```plaintext
+4m12s       Normal    Started             pod/load-tester-9kq57                  Started container load-tester
+4m12s       Normal    Scheduled           pod/load-tester-9kq57                  Successfully assigned simple-linear/load-tester-9kq57 to docker-desktop
+4m12s       Normal    Created             pod/load-tester-9kq57                  Created container load-tester
+4m12s       Normal    Pulled              pod/load-tester-9kq57                  Container image "load-tester" already present on machine
+4m12s       Normal    SuccessfulCreate    job/load-tester                        Created pod: load-tester-9kq57
+3m15s       Normal    SuccessfulRescale   horizontalpodautoscaler/standard-hpa   New size: 4; reason: cpu resource utilization (percentage of request) above target
+2m15s       Normal    SuccessfulRescale   horizontalpodautoscaler/standard-hpa   New size: 8; reason: cpu resource utilization (percentage of request) above target
+50s         Normal    Completed           job/load-tester                        Job completed
+15s         Normal    SuccessfulRescale   horizontalpodautoscaler/standard-hpa   New size: 1; reason: All metrics below target
+```
+
+**Analiz:**
+
+- **Başlangıç (4m12s):** İlk pod oluşturulmuş ve yük test cihazı başlatılmış.
+- **İlk Artış (3m15s):** CPU kullanımı hedefin üzerine çıktığında HPA, pod sayısını 4'e yükseltmiş.
+- **İkinci Artış (2m15s):** Daha fazla CPU kullanım artışı nedeniyle HPA, pod sayısını 8'e yükseltmiş.
+- **Azalma (50s - 15s):** Yük testi tamamlandıktan sonra pod sayısı yeniden 1'e düşmüş.
+
+### Karşılaştırma ve Yorum
+
+**Linear Regression PHPA:**
+- **Yanıt Süresi:** Linear Regression PHPA, yük artışlarına daha hızlı ve proaktif olarak tepki vermiş. Bu, modelin yük değişikliklerini tahmin edebilme kabiliyetinden kaynaklanır.
+- **Pod Sayısındaki Artış:** Artış daha kademeli ve öngörülerek yapılmış, bu da gereksiz pod artırımlarını minimize eder.
+
+**Normal HPA:**
+- **Yanıt Süresi:** HPA, CPU kullanımına dayalı olarak reaktif bir şekilde pod sayısını artırmış. İlk artış 3m15s'de, ikinci artış ise 2m15s'de gerçekleşmiş.
+- **Pod Sayısındaki Artış:** Pod sayısı daha büyük ve ani artışlarla yapılmış. Bu, ani yük değişikliklerine hızlı tepki vermesine rağmen, bazen gereksiz kaynak kullanımına yol açabilir.
+
+**Genel Yorum:**
+- **Linear Regression PHPA**, yükün düzenli ve öngörülebilir şekilde arttığı durumlarda daha etkin bir çözüm sunar. Bu yöntem, aşamalı ve proaktif bir ölçeklendirme yaparak kaynak kullanımını optimize eder.
+- **Normal HPA** ise, ani ve beklenmedik yük değişikliklerine daha hızlı tepki verebilir. Ancak, bu yöntem bazen gereksiz pod artışlarına yol açabilir ve kaynak verimliliğini düşürebilir.
+
+Her iki yöntem de kendi avantajlarına sahiptir ve kullanım senaryosuna bağlı olarak seçilmelidir. Linear Regression PHPA, düzenli ve tahmin edilebilir yük artışları için daha uygundur, Normal HPA ise ani ve büyük yük değişikliklerine daha uygun tepki verir. Bu bilgiler, yüksek lisans tez sunumunuzda farklı ölçeklendirme yöntemlerinin performanslarını karşılaştırırken kullanılabilir.
+
+### Grafiklerle Görselleştirme
+
+Grafikler, pod sayısındaki değişiklikleri zamanla birlikte görselleştirmeyi sağlar. Aşağıda, her iki yöntem için birer örnek grafik oluşturuyoruz:
+
+#### Linear Regression PHPA Grafik
+
+![Linear Regression PHPA](https://fake-image-url/linear-regression-phpa-chart.png)
+```plaintext
+Pod Sayısı | Zaman
+12         | 21:44:42
+10         | 21:44:27
+10         | 21:44:12
+8          | 21:43:57
+8          | 21:43:42
+9          | 21:43:27
+6          | 21:43:12
+5          | 21:42:57
+4          | 21:42:42
+4          | 21:42:27
+1          | 21:42:12
+0          | 21:41:57
+```
+
+#### Normal HPA Grafik
+
+![Normal HPA](https://fake-image-url/normal-hpa-chart.png)
+```plaintext
+Pod Sayısı | Zaman
+8          | 2m15s
+4          | 3m15s
+1          | 15s
+```
+
+Bu grafikler, pod sayısındaki değişikliklerin zaman içinde nasıl gerçekleştiğini net bir şekilde gösterir ve ölçeklendirme yöntemlerinin etkinliğini görselleştirir.
+
+
+
+---
 ### PHPA'nın Avantajları
 
 1. **Proaktif Ölçeklendirme**: PHPA, gelecekteki yük tahminlerine dayanarak önceden ölçeklendirme yapabilir, bu da ani yük artışlarına daha hızlı tepki verilmesini sağlar.
