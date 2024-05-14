@@ -1,6 +1,6 @@
 [![License](https://img.shields.io/:license-apache-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
 
-# Tahminsel Yatay Pod Ölçeklendirici (PHPA) ve Standart HPA Karşılaştırması
+# Tahminsel Yatay Pod Ölçeklendirici (PHPA) Uygulaması
 
 Tahmin Edici Yatay Pod Ölçeklendiriciler (PHPA), standart Yatay Pod Ölçeklendiriciler (HPA) ile aynı işlevselliğe sahiptir ancak ekstra tahmin kabiliyetlerine sahip olarak, istatistiksel modeller kullanarak zamandan önce tahminlerle ölçeklendirme yapmanızı sağlar.
 
@@ -41,7 +41,7 @@ Autoscaler, sadece en yeni Kubernetes sürümüne karşı test edilmiştir - eğ
   * Ölçek Küçültme Stabilizasyonu.
   * Senkronizasyon Periyodu.
 
-## Bir Tahminsel Yatay Pod Ölçeklendirici Nasıl Görünür?
+## Bir Tahminsel Yatay Pod Ölçeklendirici Yapılandırması Nasıl Görünür?
 
 PHPA'lar, ek konfigürasyon seçenekleri ile mümkün olduğunca Yatay Pod Ölçeklendiricilere benzer şekilde yapılandırılmıştır.
 
