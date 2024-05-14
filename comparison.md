@@ -48,7 +48,7 @@ Bu doküman, Predictive Horizontal Pod Autoscaler (PHPA) ve Horizontal Pod Autos
 
 1. **[Amazon.com](http://amazon.com/) (E-ticaret Platformu):** Yılın belirli zamanlarında, özellikle Black Friday ve Cyber Monday gibi büyük indirim dönemlerinde, kullanıcı trafiği önemli ölçüde artar. Holt-Winters metodu, bu mevsimsel trafik artışlarını öngörerek, önceden ölçeklendirme yapabilir.
 2. **Netflix (Streaming Servisi):** Akşam saatlerinde ve özel etkinliklerde (Oscar gecesi gibi) izlenme oranlarında artış gözlenir. Bu dönemsel değişiklikler, önceden tahmin edilebilir ve kaynaklar buna göre ölçeklendirilebilir.
-3. [**CNN.com](http://cnn.com/) (Haber Sitesi):** Büyük haber olayları sırasında trafikte ani ve öngörülemeyen artışlar yaşanabilir. Dinamik Holt-Winters, bu tür dalgalanmalara hızla uyum sağlayabilir.
+3. **[CNN.com](http://cnn.com/) (Haber Sitesi):** Büyük haber olayları sırasında trafikte ani ve öngörülemeyen artışlar yaşanabilir. Dinamik Holt-Winters, bu tür dalgalanmalara hızla uyum sağlayabilir.
 4. **Twitch (Canlı Yayın Platformu):** Etkinlikler ve popüler yayıncılar sırasında izleyici sayısında büyük dalgalanmalar olur. Dinamik modelleme, bu değişiklikleri gerçek zamanlı olarak takip edebilir.
 5. **TurboTax (Çevrimiçi Vergi Hazırlama Servisi):** Her yıl vergi dönemi yaklaştıkça kullanımında büyük artışlar görülür. Bu mevsimsel model, servisin kullanıcı talebine hızla yanıt vermesini sağlar.
 
