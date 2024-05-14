@@ -1,3 +1,5 @@
+![Project Header](src/project-header.jpg)
+
 [![License](https://img.shields.io/:license-apache-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
 
 # Tahminsel Yatay Pod Ölçeklendirici (PHPA) Uygulaması

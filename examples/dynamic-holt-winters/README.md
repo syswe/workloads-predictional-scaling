@@ -278,7 +278,7 @@ spec:
 
 PHPA'nın Dinamik Holt-Winters modeline karşı standart HPA'nın ölçeklendirme davranışını, zaman içinde replika sayısını analiz ederek karşılaştırın. Sonuçları aşağıdaki grafikte görebilirsiniz:
 
-![Holt Winters PHPA vs Normal HPA](holt-winters-phpa-vs-hpa.png)
+![Holt Winters PHPA vs Normal HPA](../../src/holt-winters-phpa-vs-hpa.png)
 
 
 ### Avantajlar:

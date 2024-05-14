@@ -247,7 +247,7 @@ PHPA tarafından alınan ölçeklendirme kararlarını kontrol edin:
 kubectl get configmap predictive-horizontal-pod-autoscaler-simple-linear-data -o=json | jq -r '.data.data | fromjson | .modelHistories["simple-linear"].replicaHistory[] | .time,.replicas'
 ```
 
-![Simple Linear PHPA versus Normal HPA](simple-linear-phpa-vs-hpa-chart.png)
+![Simple Linear PHPA versus Normal HPA](../../src/simple-linear-phpa-vs-hpa-chart.png)
 
 ## PHPA ve HPA'yı Karşılaştırma
 
