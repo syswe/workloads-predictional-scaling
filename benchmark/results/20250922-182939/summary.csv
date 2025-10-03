@@ -1,0 +1,11 @@
+scenario,description,total_duration_s,total_requests,avg_rps,weighted_avg_latency_s,peak_desired,peak_ready,avg_current,avg_cpu_m,max_cpu_m
+steady_baseline,Steady weekday traffic with predictable baseline load,91.2,363,3.98,1.333,5.0,5.0,1.89,0.0,0.0
+lunch_rush,Midday ramp with lunch peak typical of food ordering apps,94.9,356,3.75,3.179,5.0,5.0,5.00,0.0,0.0
+marketing_spike,Abrupt spike from a marketing blast followed by return to normal,110.3,481,4.36,4.177,5.0,5.0,5.00,0.0,0.0
+release_ramp,Gradual traffic climb after a feature release announcement,110.6,434,3.92,4.075,5.0,5.0,5.00,0.0,0.0
+weekend_waves,Repeated high/low weekend browsing waves,131.4,512,3.90,3.789,5.0,5.0,5.00,0.0,0.0
+flash_sale,Short burst flash sale traffic with cooldowns,138.3,529,3.83,4.895,5.0,5.0,5.00,0.0,0.0
+nightly_maintenance,Low overnight traffic with maintenance window pause,76.1,295,3.88,1.126,5.0,5.0,4.14,0.0,0.0
+bot_attack,Noisy bot-like traffic surge with elevated concurrency,133.7,370,2.77,5.784,6.0,6.0,4.14,0.0,0.0
+sustained_demand,Sustained elevated demand from a popular campaign,123.6,485,3.92,7.578,6.0,6.0,5.38,0.0,0.0
+decay_after_peak,Sharp peak that decays gradually after event ends,97.1,380,3.91,5.008,5.0,5.0,5.00,0.0,0.0

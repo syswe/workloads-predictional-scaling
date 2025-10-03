@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hızlı Başlangıç - PHPA Wiki</title>
+  <meta name="description" content="PHPA (Predictive Horizontal Pod Autoscaler) ile hızlı başlangıç rehberi">
+  <link rel="stylesheet" href="../assets/css/wiki.css">
+</head>
+<body>
+  <div class="wiki-container">
+    <!-- Sidebar Navigation -->
+    <nav class="wiki-sidebar" id="sidebar">
+      <div class="wiki-sidebar-header">
+        <a href="../index.html" class="wiki-logo">
+          📊 PHPA Wiki
+        </a>
+        <span class="wiki-version">v0.13.2</span>
+      </div>
+
+      <div class="wiki-nav">
+        <div class="wiki-nav-section">
+          <div class="wiki-nav-section-title">Başlangıç</div>
+          <ul>
+            <li><a href="../index.html">Ana Sayfa</a></li>
+            <li><a href="getting-started.html" class="active">Hızlı Başlangıç</a></li>
+            <li><a href="installation.html">Kurulum</a></li>
+          </ul>
+        </div>
+
+        <div class="wiki-nav-section">
+          <div class="wiki-nav-section-title">Kılavuzlar</div>
+          <ul>
+            <li><a href="models.html">Modeller</a></li>
+            <li><a href="configuration.html">Yapılandırma</a></li>
+            <li><a href="examples.html">Örnekler</a></li>
+            <li><a href="benchmarking.html">Benchmark</a></li>
+          </ul>
+        </div>
+
+        <div class="wiki-nav-section">
+          <div class="wiki-nav-section-title">İşletim</div>
+          <ul>
+            <li><a href="operations.html">İşletim Rehberi</a></li>
+            <li><a href="monitoring.html">İzleme & Gözlem</a></li>
+            <li><a href="troubleshooting.html">Sorun Giderme</a></li>
+          </ul>
+        </div>
+
+        <div class="wiki-nav-section">
+          <div class="wiki-nav-section-title">Referans</div>
+          <ul>
+            <li><a href="api-reference.html">API Referansı</a></li>
+            <li><a href="cli-reference.html">CLI Referansı</a></li>
+            <li><a href="changelog.html">Değişiklik Günlüğü</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="wiki-main">
+      <!-- Header -->
+      <header class="wiki-header">
+        <div class="wiki-header-content">
+          <div class="wiki-breadcrumb">
+            <a href="../index.html">Ana Sayfa</a>
+            <span class="wiki-breadcrumb-separator">/</span>
+            <span>Hızlı Başlangıç</span>
+          </div>
+
+          <div class="wiki-header-actions">
+            <div class="wiki-search">
+              <input type="text" class="wiki-search-input" placeholder="Dokümantasyonda ara...">
+            </div>
+            <button class="wiki-theme-toggle" title="Tema Değiştir">🌙</button>
+            <button class="wiki-mobile-toggle" title="Menüyü Aç/Kapat">☰</button>
+          </div>
+        </div>
+      </header>
+
+      <!-- Page Content -->
+      <div class="wiki-content">
+        <!-- Page Header -->
+        <div class="wiki-page-header">
+          <h1 class="wiki-page-title">Hızlı Başlangıç</h1>
+          <p class="wiki-page-description">
+            PHPA'yı 5 dakikada kurun ve ilk tahminli otomatik ölçeklendirmenizi başlatın
+          </p>
+          <div class="wiki-page-meta">
+            <span>📅 Son güncelleme: <span id="last-updated"></span></span>
+            <span>📖 Okuma süresi: ~5 dakika</span>
+            <span>🎯 Seviye: Başlangıç</span>
+          </div>
+        </div>
+
+        <!-- Table of Contents -->
+        <div class="wiki-toc">
+          <h3>İçindekiler</h3>
+          <ul class="wiki-toc-list">
+            <li class="wiki-toc-item"><a href="#prerequisites" class="wiki-toc-link">Ön Koşullar</a></li>
+            <li class="wiki-toc-item"><a href="#quick-setup" class="wiki-toc-link">Hızlı Kurulum</a></li>
+            <li class="wiki-toc-item"><a href="#first-phpa" class="wiki-toc-link">İlk PHPA Oluşturma</a></li>
+            <li class="wiki-toc-item"><a href="#verify-setup" class="wiki-toc-link">Kurulumu Doğrulama</a></li>
+            <li class="wiki-toc-item"><a href="#next-steps" class="wiki-toc-link">Sonraki Adımlar</a></li>
+          </ul>
+        </div>
+
+        <!-- Prerequisites -->
+        <section id="prerequisites" class="mb-5">
+          <h2>Ön Koşullar</h2>
+          <p>PHPA'yı başlatmadan önce aşağıdaki bileşenlerin hazır olduğundan emin olun:</p>
+
+          <div class="wiki-grid wiki-grid-2">
+            <div class="wiki-card">
+              <h4>🛠️ Gerekli Araçlar</h4>
+              <ul>
+                <li><code>kubectl</code> - Kubernetes CLI</li>
+                <li><code>helm</code> - Helm paket yöneticisi</li>
+                <li><code>jq</code> - JSON işleme aracı</li>
+                <li><code>python3</code> - Model çalıştırma için</li>
+              </ul>
+            </div>
+
+            <div class="wiki-card">
+              <h4>🎯 Kubernetes Gereksinimleri</h4>
+              <ul>
+                <li>Kubernetes v1.23+ cluster</li>
+                <li>Metrics Server kurulu</li>
+                <li>Cluster admin yetkisi</li>
+                <li>En az 2 CPU, 4GB RAM</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="wiki-alert wiki-alert-info">
+            <strong>💡 Test Ortamı:</strong> Yerel test için <code>kind</code> veya <code>k3d</code> kullanmanızı öneriyoruz.
+            Docker Desktop Kubernetes'i de başlangıç için yeterlidir.
+          </div>
+
+          <h3>Kubernetes Cluster Kurulumu (Opsiyonel)</h3>
+          <p>Eğer mevcut bir cluster'ınız yoksa, yerel test için kind kullanabilirsiniz:</p>
+
+          <pre><code># Kind kurulumu (macOS)
+brew install kind
+
+# Test cluster oluşturma
+kind create cluster --name phpa-lab --wait 120s
+
+# Kubectl context'i ayarlama
+kubectl cluster-info --context kind-phpa-lab</code></pre>
+        </section>
+
+        <!-- Quick Setup -->
+        <section id="quick-setup" class="mb-5">
+          <h2>Hızlı Kurulum</h2>
+          <p>PHPA'yı tek komutla kurmak için aşağıdaki adımları takip edin:</p>
+
+          <h3>1. Metrics Server Kurulumu</h3>
+          <p>PHPA'nın CPU ve memory metriklerini okuyabilmesi için Metrics Server gereklidir:</p>
+
+          <pre><code># Metrics Server kurulumu
+kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+
+# Yerel test için TLS ayarlarını düzeltme
+kubectl -n kube-system patch deploy/metrics-server \
+  -p '{"spec":{"template":{"spec":{"containers":[{"name":"metrics-server","args":["--cert-dir=/tmp","--secure-port=10250","--kubelet-preferred-address-types=InternalIP,Hostname,ExternalIP","--kubelet-insecure-tls"]}]}}}}'
+
+# Metrics Server'ın hazır olduğunu doğrulama
+kubectl wait --for=condition=available --timeout=300s deployment/metrics-server -n kube-system</code></pre>
+
+          <h3>2. PHPA Operatör Kurulumu</h3>
+          <p>Helm chart ile PHPA operatörünü kurun:</p>
+
+          <pre><code># En son sürümü indirme
+VERSION=v0.13.2
+wget https://github.com/syswe/predictive-horizontal-pod-autoscaler/releases/download/${VERSION}/predictive-horizontal-pod-autoscaler-${VERSION}.tgz
+
+# Helm chart ile kurulum
+helm install phpa-operator predictive-horizontal-pod-autoscaler-${VERSION}.tgz \
+  --namespace default \
+  --set mode=cluster
+
+# Operatörün çalıştığını doğrulama
+kubectl get pods -l name=predictive-horizontal-pod-autoscaler</code></pre>
+
+          <div class="wiki-alert wiki-alert-warning">
+            <strong>⚠️ Dikkat:</strong> Eğer Helm kullanmak istemiyorsanız, <a href="installation.html">manuel kurulum</a> sayfasına bakabilirsiniz.
+          </div>
+
+          <h3>3. Hızlı Başlangıç Scripti</h3>
+          <p>Tüm kurulum sürecini otomatikleştiren hazır scriptimizi kullanabilirsiniz:</p>
+
+          <pre><code># Projeyi klonlama
+git clone https://github.com/syswe/predictive-horizontal-pod-autoscaler.git
+cd predictive-horizontal-pod-autoscaler
+
+# Hızlı başlangıç scripti (CatBoost modeli ile)
+bash scripts/phpa-start.sh -m catboost --start-load
+
+# Script şunları yapar:
+# 1. CRD'leri yükler
+# 2. Metrics Server'ı doğrular
+# 3. PHPA operatörünü dağıtır
+# 4. Örnek php-apache uygulamasını kurar
+# 5. CatBoost modeli ile PHPA oluşturur
+# 6. Yük testi başlatır (opsiyonel)</code></pre>
+        </section>
+
+        <!-- First PHPA -->
+        <section id="first-phpa" class="mb-5">
+          <h2>İlk PHPA Oluşturma</h2>
+          <p>Basit bir PHPA kaynağı oluşturarak tahminli otomatik ölçeklendirmeyi test edelim:</p>
+
+          <h3>1. Test Uygulaması Dağıtımı</h3>
+          <p>Önce otomatik ölçeklendireceğimiz bir uygulama dağıtalım:</p>
+
+          <pre><code># PHP Apache test uygulaması
+kubectl apply -f - <<EOF
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: php-apache
+spec:
+  selector:
+    matchLabels:
+      run: php-apache
+  template:
+    metadata:
+      labels:
+        run: php-apache
+    spec:
+      containers:
+      - name: php-apache
+        image: registry.k8s.io/hpa-example
+        ports:
+        - containerPort: 80
+        resources:
+          limits:
+            cpu: 500m
+          requests:
+            cpu: 200m
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: php-apache
+  labels:
+    run: php-apache
+spec:
+  ports:
+  - port: 80
+  selector:
+    run: php-apache
+EOF</code></pre>
+
+          <h3>2. PHPA Kaynağı Oluşturma</h3>
+          <p>Şimdi GBDT modeli kullanan bir PHPA oluşturalım:</p>
+
+          <pre><code># GBDT modeli ile PHPA
+kubectl apply -f - <<EOF
+apiVersion: syswe.me/v1alpha1
+kind: PredictiveHorizontalPodAutoscaler
+metadata:
+  name: simple-gbdt-phpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: php-apache
+  minReplicas: 1
+  maxReplicas: 10
+  syncPeriod: 20000  # 20 saniye
+  decisionType: maximum
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 30
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          averageUtilization: 50
+          type: Utilization
+  models:
+    - type: GBDT
+      name: gbdt-predictor
+      gbdt:
+        lookAhead: 10000    # 10 saniye önceden tahmin
+        historySize: 30     # 30 veri noktası sakla
+        lags: 6             # 6 geçmiş değeri kullan
+EOF</code></pre>
+
+          <h3>3. Çoklu Model PHPA (Gelişmiş)</h3>
+          <p>Daha gelişmiş tahmin için birden fazla model kullanan bir PHPA:</p>
+
+          <pre><code># Çoklu model ile PHPA
+kubectl apply -f - <<EOF
+apiVersion: syswe.me/v1alpha1
+kind: PredictiveHorizontalPodAutoscaler
+metadata:
+  name: multi-model-phpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: php-apache
+  minReplicas: 1
+  maxReplicas: 10
+  decisionType: mean  # Modellerin ortalamasını al
+  models:
+    - type: GBDT
+      name: gbdt-model
+      gbdt:
+        lookAhead: 10000
+        historySize: 30
+        lags: 6
+    - type: XGBoost
+      name: xgboost-model
+      xgboost:
+        lookAhead: 10000
+        historySize: 30
+        lags: 6
+    - type: CatBoost
+      name: catboost-model
+      catboost:
+        lookAhead: 10000
+        historySize: 30
+        lags: 6
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          averageUtilization: 50
+          type: Utilization
+EOF</code></pre>
+        </section>
+
+        <!-- Verify Setup -->
+        <section id="verify-setup" class="mb-5">
+          <h2>Kurulumu Doğrulama</h2>
+          <p>PHPA'nızın doğru çalıştığını kontrol etmek için:</p>
+
+          <h3>1. PHPA Durumunu Kontrol Etme</h3>
+          <pre><code># PHPA kaynaklarını listeleme
+kubectl get phpa
+
+# Detaylı durum bilgisi
+kubectl describe phpa simple-gbdt-phpa
+
+# PHPA loglarını inceleme
+kubectl logs -l name=predictive-horizontal-pod-autoscaler -f</code></pre>
+
+          <h3>2. Ölçeklendirmeyi Test Etme</h3>
+          <p>Yük testi ile PHPA'nın çalıştığını doğrulayalım:</p>
+
+          <pre><code># Basit yük testi başlatma
+kubectl run -i --tty load-generator --rm --image=busybox --restart=Never -- /bin/sh
+
+# Busybox container'ından yük oluşturma
+while true; do wget -q -O- http://php-apache.default.svc.cluster.local/; done</code></pre>
+
+          <h3>3. Model Verilerini İnceleme</h3>
+          <p>PHPA'nın sakladığı geçmiş verileri ve tahminleri görmek için:</p>
+
+          <pre><code># ConfigMap'te saklanan veriyi inceleme
+kubectl get configmap predictive-horizontal-pod-autoscaler-simple-gbdt-phpa-data -o json | \
+  jq -r '.data.data | fromjson | .modelHistories["gbdt-predictor"].replicaHistory[]'
+
+# Son 5 replica değerini gösterme
+kubectl get configmap predictive-horizontal-pod-autoscaler-simple-gbdt-phpa-data -o json | \
+  jq -r '.data.data | fromjson | .modelHistories["gbdt-predictor"].replicaHistory[-5:]'</code></pre>
+
+          <div class="wiki-alert wiki-alert-success">
+            <strong>✅ Başarı Göstergeleri:</strong>
+            <ul>
+              <li>PHPA kaynağı "Ready" durumunda</li>
+              <li>Pod sayısı yüke göre değişiyor</li>
+              <li>ConfigMap'te veri birikiyor</li>
+              <li>Loglar'da model tahminleri görülüyor</li>
+            </ul>
+          </div>
+        </section>
+
+        <!-- Next Steps -->
+        <section id="next-steps" class="mb-5">
+          <h2>Sonraki Adımlar</h2>
+          <p>Temel kurulumu tamamladıktan sonra şu adımları takip edebilirsiniz:</p>
+
+          <div class="wiki-grid wiki-grid-2">
+            <div class="wiki-card">
+              <h4>📚 Daha Fazla Öğrenin</h4>
+              <ul>
+                <li><a href="models.html">Model detaylarını öğrenin</a></li>
+                <li><a href="configuration.html">Gelişmiş yapılandırma</a></li>
+                <li><a href="examples.html">Örnek projeleri inceleyin</a></li>
+                <li><a href="benchmarking.html">Benchmark çalıştırın</a></li>
+              </ul>
+            </div>
+
+            <div class="wiki-card">
+              <h4>🔧 Optimize Edin</h4>
+              <ul>
+                <li><a href="operations.html">Prodüksiyon ayarları</a></li>
+                <li><a href="monitoring.html">İzleme kurulumu</a></li>
+                <li><a href="troubleshooting.html">Sorun giderme</a></li>
+                <li><a href="api-reference.html">API referansı</a></li>
+              </ul>
+            </div>
+          </div>
+
+          <h3>Faydalı Komutlar</h3>
+          <pre><code># Tüm PHPA kaynaklarını listeleme
+kubectl get phpa -A
+
+# PHPA operatör versiyonunu kontrol etme
+kubectl get deployment predictive-horizontal-pod-autoscaler \
+  -o jsonpath='{.spec.template.spec.containers[0].image}'
+
+# Sistem kaynaklarını izleme
+kubectl top pods
+kubectl top nodes
+
+# PHPA'yı silme (temizlik)
+kubectl delete phpa simple-gbdt-phpa
+kubectl delete deployment php-apache
+kubectl delete service php-apache</code></pre>
+
+          <div class="wiki-alert wiki-alert-info">
+            <strong>💡 Pro İpucu:</strong> Üretim ortamında kullanmadan önce test verilerinizle
+            <a href="benchmarking.html">kapsamlı benchmark testleri</a> çalıştırın.
+          </div>
+        </section>
+
+        <!-- Page Navigation -->
+        <div class="wiki-page-navigation">
+          <a href="../index.html" class="wiki-nav-prev">← Ana Sayfa</a>
+          <a href="models.html" class="wiki-nav-next">Modeller →</a>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <script src="../assets/js/wiki.js"></script>
+  <script>
+    // Set last updated date
+    document.getElementById('last-updated').textContent = new Intl.DateTimeFormat('tr-TR', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    }).format(new Date());
+  </script>
+</body>
+</html>

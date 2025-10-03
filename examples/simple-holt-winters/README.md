@@ -102,7 +102,7 @@ The PHPA contains some configuration for how the scaling should be applied, the 
 autoscaler will act:
 
 ```yaml
-apiVersion: jamiethompson.me/v1alpha1
+apiVersion: syswe.me/v1alpha1
 kind: PredictiveHorizontalPodAutoscaler
 metadata:
   name: simple-holt-winters

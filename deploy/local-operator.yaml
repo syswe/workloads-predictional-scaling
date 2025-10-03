@@ -1,0 +1,129 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: predictive-horizontal-pod-autoscaler-cluster
+  namespace: default
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: predictive-horizontal-pod-autoscaler
+rules:
+- apiGroups:
+  - apps
+  resources:
+  - deployments/scale
+  - replicaset/scale
+  - statefulset/scale
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  verbs:
+  - get
+  - list
+- apiGroups:
+  - ""
+  resources:
+  - replicationcontrollers/scale
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - custom.metrics.k8s.io
+  resources:
+  - '*'
+  verbs:
+  - get
+  - list
+- apiGroups:
+  - external.metrics.k8s.io
+  resources:
+  - '*'
+  verbs:
+  - get
+  - list
+- apiGroups:
+  - syswe.me
+  resources:
+  - predictivehorizontalpodautoscalers
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - syswe.me
+  resources:
+  - predictivehorizontalpodautoscalers/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - syswe.me
+  resources:
+  - predictivehorizontalpodautoscalers/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - metrics.k8s.io
+  resources:
+  - '*'
+  verbs:
+  - get
+  - list
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: predictive-horizontal-pod-autoscaler
+subjects:
+- kind: ServiceAccount
+  name: predictive-horizontal-pod-autoscaler-cluster
+  namespace: default
+roleRef:
+  kind: ClusterRole
+  name: predictive-horizontal-pod-autoscaler
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: predictive-horizontal-pod-autoscaler
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: predictive-horizontal-pod-autoscaler
+  template:
+    metadata:
+      labels:
+        name: predictive-horizontal-pod-autoscaler
+    spec:
+      serviceAccountName: predictive-horizontal-pod-autoscaler-cluster
+      containers:
+        - name: predictive-horizontal-pod-autoscaler
+          image: syswe/predictive-horizontal-pod-autoscaler:latest
+          imagePullPolicy: IfNotPresent

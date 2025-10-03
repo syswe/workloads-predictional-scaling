@@ -22,9 +22,9 @@ import (
 	"time"
 
 	"github.com/google/go-cmp/cmp"
-	jamiethompsonmev1alpha1 "github.com/jthomperoo/predictive-horizontal-pod-autoscaler/api/v1alpha1"
-	"github.com/jthomperoo/predictive-horizontal-pod-autoscaler/internal/fake"
-	"github.com/jthomperoo/predictive-horizontal-pod-autoscaler/internal/prediction/linear"
+	syswev1alpha1 "github.com/syswe/predictive-horizontal-pod-autoscaler/api/v1alpha1"
+	"github.com/syswe/predictive-horizontal-pod-autoscaler/internal/fake"
+	"github.com/syswe/predictive-horizontal-pod-autoscaler/internal/prediction/linear"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -45,44 +45,44 @@ func TestPredict_GetPrediction(t *testing.T) {
 		expected       int32
 		expectedErr    error
 		predicter      *linear.Predict
-		model          *jamiethompsonmev1alpha1.Model
-		replicaHistory []jamiethompsonmev1alpha1.TimestampedReplicas
+		model          *syswev1alpha1.Model
+		replicaHistory []syswev1alpha1.TimestampedReplicas
 	}{
 		{
 			description:    "Fail no Linear configuration",
 			expected:       0,
 			expectedErr:    errors.New("no Linear configuration provided for model"),
 			predicter:      &linear.Predict{},
-			model:          &jamiethompsonmev1alpha1.Model{},
-			replicaHistory: []jamiethompsonmev1alpha1.TimestampedReplicas{},
+			model:          &syswev1alpha1.Model{},
+			replicaHistory: []syswev1alpha1.TimestampedReplicas{},
 		},
 		{
 			description: "Fail no evaluations",
 			expected:    0,
 			expectedErr: errors.New("no evaluations provided for Linear regression model"),
 			predicter:   &linear.Predict{},
-			model: &jamiethompsonmev1alpha1.Model{
-				Type: jamiethompsonmev1alpha1.TypeLinear,
-				Linear: &jamiethompsonmev1alpha1.Linear{
+			model: &syswev1alpha1.Model{
+				Type: syswev1alpha1.TypeLinear,
+				Linear: &syswev1alpha1.Linear{
 					HistorySize: 5,
 					LookAhead:   0,
 				},
 			},
-			replicaHistory: []jamiethompsonmev1alpha1.TimestampedReplicas{},
+			replicaHistory: []syswev1alpha1.TimestampedReplicas{},
 		},
 		{
 			description: "Success, only one evaluation, return without the prediction",
 			expected:    32,
 			expectedErr: nil,
 			predicter:   &linear.Predict{},
-			model: &jamiethompsonmev1alpha1.Model{
-				Type: jamiethompsonmev1alpha1.TypeLinear,
-				Linear: &jamiethompsonmev1alpha1.Linear{
+			model: &syswev1alpha1.Model{
+				Type: syswev1alpha1.TypeLinear,
+				Linear: &syswev1alpha1.Linear{
 					HistorySize: 5,
 					LookAhead:   0,
 				},
 			},
-			replicaHistory: []jamiethompsonmev1alpha1.TimestampedReplicas{
+			replicaHistory: []syswev1alpha1.TimestampedReplicas{
 				{
 					Replicas: 32,
 				},
@@ -99,14 +99,14 @@ func TestPredict_GetPrediction(t *testing.T) {
 					},
 				},
 			},
-			model: &jamiethompsonmev1alpha1.Model{
-				Type: jamiethompsonmev1alpha1.TypeLinear,
-				Linear: &jamiethompsonmev1alpha1.Linear{
+			model: &syswev1alpha1.Model{
+				Type: syswev1alpha1.TypeLinear,
+				Linear: &syswev1alpha1.Linear{
 					HistorySize: 5,
 					LookAhead:   0,
 				},
 			},
-			replicaHistory: []jamiethompsonmev1alpha1.TimestampedReplicas{
+			replicaHistory: []syswev1alpha1.TimestampedReplicas{
 				{
 					Replicas: 1,
 				},
@@ -126,14 +126,14 @@ func TestPredict_GetPrediction(t *testing.T) {
 					},
 				},
 			},
-			model: &jamiethompsonmev1alpha1.Model{
-				Type: jamiethompsonmev1alpha1.TypeLinear,
-				Linear: &jamiethompsonmev1alpha1.Linear{
+			model: &syswev1alpha1.Model{
+				Type: syswev1alpha1.TypeLinear,
+				Linear: &syswev1alpha1.Linear{
 					HistorySize: 5,
 					LookAhead:   0,
 				},
 			},
-			replicaHistory: []jamiethompsonmev1alpha1.TimestampedReplicas{
+			replicaHistory: []syswev1alpha1.TimestampedReplicas{
 				{
 					Replicas: 1,
 				},
@@ -153,14 +153,14 @@ func TestPredict_GetPrediction(t *testing.T) {
 					},
 				},
 			},
-			model: &jamiethompsonmev1alpha1.Model{
-				Type: jamiethompsonmev1alpha1.TypeLinear,
-				Linear: &jamiethompsonmev1alpha1.Linear{
+			model: &syswev1alpha1.Model{
+				Type: syswev1alpha1.TypeLinear,
+				Linear: &syswev1alpha1.Linear{
 					HistorySize: 5,
 					LookAhead:   0,
 				},
 			},
-			replicaHistory: []jamiethompsonmev1alpha1.TimestampedReplicas{
+			replicaHistory: []syswev1alpha1.TimestampedReplicas{
 				{
 					Replicas: 1,
 				},
@@ -180,15 +180,15 @@ func TestPredict_GetPrediction(t *testing.T) {
 					},
 				},
 			},
-			model: &jamiethompsonmev1alpha1.Model{
-				Type: jamiethompsonmev1alpha1.TypeLinear,
-				Linear: &jamiethompsonmev1alpha1.Linear{
+			model: &syswev1alpha1.Model{
+				Type: syswev1alpha1.TypeLinear,
+				Linear: &syswev1alpha1.Linear{
 					HistorySize: 5,
 					LookAhead:   0,
 				},
 				CalculationTimeout: intPtr(10),
 			},
-			replicaHistory: []jamiethompsonmev1alpha1.TimestampedReplicas{
+			replicaHistory: []syswev1alpha1.TimestampedReplicas{
 				{
 					Replicas: 1,
 				},
@@ -222,21 +222,21 @@ func TestModelPredict_PruneHistory(t *testing.T) {
 
 	var tests = []struct {
 		description    string
-		expected       []jamiethompsonmev1alpha1.TimestampedReplicas
+		expected       []syswev1alpha1.TimestampedReplicas
 		expectedErr    error
-		model          *jamiethompsonmev1alpha1.Model
-		replicaHistory []jamiethompsonmev1alpha1.TimestampedReplicas
+		model          *syswev1alpha1.Model
+		replicaHistory []syswev1alpha1.TimestampedReplicas
 	}{
 		{
 			description:    "Fail no Linear configuration",
 			expected:       nil,
 			expectedErr:    errors.New("no Linear configuration provided for model"),
-			model:          &jamiethompsonmev1alpha1.Model{},
-			replicaHistory: []jamiethompsonmev1alpha1.TimestampedReplicas{},
+			model:          &syswev1alpha1.Model{},
+			replicaHistory: []syswev1alpha1.TimestampedReplicas{},
 		},
 		{
 			description: "Only 3 in history, max size 4",
-			expected: []jamiethompsonmev1alpha1.TimestampedReplicas{
+			expected: []syswev1alpha1.TimestampedReplicas{
 				{
 					Replicas: 4,
 					Time:     &metav1.Time{Time: time.Time{}.Add(time.Duration(6) * time.Second)},
@@ -251,12 +251,12 @@ func TestModelPredict_PruneHistory(t *testing.T) {
 				},
 			},
 			expectedErr: nil,
-			model: &jamiethompsonmev1alpha1.Model{
-				Linear: &jamiethompsonmev1alpha1.Linear{
+			model: &syswev1alpha1.Model{
+				Linear: &syswev1alpha1.Linear{
 					HistorySize: 4,
 				},
 			},
-			replicaHistory: []jamiethompsonmev1alpha1.TimestampedReplicas{
+			replicaHistory: []syswev1alpha1.TimestampedReplicas{
 				{
 					Replicas: 4,
 					Time:     &metav1.Time{Time: time.Time{}.Add(time.Duration(6) * time.Second)},
@@ -273,7 +273,7 @@ func TestModelPredict_PruneHistory(t *testing.T) {
 		},
 		{
 			description: "3 too many, remove oldest 3",
-			expected: []jamiethompsonmev1alpha1.TimestampedReplicas{
+			expected: []syswev1alpha1.TimestampedReplicas{
 				{
 					Replicas: 4,
 					Time:     &metav1.Time{Time: time.Time{}.Add(time.Duration(6) * time.Second)},
@@ -288,12 +288,12 @@ func TestModelPredict_PruneHistory(t *testing.T) {
 				},
 			},
 			expectedErr: nil,
-			model: &jamiethompsonmev1alpha1.Model{
-				Linear: &jamiethompsonmev1alpha1.Linear{
+			model: &syswev1alpha1.Model{
+				Linear: &syswev1alpha1.Linear{
 					HistorySize: 3,
 				},
 			},
-			replicaHistory: []jamiethompsonmev1alpha1.TimestampedReplicas{
+			replicaHistory: []syswev1alpha1.TimestampedReplicas{
 				{
 					Replicas: 1,
 					Time:     &metav1.Time{Time: time.Time{}.Add(time.Duration(4) * time.Second)},

@@ -33,8 +33,12 @@ const (
 )
 
 const (
-	TypeHoltWinters = "HoltWinters"
-	TypeLinear      = "Linear"
+    TypeHoltWinters = "HoltWinters"
+    TypeLinear      = "Linear"
+    TypeGBDT        = "GBDT"
+    TypeXGBoost     = "XGBoost"
+    TypeVAR         = "VAR"
+    TypeCatBoost    = "CatBoost"
 )
 
 const (
@@ -123,10 +127,10 @@ type HoltWinters struct {
 
 // Model represents a prediction model to use, e.g. a linear regression
 type Model struct {
-	// type is the type of the model, for example 'Linear'. To see a full list of supported model types visit
-	// https://predictive-horizontal-pod-autoscaler.readthedocs.io/en/latest/user-guide/models/.
-	// +kubebuilder:validation:Enum=Linear;HoltWinters
-	Type string `json:"type"`
+    // type is the type of the model, for example 'Linear'. To see a full list of supported model types visit
+    // https://predictive-horizontal-pod-autoscaler.readthedocs.io/en/latest/user-guide/models/.
+    // +kubebuilder:validation:Enum=Linear;HoltWinters;GBDT;XGBoost;VAR;CatBoost
+    Type string `json:"type"`
 
 	// name is the name of the model, this can be any arbitrary name and is just used to distinguish between models if
 	// you have multiple and to keep track of model data if you modify your model parameters.
@@ -169,10 +173,96 @@ type Model struct {
 	// +optional
 	Linear *Linear `json:"linear"`
 
-	// holtWinters is the configuration to use for the holt winters model, it will only be used if the type is set to
-	// 'HoltWinters'
-	// +optional
-	HoltWinters *HoltWinters `json:"holtWinters"`
+    // holtWinters is the configuration to use for the holt winters model, it will only be used if the type is set to
+    // 'HoltWinters'
+    // +optional
+    HoltWinters *HoltWinters `json:"holtWinters"`
+
+    // gbdt is the configuration to use for the Gradient Boosted Decision Trees model,
+    // it will only be used if the type is set to 'GBDT'.
+    // +optional
+    GBDT *GBDT `json:"gbdt"`
+
+    // xgboost is the configuration to use for the XGBoost model,
+    // it will only be used if the type is set to 'XGBoost'.
+    // +optional
+    XGBoost *XGBoost `json:"xgboost"`
+
+    // var is the configuration to use for the Vector Autoregression model,
+    // it will only be used if the type is set to 'VAR'.
+    // +optional
+    VAR *VAR `json:"var"`
+
+    // catboost is the configuration to use for the CatBoost model,
+    // it will only be used if the type is set to 'CatBoost'.
+    // +optional
+    CatBoost *CatBoost `json:"catboost"`
+}
+
+// GBDT represents a Gradient Boosted Decision Trees prediction model configuration
+type GBDT struct {
+    // historySize is how many timestamped replica counts should be stored for this model, with older
+    // timestamped replica counts being removed from the data as new ones are added.
+    // +kubebuilder:validation:Minimum=1
+    HistorySize int `json:"historySize"`
+
+    // lags is how many previous replica values to feed as features to the GBDT at prediction time.
+    // +kubebuilder:validation:Minimum=1
+    Lags int `json:"lags"`
+
+    // lookAhead is how far in the future (in milliseconds) to predict.
+    // The runtime algorithm converts this into N steps ahead based on the median interval in the replica history.
+    // +kubebuilder:validation:Minimum=0
+    LookAhead int `json:"lookAhead"`
+}
+
+// XGBoost represents an XGBoost prediction model configuration
+type XGBoost struct {
+    // historySize is how many timestamped replica counts should be stored for this model, with older
+    // timestamped replica counts being removed from the data as new ones are added.
+    // +kubebuilder:validation:Minimum=1
+    HistorySize int `json:"historySize"`
+
+    // lags is how many previous replica values to feed as features at prediction time.
+    // +kubebuilder:validation:Minimum=1
+    Lags int `json:"lags"`
+
+    // lookAhead is how far in the future (in milliseconds) to predict.
+    // The runtime algorithm converts this into N steps ahead based on the median interval in the replica history.
+    // +kubebuilder:validation:Minimum=0
+    LookAhead int `json:"lookAhead"`
+}
+
+// VAR represents a Vector Autoregression prediction model configuration
+type VAR struct {
+    // historySize is how many timestamped replica counts should be stored for this model, with older
+    // timestamped replica counts being removed from the data as new ones are added.
+    // +kubebuilder:validation:Minimum=1
+    HistorySize int `json:"historySize"`
+
+    // lags is the maximum lag order to consider.
+    // +kubebuilder:validation:Minimum=1
+    Lags int `json:"lags"`
+
+    // lookAhead is how far in the future (in milliseconds) to predict.
+    // +kubebuilder:validation:Minimum=0
+    LookAhead int `json:"lookAhead"`
+}
+
+// CatBoost represents a CatBoost prediction model configuration
+type CatBoost struct {
+    // historySize is how many timestamped replica counts should be stored for this model, with older
+    // timestamped replica counts being removed from the data as new ones are added.
+    // +kubebuilder:validation:Minimum=1
+    HistorySize int `json:"historySize"`
+
+    // lags is how many previous replica values to feed as features at prediction time.
+    // +kubebuilder:validation:Minimum=1
+    Lags int `json:"lags"`
+
+    // lookAhead is how far in the future (in milliseconds) to predict.
+    // +kubebuilder:validation:Minimum=0
+    LookAhead int `json:"lookAhead"`
 }
 
 // TimestampedReplicas is a replica count paired with the time that the replica count was created at.

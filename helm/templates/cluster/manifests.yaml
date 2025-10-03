@@ -11,12 +11,12 @@ webhooks:
     service:
       name: webhook-service
       namespace: system
-      path: /mutate-jamiethompson-me-jamiethompson-me-v1alpha1-predictivehorizontalpodautoscaler
+      path: /mutate-syswe-me-syswe-me-v1alpha1-predictivehorizontalpodautoscaler
   failurePolicy: Fail
   name: mpredictivehorizontalpodautoscaler.kb.io
   rules:
   - apiGroups:
-    - jamiethompson.me.jamiethompson.me
+    - syswe.me.syswe.me
     apiVersions:
     - v1alpha1
     operations:
@@ -38,12 +38,12 @@ webhooks:
     service:
       name: webhook-service
       namespace: system
-      path: /validate-jamiethompson-me-jamiethompson-me-v1alpha1-predictivehorizontalpodautoscaler
+      path: /validate-syswe-me-syswe-me-v1alpha1-predictivehorizontalpodautoscaler
   failurePolicy: Fail
   name: vpredictivehorizontalpodautoscaler.kb.io
   rules:
   - apiGroups:
-    - jamiethompson.me.jamiethompson.me
+    - syswe.me.syswe.me
     apiVersions:
     - v1alpha1
     operations:

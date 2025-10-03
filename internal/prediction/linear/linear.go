@@ -22,7 +22,7 @@ import (
 	"sort"
 	"strconv"
 
-	jamiethompsonmev1alpha1 "github.com/jthomperoo/predictive-horizontal-pod-autoscaler/api/v1alpha1"
+	syswev1alpha1 "github.com/syswe/predictive-horizontal-pod-autoscaler/api/v1alpha1"
 )
 
 const (
@@ -33,7 +33,7 @@ const algorithmPath = "algorithms/linear_regression/linear_regression.py"
 
 type linearRegressionParameters struct {
 	LookAhead      int                                           `json:"lookAhead"`
-	ReplicaHistory []jamiethompsonmev1alpha1.TimestampedReplicas `json:"replicaHistory"`
+	ReplicaHistory []syswev1alpha1.TimestampedReplicas `json:"replicaHistory"`
 }
 
 // Config represents a linear regression prediction model configuration
@@ -53,7 +53,7 @@ type Predict struct {
 }
 
 // GetPrediction uses a linear regression to predict what the replica count should be based on historical evaluations
-func (p *Predict) GetPrediction(model *jamiethompsonmev1alpha1.Model, replicaHistory []jamiethompsonmev1alpha1.TimestampedReplicas) (int32, error) {
+func (p *Predict) GetPrediction(model *syswev1alpha1.Model, replicaHistory []syswev1alpha1.TimestampedReplicas) (int32, error) {
 	if model.Linear == nil {
 		return 0, errors.New("no Linear configuration provided for model")
 	}
@@ -95,7 +95,7 @@ func (p *Predict) GetPrediction(model *jamiethompsonmev1alpha1.Model, replicaHis
 	return int32(prediction), nil
 }
 
-func (p *Predict) PruneHistory(model *jamiethompsonmev1alpha1.Model, replicaHistory []jamiethompsonmev1alpha1.TimestampedReplicas) ([]jamiethompsonmev1alpha1.TimestampedReplicas, error) {
+func (p *Predict) PruneHistory(model *syswev1alpha1.Model, replicaHistory []syswev1alpha1.TimestampedReplicas) ([]syswev1alpha1.TimestampedReplicas, error) {
 	if model.Linear == nil {
 		return nil, errors.New("no Linear configuration provided for model")
 	}
@@ -119,5 +119,5 @@ func (p *Predict) PruneHistory(model *jamiethompsonmev1alpha1.Model, replicaHist
 
 // GetType returns the type of the Prediction model
 func (p *Predict) GetType() string {
-	return jamiethompsonmev1alpha1.TypeLinear
+	return syswev1alpha1.TypeLinear
 }

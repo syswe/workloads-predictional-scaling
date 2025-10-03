@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Modeller - PHPA Wiki</title>
+  <meta name="description" content="PHPA'da kullanılabilir tüm tahmin modelleri ve detaylı konfigürasyon seçenekleri">
+  <link rel="stylesheet" href="../assets/css/wiki.css">
+</head>
+<body>
+  <div class="wiki-container">
+    <!-- Sidebar Navigation -->
+    <nav class="wiki-sidebar" id="sidebar">
+      <div class="wiki-sidebar-header">
+        <a href="../index.html" class="wiki-logo">
+          📊 PHPA Wiki
+        </a>
+        <span class="wiki-version">v0.13.2</span>
+      </div>
+
+      <div class="wiki-nav">
+        <div class="wiki-nav-section">
+          <div class="wiki-nav-section-title">Başlangıç</div>
+          <ul>
+            <li><a href="../index.html">Ana Sayfa</a></li>
+            <li><a href="getting-started.html">Hızlı Başlangıç</a></li>
+            <li><a href="installation.html">Kurulum</a></li>
+          </ul>
+        </div>
+
+        <div class="wiki-nav-section">
+          <div class="wiki-nav-section-title">Kılavuzlar</div>
+          <ul>
+            <li><a href="models.html" class="active">Modeller</a></li>
+            <li><a href="configuration.html">Yapılandırma</a></li>
+            <li><a href="examples.html">Örnekler</a></li>
+            <li><a href="benchmarking.html">Benchmark</a></li>
+          </ul>
+        </div>
+
+        <div class="wiki-nav-section">
+          <div class="wiki-nav-section-title">İşletim</div>
+          <ul>
+            <li><a href="operations.html">İşletim Rehberi</a></li>
+            <li><a href="monitoring.html">İzleme & Gözlem</a></li>
+            <li><a href="troubleshooting.html">Sorun Giderme</a></li>
+          </ul>
+        </div>
+
+        <div class="wiki-nav-section">
+          <div class="wiki-nav-section-title">Referans</div>
+          <ul>
+            <li><a href="api-reference.html">API Referansı</a></li>
+            <li><a href="cli-reference.html">CLI Referansı</a></li>
+            <li><a href="changelog.html">Değişiklik Günlüğü</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="wiki-main">
+      <!-- Header -->
+      <header class="wiki-header">
+        <div class="wiki-header-content">
+          <div class="wiki-breadcrumb">
+            <a href="../index.html">Ana Sayfa</a>
+            <span class="wiki-breadcrumb-separator">/</span>
+            <span>Modeller</span>
+          </div>
+
+          <div class="wiki-header-actions">
+            <div class="wiki-search">
+              <input type="text" class="wiki-search-input" placeholder="Dokümantasyonda ara...">
+            </div>
+            <button class="wiki-theme-toggle" title="Tema Değiştir">🌙</button>
+            <button class="wiki-mobile-toggle" title="Menüyü Aç/Kapat">☰</button>
+          </div>
+        </div>
+      </header>
+
+      <!-- Page Content -->
+      <div class="wiki-content">
+        <!-- Page Header -->
+        <div class="wiki-page-header">
+          <h1 class="wiki-page-title">Tahmin Modelleri</h1>
+          <p class="wiki-page-description">
+            PHPA'da kullanılabilir tüm tahmin modelleri, konfigürasyon seçenekleri ve kullanım önerileri
+          </p>
+          <div class="wiki-page-meta">
+            <span>📅 Son güncelleme: <span id="last-updated"></span></span>
+            <span>📖 Okuma süresi: ~15 dakika</span>
+            <span>🎯 Seviye: Orta-İleri</span>
+          </div>
+        </div>
+
+        <!-- Table of Contents -->
+        <div class="wiki-toc">
+          <h3>İçindekiler</h3>
+          <ul class="wiki-toc-list">
+            <li class="wiki-toc-item"><a href="#overview" class="wiki-toc-link">Model Genel Bakış</a></li>
+            <li class="wiki-toc-item"><a href="#shared-config" class="wiki-toc-link">Ortak Yapılandırma</a></li>
+            <li class="wiki-toc-item"><a href="#ml-models" class="wiki-toc-link">Makine Öğrenmesi Modelleri</a>
+              <ul>
+                <li class="wiki-toc-item wiki-toc-level-3"><a href="#gbdt" class="wiki-toc-link">GBDT</a></li>
+                <li class="wiki-toc-item wiki-toc-level-3"><a href="#xgboost" class="wiki-toc-link">XGBoost</a></li>
+                <li class="wiki-toc-item wiki-toc-level-3"><a href="#catboost" class="wiki-toc-link">CatBoost</a></li>
+                <li class="wiki-toc-item wiki-toc-level-3"><a href="#var" class="wiki-toc-link">VAR</a></li>
+              </ul>
+            </li>
+            <li class="wiki-toc-item"><a href="#statistical-models" class="wiki-toc-link">İstatistiksel Modeller</a>
+              <ul>
+                <li class="wiki-toc-item wiki-toc-level-3"><a href="#holt-winters" class="wiki-toc-link">Holt-Winters</a></li>
+                <li class="wiki-toc-item wiki-toc-level-3"><a href="#linear" class="wiki-toc-link">Linear Regresyon</a></li>
+              </ul>
+            </li>
+            <li class="wiki-toc-item"><a href="#multi-model" class="wiki-toc-link">Çoklu Model Stratejileri</a></li>
+            <li class="wiki-toc-item"><a href="#performance-comparison" class="wiki-toc-link">Performans Karşılaştırması</a></li>
+          </ul>
+        </div>
+
+        <!-- Model Overview -->
+        <section id="overview" class="mb-5">
+          <h2>Model Genel Bakış</h2>
+          <p>
+            PHPA, çeşitli tahmin modellerini destekleyerek farklı senaryolar için optimize edilmiş
+            otomatik ölçeklendirme sağlar. Her model farklı güçlü yanları ve kullanım alanları vardır.
+          </p>
+
+          <div class="wiki-grid wiki-grid-2">
+            <div class="wiki-card">
+              <h4>🤖 Makine Öğrenmesi Modelleri</h4>
+              <p>Karmaşık desenler ve doğrusal olmayan ilişkiler için optimize edilmiş modeller.</p>
+              <ul>
+                <li><strong>GBDT:</strong> Gradient Boosted Decision Trees</li>
+                <li><strong>XGBoost:</strong> Extreme Gradient Boosting</li>
+                <li><strong>CatBoost:</strong> Categorical Boosting</li>
+                <li><strong>VAR:</strong> Vector Autoregression</li>
+              </ul>
+            </div>
+
+            <div class="wiki-card">
+              <h4>📊 İstatistiksel Modeller</h4>
+              <p>Hızlı ve hafif modeller, basit desenler için idealdir.</p>
+              <ul>
+                <li><strong>Holt-Winters:</strong> Mevsimsel zaman serisi</li>
+                <li><strong>Linear:</strong> Doğrusal trend tahmini</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="wiki-alert wiki-alert-info">
+            <strong>💡 Model Seçimi:</strong> Veri deseninize ve performans gereksinimlerinize
+            göre model seçimi yapın. Belirsizlik durumunda çoklu model yaklaşımını tercih edin.
+          </div>
+        </section>
+
+        <!-- Shared Configuration -->
+        <section id="shared-config" class="mb-5">
+          <h2>Ortak Yapılandırma</h2>
+          <p>Tüm modeller aşağıdaki ortak yapılandırma seçeneklerini paylaşır:</p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Parametre</th>
+                <th>Tür</th>
+                <th>Açıklama</th>
+                <th>Varsayılan</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>type</code></td>
+                <td>string</td>
+                <td>Model türü (GBDT, XGBoost, vb.)</td>
+                <td>-</td>
+              </tr>
+              <tr>
+                <td><code>name</code></td>
+                <td>string</td>
+                <td>Benzersiz model adı</td>
+                <td>-</td>
+              </tr>
+              <tr>
+                <td><code>perSyncPeriod</code></td>
+                <td>int</td>
+                <td>Kaç sync periyodunda bir çalışacağı</td>
+                <td>1</td>
+              </tr>
+              <tr>
+                <td><code>calculationTimeout</code></td>
+                <td>int (ms)</td>
+                <td>Hesaplama zaman aşımı</td>
+                <td>30000</td>
+              </tr>
+              <tr>
+                <td><code>startInterval</code></td>
+                <td>duration</td>
+                <td>Model başlangıç zamanlaması</td>
+                <td>-</td>
+              </tr>
+              <tr>
+                <td><code>resetDuration</code></td>
+                <td>duration</td>
+                <td>Veri sıfırlama süresi</td>
+                <td>-</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3>Örnek Temel Konfigürasyon</h3>
+          <pre><code>models:
+  - type: GBDT
+    name: my-gbdt-model
+    perSyncPeriod: 1          # Her sync periyodunda çalış
+    calculationTimeout: 25000  # 25 saniye timeout
+    startInterval: 1m         # Dakika başlarında başla
+    resetDuration: 24h        # 24 saat sonra veriyi sıfırla</code></pre>
+        </section>
+
+        <!-- ML Models -->
+        <section id="ml-models" class="mb-5">
+          <h2>Makine Öğrenmesi Modelleri</h2>
+
+          <!-- GBDT -->
+          <div id="gbdt" class="mb-4">
+            <h3>GBDT (Gradient Boosted Decision Trees)</h3>
+            <p>
+              Scikit-learn tabanlı gradient boosting modeli. Kısa-orta vadeli tahminlerde
+              yüksek doğruluk sağlar ve hızlı eğitim süresine sahiptir.
+            </p>
+
+            <div class="wiki-card">
+              <h4>⚙️ Konfigürasyon Parametreleri</h4>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Parametre</th>
+                    <th>Tür</th>
+                    <th>Açıklama</th>
+                    <th>Varsayılan</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><code>lookAhead</code></td>
+                    <td>int (ms)</td>
+                    <td>Tahmin ufku (milisaniye)</td>
+                    <td>10000</td>
+                  </tr>
+                  <tr>
+                    <td><code>historySize</code></td>
+                    <td>int</td>
+                    <td>Saklanacak geçmiş veri sayısı</td>
+                    <td>30</td>
+                  </tr>
+                  <tr>
+                    <td><code>lags</code></td>
+                    <td>int</td>
+                    <td>Özellik olarak kullanılacak geçmiş değer sayısı</td>
+                    <td>6</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <h4>📝 Örnek Kullanım</h4>
+            <pre><code>models:
+  - type: GBDT
+    name: gbdt-predictor
+    gbdt:
+      lookAhead: 10000    # 10 saniye önceden tahmin
+      historySize: 30     # 30 veri noktası sakla
+      lags: 6             # Son 6 değeri özellik olarak kullan</code></pre>
+
+            <div class="wiki-alert wiki-alert-success">
+              <strong>✅ En İyi Kullanım Alanları:</strong>
+              <ul>
+                <li>Kısa vadeli yük tahminleri (10-60 saniye)</li>
+                <li>Düzenli günlük desenlere sahip uygulamalar</li>
+                <li>CPU kullanımında ani değişiklikler gösteren sistemler</li>
+              </ul>
+            </div>
+
+            <h4>🔧 Dahili Model Parametreleri</h4>
+            <p>GBDT modeli şu scikit-learn parametreleriyle çalışır:</p>
+            <pre><code>GradientBoostingRegressor(
+    n_estimators=150,      # Ağaç sayısı
+    learning_rate=0.1,     # Öğrenme oranı
+    max_depth=3,           # Maksimum ağaç derinliği
+    subsample=1.0,         # Alt örnekleme oranı
+    random_state=42        # Sabit seed
+)</code></pre>
+          </div>
+
+          <!-- XGBoost -->
+          <div id="xgboost" class="mb-4">
+            <h3>XGBoost (Extreme Gradient Boosting)</h3>
+            <p>
+              XGBoost kütüphanesi kullanan gelişmiş gradient boosting modeli.
+              Karmaşık desenler ve büyük veri setleri için optimize edilmiştir.
+            </p>
+
+            <div class="wiki-card">
+              <h4>⚙️ Konfigürasyon Parametreleri</h4>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Parametre</th>
+                    <th>Tür</th>
+                    <th>Açıklama</th>
+                    <th>Varsayılan</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><code>lookAhead</code></td>
+                    <td>int (ms)</td>
+                    <td>Tahmin ufku</td>
+                    <td>10000</td>
+                  </tr>
+                  <tr>
+                    <td><code>historySize</code></td>
+                    <td>int</td>
+                    <td>Geçmiş veri boyutu</td>
+                    <td>30</td>
+                  </tr>
+                  <tr>
+                    <td><code>lags</code></td>
+                    <td>int</td>
+                    <td>Lag özellik sayısı</td>
+                    <td>6</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <h4>📝 Örnek Kullanım</h4>
+            <pre><code>models:
+  - type: XGBoost
+    name: xgboost-predictor
+    xgboost:
+      lookAhead: 15000    # 15 saniye önceden
+      historySize: 50     # Daha fazla geçmiş veri
+      lags: 8             # 8 lag özelliği</code></pre>
+
+            <h4>🔧 Dahili Model Parametreleri</h4>
+            <pre><code>XGBoost Parametreleri:
+objective: 'reg:squarederror'  # Regresyon objektifi
+eval_metric: 'rmse'            # RMSE metriği
+max_depth: 3                   # Ağaç derinliği
+eta: 0.2                       # Öğrenme oranı
+subsample: 1.0                 # Alt örnekleme
+colsample_bytree: 1.0          # Özellik örnekleme
+tree_method: 'hist'            # Hızlı histogram yöntemi
+num_round: 80                  # Boosting round sayısı</code></pre>
+
+            <div class="wiki-alert wiki-alert-warning">
+              <strong>⚠️ Dikkat:</strong> XGBoost daha fazla bellek kullanır ve eğitim süresi GBDT'den uzundur.
+              Yüksek performans gerektiren sistemlerde tercih edin.
+            </div>
+          </div>
+
+          <!-- CatBoost -->
+          <div id="catboost" class="mb-4">
+            <h3>CatBoost (Categorical Boosting)</h3>
+            <p>
+              Yandex tarafından geliştirilen CatBoost modeli. Kategorik veriler ve
+              küçük veri setleri için özellikle etkilidir.
+            </p>
+
+            <div class="wiki-card">
+              <h4>⚙️ Konfigürasyon Parametreleri</h4>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Parametre</th>
+                    <th>Tür</th>
+                    <th>Açıklama</th>
+                    <th>Varsayılan</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><code>lookAhead</code></td>
+                    <td>int (ms)</td>
+                    <td>Tahmin ufku</td>
+                    <td>10000</td>
+                  </tr>
+                  <tr>
+                    <td><code>historySize</code></td>
+                    <td>int</td>
+                    <td>Geçmiş veri boyutu</td>
+                    <td>30</td>
+                  </tr>
+                  <tr>
+                    <td><code>lags</code></td>
+                    <td>int</td>
+                    <td>Lag özellik sayısı</td>
+                    <td>6</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <h4>📝 Örnek Kullanım</h4>
+            <pre><code>models:
+  - type: CatBoost
+    name: catboost-predictor
+    catboost:
+      lookAhead: 10000
+      historySize: 25     # CatBoost az veriyle de iyi çalışır
+      lags: 6</code></pre>
+
+            <h4>🔧 Dahili Model Parametreleri</h4>
+            <pre><code>CatBoostRegressor(
+    iterations=200,        # İterasyon sayısı
+    learning_rate=0.1,     # Öğrenme oranı
+    depth=4,               # Ağaç derinliği
+    loss_function='RMSE',  # Loss fonksiyonu
+    verbose=False,         # Sessiz mod
+    random_seed=42         # Sabit seed
+)</code></pre>
+
+            <div class="wiki-alert wiki-alert-success">
+              <strong>✅ CatBoost Avantajları:</strong>
+              <ul>
+                <li>Hızlı eğitim ve düşük overfitting</li>
+                <li>Az veri ile bile kararlı sonuçlar</li>
+                <li>Otomatik hiperparametre optimizasyonu</li>
+                <li>Kategorik özelliklerin otomatik işlenmesi</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- VAR -->
+          <div id="var" class="mb-4">
+            <h3>VAR (Vector Autoregression)</h3>
+            <p>
+              Statsmodels tabanlı çok değişkenli zaman serisi modeli.
+              Zaman özelliklerini (saat, gün) otomatik olarak türeterek tahmin yapar.
+            </p>
+
+            <div class="wiki-card">
+              <h4>⚙️ Konfigürasyon Parametreleri</h4>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Parametre</th>
+                    <th>Tür</th>
+                    <th>Açıklama</th>
+                    <th>Varsayılan</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><code>lookAhead</code></td>
+                    <td>int (ms)</td>
+                    <td>Tahmin ufku</td>
+                    <td>10000</td>
+                  </tr>
+                  <tr>
+                    <td><code>historySize</code></td>
+                    <td>int</td>
+                    <td>Geçmiş veri boyutu</td>
+                    <td>30</td>
+                  </tr>
+                  <tr>
+                    <td><code>lags</code></td>
+                    <td>int</td>
+                    <td>VAR lag order (maksimum)</td>
+                    <td>6</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <h4>📝 Örnek Kullanım</h4>
+            <pre><code>models:
+  - type: VAR
+    name: var-predictor
+    var:
+      lookAhead: 12000
+      historySize: 40     # VAR daha fazla geçmiş veri tercih eder
+      lags: 8             # Maksimum lag sayısı</code></pre>
+
+            <h4>🔧 Özellik Türetme</h4>
+            <p>VAR modeli aşağıdaki özellikleri otomatik olarak oluşturur:</p>
+            <pre><code>DataFrame Yapısı:
+- replicas: Pod replica sayısı (hedef değişken)
+- hour: Saat bilgisi (0-23)
+- day_of_week: Haftanın günü (0-6)</code></pre>
+
+            <div class="wiki-alert wiki-alert-info">
+              <strong>💡 VAR Kullanım İpuçları:</strong>
+              <ul>
+                <li>Mevsimsel desenler için idealdir</li>
+                <li>Haftalık/günlük periyodik veriler için optimize</li>
+                <li>Çok değişkenli bağımlılıkları yakalar</li>
+                <li>Minimum 20-30 veri noktası gerektirir</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <!-- Statistical Models -->
+        <section id="statistical-models" class="mb-5">
+          <h2>İstatistiksel Modeller</h2>
+
+          <!-- Holt-Winters -->
+          <div id="holt-winters" class="mb-4">
+            <h3>Holt-Winters Exponential Smoothing</h3>
+            <p>
+              Mevsimsel zaman serileri için klasik istatistiksel model.
+              Alpha, beta, gamma parametreleriyle trend ve mevsimselliği modeller.
+            </p>
+
+            <div class="wiki-card">
+              <h4>⚙️ Temel Parametreler</h4>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Parametre</th>
+                    <th>Tür</th>
+                    <th>Açıklama</th>
+                    <th>Aralık</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><code>alpha</code></td>
+                    <td>float</td>
+                    <td>Seviye düzgünleştirme katsayısı</td>
+                    <td>0.0-1.0</td>
+                  </tr>
+                  <tr>
+                    <td><code>beta</code></td>
+                    <td>float</td>
+                    <td>Trend düzgünleştirme katsayısı</td>
+                    <td>0.0-1.0</td>
+                  </tr>
+                  <tr>
+                    <td><code>gamma</code></td>
+                    <td>float</td>
+                    <td>Mevsimsellik düzgünleştirme katsayısı</td>
+                    <td>0.0-1.0</td>
+                  </tr>
+                  <tr>
+                    <td><code>seasonalPeriods</code></td>
+                    <td>int</td>
+                    <td>Bir mevsimin sync period sayısı</td>
+                    <td>>0</td>
+                  </tr>
+                  <tr>
+                    <td><code>storedSeasons</code></td>
+                    <td>int</td>
+                    <td>Saklanacak mevsim sayısı</td>
+                    <td>>0</td>
+                  </tr>
+                  <tr>
+                    <td><code>trend</code></td>
+                    <td>string</td>
+                    <td>Trend tipi (additive/multiplicative)</td>
+                    <td>-</td>
+                  </tr>
+                  <tr>
+                    <td><code>seasonal</code></td>
+                    <td>string</td>
+                    <td>Mevsimsellik tipi (additive/multiplicative)</td>
+                    <td>-</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <h4>📝 Örnek Kullanım</h4>
+            <pre><code>models:
+  - type: HoltWinters
+    name: holt-winters-predictor
+    startInterval: 60s        # Dakika başlarında başla
+    holtWinters:
+      alpha: 0.9              # Yüksek seviye duyarlılığı
+      beta: 0.1               # Düşük trend duyarlılığı
+      gamma: 0.3              # Orta mevsimsellik
+      seasonalPeriods: 6      # 6 sync period = 1 mevsim
+      storedSeasons: 4        # 4 mevsim saklasını
+      trend: additive         # Toplama trend
+      seasonal: additive      # Toplama mevsimsellik</code></pre>
+
+            <h4>🔄 Dinamik Parametre Ayarlama</h4>
+            <p>Holt-Winters parametrelerini runtime'da HTTP endpoint'ten alabilirsiniz:</p>
+            <pre><code>holtWinters:
+  runtimeTuningFetchHook:
+    type: "http"
+    timeout: 2500
+    http:
+      method: "GET"
+      url: "http://tuning-service/holt_winters"
+      successCodes:
+        - 200
+      parameterMode: body   # Büyük veriler için body kullan
+  # Fallback değerleri
+  alpha: 0.9
+  beta: 0.1
+  gamma: 0.3
+  seasonalPeriods: 6
+  storedSeasons: 4
+  trend: additive
+  seasonal: additive</code></pre>
+
+            <div class="wiki-alert wiki-alert-success">
+              <strong>✅ Holt-Winters İdeal Durumlar:</strong>
+              <ul>
+                <li>Saatlik/günlük düzenli desenlere sahip uygulamalar</li>
+                <li>E-ticaret siteleri (öğle/akşam yoğunlukları)</li>
+                <li>İş uygulamaları (çalışma saatleri deseni)</li>
+                <li>Hızlı hesaplama gereken durumlar</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Linear -->
+          <div id="linear" class="mb-4">
+            <h3>Linear Regression</h3>
+            <p>
+              Basit doğrusal trend tahmini için hızlı ve hafif model.
+              Aniden değişen trendleri yakalamak için idealdir.
+            </p>
+
+            <div class="wiki-card">
+              <h4>⚙️ Konfigürasyon Parametreleri</h4>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Parametre</th>
+                    <th>Tür</th>
+                    <th>Açıklama</th>
+                    <th>Varsayılan</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><code>lookAhead</code></td>
+                    <td>int (ms)</td>
+                    <td>Tahmin ufku</td>
+                    <td>10000</td>
+                  </tr>
+                  <tr>
+                    <td><code>historySize</code></td>
+                    <td>int</td>
+                    <td>Kullanılacak geçmiş veri sayısı</td>
+                    <td>6</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <h4>📝 Örnek Kullanım</h4>
+            <pre><code>models:
+  - type: Linear
+    name: linear-predictor
+    linear:
+      lookAhead: 5000       # 5 saniye önceden
+      historySize: 10       # Son 10 veriyi kullan</code></pre>
+
+            <div class="wiki-alert wiki-alert-warning">
+              <strong>⚠️ Linear Model Sınırlamaları:</strong>
+              <ul>
+                <li>Sadece doğrusal trendleri yakalar</li>
+                <li>Mevsimsellik modelleyemez</li>
+                <li>Ani değişikliklerde yavaş adapte olur</li>
+                <li>Basit senaryolar için uygundur</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <!-- Multi-Model Strategies -->
+        <section id="multi-model" class="mb-5">
+          <h2>Çoklu Model Stratejileri</h2>
+          <p>
+            Birden fazla modeli kombine ederek daha güvenilir tahminler elde edebilirsiniz.
+            PHPA dört farklı karar stratejisi sunar:
+          </p>
+
+          <div class="wiki-grid wiki-grid-2">
+            <div class="wiki-card">
+              <h4>📈 Maximum</h4>
+              <p>En yüksek tahmini seçer. Konservatif ölçeklendirme için idealdir.</p>
+              <pre><code>decisionType: maximum</code></pre>
+            </div>
+
+            <div class="wiki-card">
+              <h4>📉 Minimum</h4>
+              <p>En düşük tahmini seçer. Kaynak tasarrufu için kullanılabilir.</p>
+              <pre><code>decisionType: minimum</code></pre>
+            </div>
+
+            <div class="wiki-card">
+              <h4>📊 Mean</h4>
+              <p>Tüm tahminlerin ortalamasını alır. Dengeli yaklaşım sağlar.</p>
+              <pre><code>decisionType: mean</code></pre>
+            </div>
+
+            <div class="wiki-card">
+              <h4>📊 Median</h4>
+              <p>Medyan değeri kullanır. Aykırı değerlere karşı daha dayanıklıdır.</p>
+              <pre><code>decisionType: median</code></pre>
+            </div>
+          </div>
+
+          <h3>📝 Çoklu Model Örneği</h3>
+          <pre><code>apiVersion: syswe.me/v1alpha1
+kind: PredictiveHorizontalPodAutoscaler
+metadata:
+  name: multi-model-phpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: my-app
+  minReplicas: 1
+  maxReplicas: 20
+  decisionType: mean  # Modellerin ortalamasını al
+  models:
+    - type: GBDT
+      name: gbdt-short-term
+      gbdt:
+        lookAhead: 10000
+        historySize: 30
+        lags: 6
+
+    - type: XGBoost
+      name: xgboost-long-term
+      xgboost:
+        lookAhead: 20000
+        historySize: 50
+        lags: 8
+
+    - type: CatBoost
+      name: catboost-stable
+      catboost:
+        lookAhead: 15000
+        historySize: 40
+        lags: 7
+
+    - type: HoltWinters
+      name: seasonal-patterns
+      holtWinters:
+        alpha: 0.8
+        beta: 0.2
+        gamma: 0.4
+        seasonalPeriods: 12
+        storedSeasons: 3
+        trend: additive
+        seasonal: additive</code></pre>
+
+          <div class="wiki-alert wiki-alert-success">
+            <strong>✅ Çoklu Model Avantajları:</strong>
+            <ul>
+              <li>Tek model hatalarına karşı koruma</li>
+              <li>Farklı zaman ufuklarında optimizasyon</li>
+              <li>Daha kararlı ve güvenilir tahminler</li>
+              <li>Çeşitli veri desenlerini yakalama</li>
+            </ul>
+          </div>
+        </section>
+
+        <!-- Performance Comparison -->
+        <section id="performance-comparison" class="mb-5">
+          <h2>Performans Karşılaştırması</h2>
+          <p>Farklı modellerin tipik performans karakteristikleri:</p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Model</th>
+                <th>Eğitim Hızı</th>
+                <th>Tahmin Hızı</th>
+                <th>Bellek Kullanımı</th>
+                <th>Doğruluk</th>
+                <th>En İyi Senaryo</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>GBDT</strong></td>
+                <td>🟡 Orta</td>
+                <td>🟢 Hızlı</td>
+                <td>🟡 Orta</td>
+                <td>🟢 Yüksek</td>
+                <td>Kısa vadeli tahmin</td>
+              </tr>
+              <tr>
+                <td><strong>XGBoost</strong></td>
+                <td>🟡 Orta-Uzun</td>
+                <td>🟡 Orta</td>
+                <td>🔴 Yüksek</td>
+                <td>🟢 Çok Yüksek</td>
+                <td>Karmaşık desenler</td>
+              </tr>
+              <tr>
+                <td><strong>CatBoost</strong></td>
+                <td>🟢 Hızlı</td>
+                <td>🟢 Hızlı</td>
+                <td>🟡 Orta</td>
+                <td>🟢 Yüksek</td>
+                <td>Az veri, kararlı sonuç</td>
+              </tr>
+              <tr>
+                <td><strong>VAR</strong></td>
+                <td>🟢 Hızlı</td>
+                <td>🟢 Hızlı</td>
+                <td>🟢 Düşük</td>
+                <td>🟡 Orta</td>
+                <td>Mevsimsel veriler</td>
+              </tr>
+              <tr>
+                <td><strong>Holt-Winters</strong></td>
+                <td>🟢 Çok Hızlı</td>
+                <td>🟢 Çok Hızlı</td>
+                <td>🟢 Çok Düşük</td>
+                <td>🟡 Orta-Yüksek</td>
+                <td>Düzenli mevsimsellik</td>
+              </tr>
+              <tr>
+                <td><strong>Linear</strong></td>
+                <td>🟢 Çok Hızlı</td>
+                <td>🟢 Çok Hızlı</td>
+                <td>🟢 Çok Düşük</td>
+                <td>🟡 Orta</td>
+                <td>Basit doğrusal trendler</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3>🎯 Model Seçim Rehberi</h3>
+          <div class="wiki-grid wiki-grid-3">
+            <div class="wiki-card">
+              <h4>🚀 Hızlı Başlangıç</h4>
+              <p><strong>Önerilen:</strong> CatBoost veya GBDT</p>
+              <ul>
+                <li>Kolay kurulum</li>
+                <li>İyi varsayılan parametreler</li>
+                <li>Çoğu senaryoda etkili</li>
+              </ul>
+            </div>
+
+            <div class="wiki-card">
+              <h4>🎯 Maksimum Performans</h4>
+              <p><strong>Önerilen:</strong> Çoklu Model (GBDT + XGBoost + CatBoost)</p>
+              <ul>
+                <li>En yüksek doğruluk</li>
+                <li>Hata toleransı</li>
+                <li>Çeşitli desenleri yakalar</li>
+              </ul>
+            </div>
+
+            <div class="wiki-card">
+              <h4>⚡ Kaynak Tasarrufu</h4>
+              <p><strong>Önerilen:</strong> Holt-Winters veya Linear</p>
+              <ul>
+                <li>Düşük bellek kullanımı</li>
+                <li>Hızlı hesaplama</li>
+                <li>Basit desenler için yeterli</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <!-- Page Navigation -->
+        <div class="wiki-page-navigation">
+          <a href="getting-started.html" class="wiki-nav-prev">← Hızlı Başlangıç</a>
+          <a href="configuration.html" class="wiki-nav-next">Yapılandırma →</a>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <script src="../assets/js/wiki.js"></script>
+  <script>
+    // Set last updated date
+    document.getElementById('last-updated').textContent = new Intl.DateTimeFormat('tr-TR', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    }).format(new Date());
+  </script>
+</body>
+</html>

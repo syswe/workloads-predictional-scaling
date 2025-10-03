@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: load-generator
+spec:
+  replicas: 0
+  selector:
+    matchLabels:
+      app: load-generator
+  template:
+    metadata:
+      labels:
+        app: load-generator
+    spec:
+      containers:
+        - name: busybox
+          image: busybox:1.36
+          command:
+            - /bin/sh
+            - -c
+            - |
+              echo "load-generator started";
+              while true; do
+                wget -q -O- http://php-apache/ > /dev/null || true;
+              done
+          resources:
+            requests:
+              cpu: 100m
+            limits:
+              cpu: 200m

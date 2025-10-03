@@ -4,7 +4,7 @@ This guide will walk through the first steps for deploying a simple Predictive H
 guide will demonstrate how to deploy a PHPA that uses a linear regression to predict future load based on CPU usage.
 
 To see the final result of this guide, check out the [Simple Linear Regression
-example](https://github.com/jthomperoo/predictive-horizontal-pod-autoscaler/tree/master/examples/simple-linear).
+example](https://github.com/syswe/predictive-horizontal-pod-autoscaler/tree/master/examples/simple-linear).
 
 ## Prerequisites
 
@@ -39,7 +39,7 @@ Run the following commands to install the PHPA operator:
 ```bash
 VERSION=v0.13.2
 HELM_CHART=predictive-horizontal-pod-autoscaler-operator
-helm install ${HELM_CHART} https://github.com/jthomperoo/predictive-horizontal-pod-autoscaler/releases/download/${VERSION}/predictive-horizontal-pod-autoscaler-${VERSION}.tgz
+helm install ${HELM_CHART} https://github.com/syswe/predictive-horizontal-pod-autoscaler/releases/download/${VERSION}/predictive-horizontal-pod-autoscaler-${VERSION}.tgz
 ```
 
 You can check the PHPA operator has been deployed properly by running:
@@ -144,7 +144,7 @@ Now we need to set up the autoscaler. This autoscaler will be configured to watc
 apply a linear regression to predict ahead of time what the replica count should be.
 
 ```yaml
-apiVersion: jamiethompson.me/v1alpha1
+apiVersion: syswe.me/v1alpha1
 kind: PredictiveHorizontalPodAutoscaler
 metadata:
   name: simple-linear
@@ -339,4 +339,4 @@ k3d cluster delete phpa-test-cluster
 This guide is intended to provide a simple walkthrough of how to install and use the PHPA, the concepts outlined here
 can be used to deploy autoscalers with different predictive models. Check out the [examples in the project Git
 repository to see more
-samples](https://github.com/jthomperoo/predictive-horizontal-pod-autoscaler/tree/master/examples).
+samples](https://github.com/syswe/predictive-horizontal-pod-autoscaler/tree/master/examples).

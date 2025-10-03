@@ -45,7 +45,7 @@ The **linear** component of the configuration handles configuration of the Linea
 are `> 6` evaluations, the oldest will be removed.
 
 For a more detailed example, [see the example in
-`/examples/simple-linear`](https://github.com/jthomperoo/predictive-horizontal-pod-autoscaler/tree/master/examples/simple-linear).
+`/examples/simple-linear`](https://github.com/syswe/predictive-horizontal-pod-autoscaler/tree/master/examples/simple-linear).
 
 ## Holt-Winters Time Series prediction
 
@@ -72,7 +72,7 @@ models:
 The **holtWinters** component of the configuration handles configuration of the Linear regression options:
 
 - **alpha**, **beta**, **gamma** - these are the smoothing coefficients for level, trend and seasonality respectively,
-requires tweaking and analysis to be able to optimise. See [here](https://github.com/jthomperoo/holtwinters) or
+requires tweaking and analysis to be able to optimise. See [here](https://github.com/syswe/holtwinters) or
 [here](https://grisha.org/blog/2016/01/29/triple-exponential-smoothing-forecasting/) for more details.
 - **seasonalPeriods** - the length of a season in base unit sync periods, for example if your sync period was `10000`
 (10 seconds), and your repeated season was 60 seconds long, this value would be `6`.
@@ -88,7 +88,110 @@ is overestimating, but still pre-emptively scaling - storing more seasons and ad
 would reduce the overestimation and produce more accurate results.
 
 For a more detailed example, [see the example in
-`/examples/simple-holt-winters`](https://github.com/jthomperoo/predictive-horizontal-pod-autoscaler/tree/master/examples/simple-holt-winters).
+`/examples/simple-holt-winters`](https://github.com/syswe/predictive-horizontal-pod-autoscaler/tree/master/examples/simple-holt-winters).
+
+## Gradient Boosted Decision Trees (GBDT)
+
+The GBDT model uses a default calculation timeout of `30000` (30 seconds).
+
+Example:
+```yaml
+models:
+  - type: GBDT
+    name: simple-gbdt
+    perSyncPeriod: 1
+    calculationTimeout: 25000
+    gbdt:
+      lookAhead: 10000
+      historySize: 30
+      lags: 6
+```
+
+The **gbdt** component configures the Gradient Boosted Decision Trees model:
+
+- **lookAhead**: time ahead to predict in milliseconds (e.g., `10000` for 10s).
+- **historySize**: how many past evaluations to retain and use as potential training data (older entries are pruned).
+- **lags**: how many previous replica values are used as features. The algorithm builds lag features
+  `[replicas(t-1), replicas(t-2), ..., replicas(t-lags)]` to predict `replicas(t)`.
+
+Behavior and constraints:
+
+- The algorithm is implemented in Python using scikit‑learn and reads previous replica counts from the PHPA’s
+  `replicaHistory`. It prints a single integer to stdout.
+- If there are not enough samples for the requested `lags`, the model returns the latest observed replica count.
+- For multi‑step `lookAhead`, the algorithm infers the step interval using the median time between stored observations
+  and iteratively predicts forward until it reaches the requested horizon.
+
+For a more detailed example, [see the example in
+`/examples/simple-gbdt`](https://github.com/syswe/predictive-horizontal-pod-autoscaler/tree/master/examples/simple-gbdt).
+
+## XGBoost (Offline Training)
+
+This repository includes an offline training script for experimentation with
+[XGBoost](https://xgboost.readthedocs.io/) on your historical pod counts. This is not wired into the operator by default.
+
+Script: `algorithms/xgboost/train_xgboost.py`
+
+Usage:
+```bash
+python algorithms/xgboost/train_xgboost.py \
+  --train-file path/to/train.csv \
+  --test-file path/to/test.csv \
+  --run-id my_xgb_run_001
+```
+
+Input CSV must contain `timestamp` and `pod_count` columns (or `ds` and `y`, which the script will rename). The script:
+
+- Validates data and builds time/lag/rolling features.
+- Trains an XGBoost regressor with early stopping.
+- Saves `predictions.csv`, `metrics.json`, and a `plot.png` under `train/models/xgboost_model/runs/<run-id>/`.
+
+To integrate XGBoost as a runtime model, follow the Custom Models guide and create a lightweight `algorithms/xgboost/xgboost.py` that accepts `replicaHistory` JSON and prints an integer prediction.
+
+## VAR (Offline Training)
+
+This repository includes an offline training script for experimentation with
+Vector Autoregression (VAR) using statsmodels.
+
+Script: `algorithms/var/train_var.py`
+
+Usage:
+```bash
+python algorithms/var/train_var.py \
+  --train-file path/to/train.csv \
+  --test-file path/to/test.csv \
+  --run-id my_var_run_001 \
+  --maxlags 24
+```
+
+Input CSV must contain `timestamp` and `pod_count` (or `ds` and `y`). The script:
+
+- Prepares multivariate inputs (pod_count + time components) for VAR.
+- Trains a VAR model (auto-selects usable lag up to `--maxlags`).
+- Produces predictions for the test timeline, and saves `predictions.csv`, `metrics.json`, and a `predictions_plot.png` under `train/models/var_model/runs/<run-id>/`.
+
+VAR is suited to multivariate time series; for operator runtime integration, follow the Custom Models guide and implement a Python runtime that consumes `replicaHistory` and emits one integer replica prediction.
+
+## CatBoost (Offline Training)
+
+This repository includes an offline training script for experimentation with
+[CatBoost](https://catboost.ai/) on historical pod counts. Not wired by default previously; now a runtime model is provided.
+
+Script: `algorithms/catboost/train_catboost.py`
+
+Usage:
+```bash
+python algorithms/catboost/train_catboost.py \
+  --train-file path/to/train.csv \
+  --test-file path/to/test.csv \
+  --run-id my_cb_run_001
+```
+
+The script builds time and lag features, trains a CatBoost regressor with early stopping, and writes
+`predictions.csv`, `metrics.json`, and a `plot.png` under `train/models/catboost_model/runs/<run-id>/`.
+
+At runtime the operator uses `algorithms/catboost/catboost.py`, which consumes `replicaHistory`, builds lag features,
+and performs fast iterative lookahead.
 
 ### Advanced tuning
 
@@ -139,7 +242,7 @@ models:
 
 > Note this uses the `parameterMode: body` instead of `parameterMode: query`, this is because for large amounts of
 > data the URL generated can become too long and invalid. See
-> [#89](https://github.com/jthomperoo/predictive-horizontal-pod-autoscaler/issues/89).
+> [#89](https://github.com/syswe/predictive-horizontal-pod-autoscaler/issues/89).
 
 The hook is defined with the name `runtimeTuningFetchHook`.
 
@@ -302,4 +405,4 @@ rely on the hardcoded configuration value, this response would be valid:
 ```
 
 For a more detailed example, [see the example in
-`/examples/dynamic-holt-winters`](https://github.com/jthomperoo/predictive-horizontal-pod-autoscaler/tree/master/examples/dynamic-holt-winters).
+`/examples/dynamic-holt-winters`](https://github.com/syswe/predictive-horizontal-pod-autoscaler/tree/master/examples/dynamic-holt-winters).

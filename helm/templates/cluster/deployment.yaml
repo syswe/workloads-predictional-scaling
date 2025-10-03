@@ -14,8 +14,14 @@ spec:
         name: {{ .Chart.Name }}
     spec:
       serviceAccountName: {{ .Chart.Name }}-cluster
+{{- if .Values.image.pullSecrets }}
+      imagePullSecrets:
+{{- range .Values.image.pullSecrets }}
+        - name: {{ . }}
+{{- end }}
+{{- end }}
       containers:
         - name: {{ .Chart.Name }}
-          image: "jthomperoo/predictive-horizontal-pod-autoscaler:{{ .Chart.Version }}"
-          imagePullPolicy: IfNotPresent
+          image: "{{ .Values.image.repository }}:{{ default .Chart.Version .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
 {{ end }}

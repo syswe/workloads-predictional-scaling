@@ -1,6 +1,6 @@
-[![Build](https://github.com/jthomperoo/predictive-horizontal-pod-autoscaler/workflows/main/badge.svg)](https://github.com/jthomperoo/predictive-horizontal-pod-autoscaler/actions)
-[![go.dev](https://img.shields.io/badge/go.dev-reference-007d9c?logo=go&logoColor=white&style=flat)](https://pkg.go.dev/github.com/jthomperoo/predictive-horizontal-pod-autoscaler)
-[![Go Report Card](https://goreportcard.com/badge/github.com/jthomperoo/predictive-horizontal-pod-autoscaler)](https://goreportcard.com/report/github.com/jthomperoo/predictive-horizontal-pod-autoscaler)
+[![Build](https://github.com/syswe/predictive-horizontal-pod-autoscaler/workflows/main/badge.svg)](https://github.com/syswe/predictive-horizontal-pod-autoscaler/actions)
+[![go.dev](https://img.shields.io/badge/go.dev-reference-007d9c?logo=go&logoColor=white&style=flat)](https://pkg.go.dev/github.com/syswe/predictive-horizontal-pod-autoscaler)
+[![Go Report Card](https://goreportcard.com/badge/github.com/syswe/predictive-horizontal-pod-autoscaler)](https://goreportcard.com/report/github.com/syswe/predictive-horizontal-pod-autoscaler)
 [![Documentation Status](https://readthedocs.org/projects/predictive-horizontal-pod-autoscaler/badge/?version=latest)](https://predictive-horizontal-pod-autoscaler.readthedocs.io/en/latest)
 [![License](https://img.shields.io/:license-apache-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
 

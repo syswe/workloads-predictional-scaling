@@ -57,7 +57,7 @@ rules:
   - get
   - list
 - apiGroups:
-  - jamiethompson.me
+  - syswe.me
   resources:
   - predictivehorizontalpodautoscalers
   verbs:
@@ -69,13 +69,13 @@ rules:
   - update
   - watch
 - apiGroups:
-  - jamiethompson.me
+  - syswe.me
   resources:
   - predictivehorizontalpodautoscalers/finalizers
   verbs:
   - update
 - apiGroups:
-  - jamiethompson.me
+  - syswe.me
   resources:
   - predictivehorizontalpodautoscalers/status
   verbs:

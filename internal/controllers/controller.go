@@ -38,11 +38,11 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
-	"github.com/jthomperoo/k8shorizmetrics/v2"
-	jamiethompsonmev1alpha1 "github.com/jthomperoo/predictive-horizontal-pod-autoscaler/api/v1alpha1"
-	"github.com/jthomperoo/predictive-horizontal-pod-autoscaler/internal/prediction"
-	"github.com/jthomperoo/predictive-horizontal-pod-autoscaler/internal/scalebehavior"
-	"github.com/jthomperoo/predictive-horizontal-pod-autoscaler/internal/validation"
+	"github.com/syswe/k8shorizmetrics/v2"
+	syswev1alpha1 "github.com/syswe/predictive-horizontal-pod-autoscaler/api/v1alpha1"
+	"github.com/syswe/predictive-horizontal-pod-autoscaler/internal/prediction"
+	"github.com/syswe/predictive-horizontal-pod-autoscaler/internal/scalebehavior"
+	"github.com/syswe/predictive-horizontal-pod-autoscaler/internal/validation"
 )
 
 // PHPA configuration constants
@@ -61,7 +61,7 @@ const (
 
 // PHPA scale constraints
 const (
-	defaultDecisionType = jamiethompsonmev1alpha1.DecisionMaximum
+	defaultDecisionType = syswev1alpha1.DecisionMaximum
 	defaultMinReplicas  = 1
 )
 
@@ -95,9 +95,9 @@ type PredictiveHorizontalPodAutoscalerReconciler struct {
 	Predicter   prediction.Predicter
 }
 
-//+kubebuilder:rbac:groups=jamiethompson.me,resources=predictivehorizontalpodautoscalers,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=jamiethompson.me,resources=predictivehorizontalpodautoscalers/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=jamiethompson.me,resources=predictivehorizontalpodautoscalers/finalizers,verbs=update
+//+kubebuilder:rbac:groups=syswe.me,resources=predictivehorizontalpodautoscalers,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=syswe.me,resources=predictivehorizontalpodautoscalers/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=syswe.me,resources=predictivehorizontalpodautoscalers/finalizers,verbs=update
 //+kubebuilder:rbac:groups=core,resources=pods,verbs=get;list
 //+kubebuilder:rbac:groups=core,resources=replicationcontrollers/scale,verbs=get;update;patch
 //+kubebuilder:rbac:groups=core,resources=configmaps,verbs=get;list;watch;create;update;patch;delete
@@ -109,7 +109,7 @@ type PredictiveHorizontalPodAutoscalerReconciler struct {
 func (r *PredictiveHorizontalPodAutoscalerReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	logger := log.FromContext(ctx)
 
-	instance := &jamiethompsonmev1alpha1.PredictiveHorizontalPodAutoscaler{}
+	instance := &syswev1alpha1.PredictiveHorizontalPodAutoscaler{}
 	err := r.Client.Get(ctx, req.NamespacedName, instance)
 	if err != nil {
 		if k8serrors.IsNotFound(err) {
@@ -140,7 +140,7 @@ func (r *PredictiveHorizontalPodAutoscalerReconciler) Reconcile(ctx context.Cont
 	}
 
 	configMapName := fmt.Sprintf("predictive-horizontal-pod-autoscaler-%s-data", instance.Name)
-	phpaData := &jamiethompsonmev1alpha1.PredictiveHorizontalPodAutoscalerData{}
+	phpaData := &syswev1alpha1.PredictiveHorizontalPodAutoscalerData{}
 	configMap := &corev1.ConfigMap{}
 
 	// Check if configmap exists, if not create a blank one
@@ -169,7 +169,7 @@ func (r *PredictiveHorizontalPodAutoscalerReconciler) Reconcile(ctx context.Cont
 				UID:        instance.UID,
 			}})
 
-			phpaData.ModelHistories = map[string]jamiethompsonmev1alpha1.ModelHistory{}
+			phpaData.ModelHistories = map[string]syswev1alpha1.ModelHistory{}
 
 			data, err := json.Marshal(phpaData)
 			if err != nil {
@@ -266,7 +266,7 @@ func (r *PredictiveHorizontalPodAutoscalerReconciler) Reconcile(ctx context.Cont
 
 	currentReplicas := scale.Spec.Replicas
 
-	timestampedReplicaValue := jamiethompsonmev1alpha1.TimestampedReplicas{
+	timestampedReplicaValue := syswev1alpha1.TimestampedReplicas{
 		Time:     &metav1.Time{Time: now},
 		Replicas: targetReplicas,
 	}
@@ -316,7 +316,7 @@ func (r *PredictiveHorizontalPodAutoscalerReconciler) Reconcile(ctx context.Cont
 
 		if targetReplicas > currentReplicas {
 			// Scale up
-			scaleEvent := jamiethompsonmev1alpha1.TimestampedReplicas{
+			scaleEvent := syswev1alpha1.TimestampedReplicas{
 				Time:     &metav1.Time{Time: scaleTime},
 				Replicas: targetReplicas - currentReplicas,
 			}
@@ -327,7 +327,7 @@ func (r *PredictiveHorizontalPodAutoscalerReconciler) Reconcile(ctx context.Cont
 				scaleTime)
 		} else {
 			// Scale down
-			scaleEvent := jamiethompsonmev1alpha1.TimestampedReplicas{
+			scaleEvent := syswev1alpha1.TimestampedReplicas{
 				Time:     &metav1.Time{Time: scaleTime},
 				Replicas: currentReplicas - targetReplicas,
 			}
@@ -365,7 +365,7 @@ func (r *PredictiveHorizontalPodAutoscalerReconciler) Reconcile(ctx context.Cont
 
 // updateConfigMapData updates the PHPA's configmap and the data it holds
 func (r *PredictiveHorizontalPodAutoscalerReconciler) updateConfigMapData(ctx context.Context, configMap *corev1.ConfigMap,
-	phpaData *jamiethompsonmev1alpha1.PredictiveHorizontalPodAutoscalerData) error {
+	phpaData *syswev1alpha1.PredictiveHorizontalPodAutoscalerData) error {
 	data, err := json.Marshal(phpaData)
 	if err != nil {
 		// Should not occur, panic
@@ -387,9 +387,9 @@ func (r *PredictiveHorizontalPodAutoscalerReconciler) updateConfigMapData(ctx co
 // processModels processes every model provided in the spec, it does not return any errors and will instead simply
 // log if a model has failed to be processed, allowing the other models/the HPA calculated replicas to be used instead
 func (r *PredictiveHorizontalPodAutoscalerReconciler) processModels(ctx context.Context,
-	instance *jamiethompsonmev1alpha1.PredictiveHorizontalPodAutoscaler,
-	phpaData *jamiethompsonmev1alpha1.PredictiveHorizontalPodAutoscalerData, now time.Time, currentReplicas int32,
-	calculatedReplicas int32) ([]int32, *jamiethompsonmev1alpha1.PredictiveHorizontalPodAutoscalerData) {
+	instance *syswev1alpha1.PredictiveHorizontalPodAutoscaler,
+	phpaData *syswev1alpha1.PredictiveHorizontalPodAutoscalerData, now time.Time, currentReplicas int32,
+	calculatedReplicas int32) ([]int32, *syswev1alpha1.PredictiveHorizontalPodAutoscalerData) {
 
 	logger := log.FromContext(ctx)
 
@@ -412,10 +412,10 @@ func (r *PredictiveHorizontalPodAutoscalerReconciler) processModels(ctx context.
 		modelHistory, exists := phpaData.ModelHistories[model.Name]
 		if !exists || modelHistory.Type != model.Type {
 			// Create new if model doesn't exist or has a type mismatch
-			modelHistory = jamiethompsonmev1alpha1.ModelHistory{
+			modelHistory = syswev1alpha1.ModelHistory{
 				Type:              model.Type,
 				SyncPeriodsPassed: 1,
-				ReplicaHistory:    []jamiethompsonmev1alpha1.TimestampedReplicas{},
+				ReplicaHistory:    []syswev1alpha1.TimestampedReplicas{},
 			}
 		}
 
@@ -457,7 +457,7 @@ func (r *PredictiveHorizontalPodAutoscalerReconciler) processModels(ctx context.
 			durationSinceLastData := now.Sub(latest)
 			if durationSinceLastData > model.ResetDuration.Duration {
 				// Clear replica history
-				modelHistory.ReplicaHistory = []jamiethompsonmev1alpha1.TimestampedReplicas{}
+				modelHistory.ReplicaHistory = []syswev1alpha1.TimestampedReplicas{}
 
 				if model.StartInterval != nil {
 					// Recalculate start time
@@ -492,7 +492,7 @@ func (r *PredictiveHorizontalPodAutoscalerReconciler) processModels(ctx context.
 
 		shouldRunOnThisSyncPeriod := modelHistory.SyncPeriodsPassed >= perSyncPeriod
 
-		modelHistory.ReplicaHistory = append(modelHistory.ReplicaHistory, jamiethompsonmev1alpha1.TimestampedReplicas{
+		modelHistory.ReplicaHistory = append(modelHistory.ReplicaHistory, syswev1alpha1.TimestampedReplicas{
 			Time: &metav1.Time{
 				Time: now,
 			},
@@ -556,7 +556,7 @@ func (r *PredictiveHorizontalPodAutoscalerReconciler) processModels(ctx context.
 // calculateReplicas does the HPA processing part of the autoscaling based on the metrics provided in the spec,
 // returns the calculated value (the value the HPA would calculate based on these metrics).
 func (r *PredictiveHorizontalPodAutoscalerReconciler) calculateReplicas(
-	instance *jamiethompsonmev1alpha1.PredictiveHorizontalPodAutoscaler, scale *autoscalingv1.Scale) (int32, error) {
+	instance *syswev1alpha1.PredictiveHorizontalPodAutoscaler, scale *autoscalingv1.Scale) (int32, error) {
 	cpuInitializationPeriod := defaultCPUInitializationPeriod
 	if instance.Spec.CPUInitializationPeriod != nil {
 		cpuInitializationPeriod = *instance.Spec.CPUInitializationPeriod
@@ -597,7 +597,7 @@ func (r *PredictiveHorizontalPodAutoscalerReconciler) calculateReplicas(
 // preScaleStatusCheck makes sure that the PHPAs status fields are correct before scaling, e.g. the reference field
 // is set
 func (r *PredictiveHorizontalPodAutoscalerReconciler) preScaleStatusCheck(ctx context.Context,
-	instance *jamiethompsonmev1alpha1.PredictiveHorizontalPodAutoscaler) error {
+	instance *syswev1alpha1.PredictiveHorizontalPodAutoscaler) error {
 
 	scaleTargetRef := instance.Spec.ScaleTargetRef
 
@@ -705,7 +705,7 @@ func selectPolicyPtr(policy autoscalingv2.ScalingPolicySelect) *autoscalingv2.Sc
 // SetupWithManager sets up the controller with the Manager.
 func (r *PredictiveHorizontalPodAutoscalerReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&jamiethompsonmev1alpha1.PredictiveHorizontalPodAutoscaler{}).
+		For(&syswev1alpha1.PredictiveHorizontalPodAutoscaler{}).
 		Owns(&corev1.ConfigMap{}).
 		Complete(r)
 }

@@ -9,9 +9,9 @@ cluster-wide scope:
 ```bash
 VERSION=v0.13.2
 HELM_CHART=predictive-horizontal-pod-autoscaler-operator
-helm install ${HELM_CHART} https://github.com/jthomperoo/predictive-horizontal-pod-autoscaler/releases/download/${VERSION}/predictive-horizontal-pod-autoscaler-${VERSION}.tgz
+helm install ${HELM_CHART} https://github.com/syswe/predictive-horizontal-pod-autoscaler/releases/download/${VERSION}/predictive-horizontal-pod-autoscaler-${VERSION}.tgz
 ```
 
 After you have done that you can install PHPAs onto your cluster, check out the [examples for PHPAs you can
-deploy](https://github.com/jthomperoo/predictive-horizontal-pod-autoscaler/tree/master/examples) or follow the [getting
+deploy](https://github.com/syswe/predictive-horizontal-pod-autoscaler/tree/master/examples) or follow the [getting
 started guide](./getting-started.md).

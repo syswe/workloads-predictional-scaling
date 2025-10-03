@@ -22,11 +22,11 @@ import (
 
 	autoscalingv2 "k8s.io/api/autoscaling/v2"
 
-	jamiethompsonmev1alpha1 "github.com/jthomperoo/predictive-horizontal-pod-autoscaler/api/v1alpha1"
+	syswev1alpha1 "github.com/syswe/predictive-horizontal-pod-autoscaler/api/v1alpha1"
 )
 
 // Validate performs validation on the PHPA, will return an error if the PHPA is not valid
-func Validate(instance *jamiethompsonmev1alpha1.PredictiveHorizontalPodAutoscaler) error {
+func Validate(instance *syswev1alpha1.PredictiveHorizontalPodAutoscaler) error {
 	spec := instance.Spec
 
 	err := validateMinMax(spec)
@@ -42,7 +42,7 @@ func Validate(instance *jamiethompsonmev1alpha1.PredictiveHorizontalPodAutoscale
 	return nil
 }
 
-func validateMinMax(spec jamiethompsonmev1alpha1.PredictiveHorizontalPodAutoscalerSpec) error {
+func validateMinMax(spec syswev1alpha1.PredictiveHorizontalPodAutoscalerSpec) error {
 	if spec.MinReplicas != nil && spec.MaxReplicas < *spec.MinReplicas {
 		return fmt.Errorf("spec.maxReplicas (%d) cannot be less than spec.minReplicas (%d)",
 			spec.MaxReplicas, *spec.MinReplicas)
@@ -65,9 +65,9 @@ func validateMinMax(spec jamiethompsonmev1alpha1.PredictiveHorizontalPodAutoscal
 	return nil
 }
 
-func validateModels(models []jamiethompsonmev1alpha1.Model) error {
+func validateModels(models []syswev1alpha1.Model) error {
 	for _, model := range models {
-		if model.Type == jamiethompsonmev1alpha1.TypeHoltWinters {
+		if model.Type == syswev1alpha1.TypeHoltWinters {
 			hw := model.HoltWinters
 			if hw == nil {
 				return fmt.Errorf("invalid model '%s', type is '%s' but no Holt Winters configuration provided",
@@ -76,14 +76,14 @@ func validateModels(models []jamiethompsonmev1alpha1.Model) error {
 
 			if hw.RuntimeTuningFetchHook != nil {
 				hook := hw.RuntimeTuningFetchHook
-				if hook.Type == jamiethompsonmev1alpha1.HookTypeHTTP && hook.HTTP == nil {
+				if hook.Type == syswev1alpha1.HookTypeHTTP && hook.HTTP == nil {
 					return fmt.Errorf("invalid model '%s', runtimeTuningFetchHook is type '%s' but no HTTP hook configuration provided",
 						model.Name, hook.Type)
 				}
 			}
 		}
 
-		if model.Type == jamiethompsonmev1alpha1.TypeLinear && model.Linear == nil {
+		if model.Type == syswev1alpha1.TypeLinear && model.Linear == nil {
 			return fmt.Errorf("invalid model '%s', type is '%s' but no Linear Regression configuration provided",
 				model.Name, model.Type)
 		}

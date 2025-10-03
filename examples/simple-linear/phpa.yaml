@@ -1,4 +1,4 @@
-apiVersion: jamiethompson.me/v1alpha1
+apiVersion: syswe.me/v1alpha1
 kind: PredictiveHorizontalPodAutoscaler
 metadata:
   name: simple-linear

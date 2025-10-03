@@ -1,0 +1,47 @@
+apiVersion: syswe.me/v1alpha1
+kind: PredictiveHorizontalPodAutoscaler
+metadata:
+  name: multi-model-mean
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: php-apache
+  minReplicas: 1
+  maxReplicas: 10
+  decisionType: mean
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 0
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          averageUtilization: 50
+          type: Utilization
+  models:
+    - type: GBDT
+      name: gbdt-6lags
+      gbdt:
+        lookAhead: 10000
+        historySize: 30
+        lags: 6
+    - type: XGBoost
+      name: xgb-6lags
+      xgboost:
+        lookAhead: 10000
+        historySize: 30
+        lags: 6
+    - type: VAR
+      name: var-6lags
+      var:
+        lookAhead: 10000
+        historySize: 30
+        lags: 6
+    - type: CatBoost
+      name: cb-6lags
+      catboost:
+        lookAhead: 10000
+        historySize: 30
+        lags: 6

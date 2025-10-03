@@ -1,0 +1,99 @@
+
+[2025-09-22T18:41:15+03:00] phase=evening duration=45s qps=10 concurrency=4
+
+Summary:
+  Total:	45.6160 secs
+  Slowest:	1.4139 secs
+  Fastest:	0.7004 secs
+  Average:	1.0315 secs
+  Requests/sec:	3.8583
+  
+  Total data:	528 bytes
+  Size/request:	3 bytes
+
+Response time histogram:
+  0.700 [1]	|■
+  0.772 [2]	|■
+  0.843 [15]	|■■■■■■■■■■■
+  0.914 [25]	|■■■■■■■■■■■■■■■■■■
+  0.986 [3]	|■■
+  1.057 [55]	|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+  1.128 [40]	|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+  1.200 [18]	|■■■■■■■■■■■■■
+  1.271 [8]	|■■■■■■
+  1.343 [7]	|■■■■■
+  1.414 [2]	|■
+
+
+Latency distribution:
+  10% in 0.8892 secs
+  25% in 0.9221 secs
+  50% in 1.0034 secs
+  75% in 1.1027 secs
+  90% in 1.2006 secs
+  95% in 1.2946 secs
+  99% in 1.4139 secs
+
+Details (average, fastest, slowest):
+  DNS+dialup:	0.0000 secs, 0.7004 secs, 1.4139 secs
+  DNS-lookup:	0.0000 secs, 0.0000 secs, 0.0000 secs
+  req write:	0.0000 secs, 0.0000 secs, 0.0004 secs
+  resp wait:	1.0313 secs, 0.7003 secs, 1.4132 secs
+  resp read:	0.0001 secs, 0.0000 secs, 0.0003 secs
+
+Status code distribution:
+  [200]	176 responses
+
+
+
+
+[2025-09-22T18:42:00+03:00] phase=maintenance duration=60s qps=0 concurrency=0
+SLEEP 60 seconds
+
+[2025-09-22T18:43:00+03:00] phase=back_online duration=30s qps=15 concurrency=5
+
+Summary:
+  Total:	30.4452 secs
+  Slowest:	2.4001 secs
+  Fastest:	0.7003 secs
+  Average:	1.2665 secs
+  Requests/sec:	3.9087
+  
+  Total data:	357 bytes
+  Size/request:	3 bytes
+
+Response time histogram:
+  0.700 [1]	|■
+  0.870 [9]	|■■■■■■■■■■■
+  1.040 [31]	|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+  1.210 [32]	|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+  1.380 [9]	|■■■■■■■■■■■
+  1.550 [10]	|■■■■■■■■■■■■■
+  1.720 [11]	|■■■■■■■■■■■■■■
+  1.890 [4]	|■■■■■
+  2.060 [8]	|■■■■■■■■■■
+  2.230 [2]	|■■■
+  2.400 [2]	|■■■
+
+
+Latency distribution:
+  10% in 0.8941 secs
+  25% in 1.0022 secs
+  50% in 1.1947 secs
+  75% in 1.4995 secs
+  90% in 1.8918 secs
+  95% in 1.9979 secs
+  99% in 2.4001 secs
+
+Details (average, fastest, slowest):
+  DNS+dialup:	0.0000 secs, 0.7003 secs, 2.4001 secs
+  DNS-lookup:	0.0000 secs, 0.0000 secs, 0.0000 secs
+  req write:	0.0000 secs, 0.0000 secs, 0.0002 secs
+  resp wait:	1.2663 secs, 0.7002 secs, 2.4000 secs
+  resp read:	0.0001 secs, 0.0000 secs, 0.0001 secs
+
+Status code distribution:
+  [200]	119 responses
+
+
+

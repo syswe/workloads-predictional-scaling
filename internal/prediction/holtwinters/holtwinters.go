@@ -22,8 +22,8 @@ import (
 	"sort"
 	"strconv"
 
-	jamiethompsonmev1alpha1 "github.com/jthomperoo/predictive-horizontal-pod-autoscaler/api/v1alpha1"
-	"github.com/jthomperoo/predictive-horizontal-pod-autoscaler/internal/hook"
+	syswev1alpha1 "github.com/syswe/predictive-horizontal-pod-autoscaler/api/v1alpha1"
+	"github.com/syswe/predictive-horizontal-pod-autoscaler/internal/hook"
 )
 
 const algorithmPath = "algorithms/holt_winters/holt_winters.py"
@@ -59,8 +59,8 @@ type holtWintersParametersParameters struct {
 }
 
 type runTimeTuningFetchHookRequest struct {
-	Model          jamiethompsonmev1alpha1.Model                 `json:"model"`
-	ReplicaHistory []jamiethompsonmev1alpha1.TimestampedReplicas `json:"replicaHistory"`
+	Model          syswev1alpha1.Model                 `json:"model"`
+	ReplicaHistory []syswev1alpha1.TimestampedReplicas `json:"replicaHistory"`
 }
 
 type runTimeTuningFetchHookResult struct {
@@ -70,7 +70,7 @@ type runTimeTuningFetchHookResult struct {
 }
 
 // GetPrediction uses holt winters to predict what the replica count should be based on historical evaluations
-func (p *Predict) GetPrediction(model *jamiethompsonmev1alpha1.Model, replicaHistory []jamiethompsonmev1alpha1.TimestampedReplicas) (int32, error) {
+func (p *Predict) GetPrediction(model *syswev1alpha1.Model, replicaHistory []syswev1alpha1.TimestampedReplicas) (int32, error) {
 	err := p.validate(model)
 	if err != nil {
 		return 0, err
@@ -181,7 +181,7 @@ func (p *Predict) GetPrediction(model *jamiethompsonmev1alpha1.Model, replicaHis
 	return int32(prediction), nil
 }
 
-func (p *Predict) PruneHistory(model *jamiethompsonmev1alpha1.Model, replicaHistory []jamiethompsonmev1alpha1.TimestampedReplicas) ([]jamiethompsonmev1alpha1.TimestampedReplicas, error) {
+func (p *Predict) PruneHistory(model *syswev1alpha1.Model, replicaHistory []syswev1alpha1.TimestampedReplicas) ([]syswev1alpha1.TimestampedReplicas, error) {
 	err := p.validate(model)
 	if err != nil {
 		return nil, err
@@ -209,10 +209,10 @@ func (p *Predict) PruneHistory(model *jamiethompsonmev1alpha1.Model, replicaHist
 
 // GetType returns the type of the Prediction model
 func (p *Predict) GetType() string {
-	return jamiethompsonmev1alpha1.TypeHoltWinters
+	return syswev1alpha1.TypeHoltWinters
 }
 
-func (p *Predict) validate(model *jamiethompsonmev1alpha1.Model) error {
+func (p *Predict) validate(model *syswev1alpha1.Model) error {
 	if model.HoltWinters == nil {
 		return errors.New("no HoltWinters configuration provided for model")
 	}

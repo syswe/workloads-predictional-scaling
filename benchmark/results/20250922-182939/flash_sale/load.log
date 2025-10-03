@@ -1,0 +1,384 @@
+
+[2025-09-22T18:38:52+03:00] phase=cycle1_prep duration=15s qps=15 concurrency=5
+
+Summary:
+  Total:	15.3975 secs
+  Slowest:	2.7095 secs
+  Fastest:	0.6072 secs
+  Average:	1.2642 secs
+  Requests/sec:	3.8967
+  
+  Total data:	180 bytes
+  Size/request:	3 bytes
+
+Response time histogram:
+  0.607 [1]	|■■
+  0.817 [6]	|■■■■■■■■■■■■■
+  1.028 [9]	|■■■■■■■■■■■■■■■■■■■
+  1.238 [19]	|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+  1.448 [11]	|■■■■■■■■■■■■■■■■■■■■■■■
+  1.658 [6]	|■■■■■■■■■■■■■
+  1.869 [3]	|■■■■■■
+  2.079 [2]	|■■■■
+  2.289 [1]	|■■
+  2.499 [0]	|
+  2.709 [2]	|■■■■
+
+
+Latency distribution:
+  10% in 0.8160 secs
+  25% in 1.0071 secs
+  50% in 1.2025 secs
+  75% in 1.4018 secs
+  90% in 1.7041 secs
+  95% in 2.1013 secs
+  0% in 0.0000 secs
+
+Details (average, fastest, slowest):
+  DNS+dialup:	0.0000 secs, 0.6072 secs, 2.7095 secs
+  DNS-lookup:	0.0000 secs, 0.0000 secs, 0.0000 secs
+  req write:	0.0000 secs, 0.0000 secs, 0.0001 secs
+  resp wait:	1.2641 secs, 0.6070 secs, 2.7089 secs
+  resp read:	0.0001 secs, 0.0000 secs, 0.0002 secs
+
+Status code distribution:
+  [200]	60 responses
+
+
+
+
+[2025-09-22T18:39:08+03:00] phase=cycle1_burst duration=15s qps=160 concurrency=32
+
+Summary:
+  Total:	19.5522 secs
+  Slowest:	18.8576 secs
+  Fastest:	0.8383 secs
+  Average:	7.7208 secs
+  Requests/sec:	3.8870
+  
+  Total data:	228 bytes
+  Size/request:	3 bytes
+
+Response time histogram:
+  0.838 [1]	|■■
+  2.640 [3]	|■■■■■■
+  4.442 [6]	|■■■■■■■■■■■■
+  6.244 [20]	|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+  8.046 [15]	|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+  9.848 [7]	|■■■■■■■■■■■■■■
+  11.650 [14]	|■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+  13.452 [7]	|■■■■■■■■■■■■■■
+  15.254 [1]	|■■
+  17.056 [0]	|
+  18.858 [2]	|■■■■
+
+
+Latency distribution:
+  10% in 3.7016 secs
+  25% in 5.3942 secs
+  50% in 6.7967 secs
+  75% in 10.7403 secs
+  90% in 12.5411 secs
+  95% in 14.2596 secs
+  0% in 0.0000 secs
+
+Details (average, fastest, slowest):
+  DNS+dialup:	0.0005 secs, 0.8383 secs, 18.8576 secs
+  DNS-lookup:	0.0000 secs, 0.0000 secs, 0.0000 secs
+  req write:	0.0000 secs, 0.0000 secs, 0.0001 secs
+  resp wait:	7.7201 secs, 0.8371 secs, 18.8564 secs
+  resp read:	0.0001 secs, 0.0000 secs, 0.0004 secs
+
+Status code distribution:
+  [200]	76 responses
+
+
+
+
+[2025-09-22T18:39:27+03:00] phase=cycle2_prep duration=15s qps=15 concurrency=5
+
+Summary:
+  Total:	15.8056 secs
+  Slowest:	2.0174 secs
+  Fastest:	0.7973 secs
+  Average:	1.2526 secs
+  Requests/sec:	3.9227
+  
+  Total data:	186 bytes
+  Size/request:	3 bytes
+
+Response time histogram:
+  0.797 [1]	|■■■
+  0.919 [10]	|■■■■■■■■■■■■■■■■■■■■■■■■■■■
+  1.041 [10]	|■■■■■■■■■■■■■■■■■■■■■■■■■■■
+  1.163 [5]	|■■■■■■■■■■■■■
+  1.285 [6]	|■■■■■■■■■■■■■■■■
+  1.407 [15]	|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+  1.529 [5]	|■■■■■■■■■■■■■
+  1.651 [5]	|■■■■■■■■■■■■■
+  1.773 [0]	|
+  1.895 [1]	|■■■
+  2.017 [4]	|■■■■■■■■■■■
+
+
+Latency distribution:
+  10% in 0.9014 secs
+  25% in 0.9944 secs
+  50% in 1.2018 secs
+  75% in 1.4776 secs
+  90% in 1.6178 secs
+  95% in 1.9843 secs
+  0% in 0.0000 secs
+
+Details (average, fastest, slowest):
+  DNS+dialup:	0.0001 secs, 0.7973 secs, 2.0174 secs
+  DNS-lookup:	0.0000 secs, 0.0000 secs, 0.0000 secs
+  req write:	0.0000 secs, 0.0000 secs, 0.0001 secs
+  resp wait:	1.2524 secs, 0.7972 secs, 2.0161 secs
+  resp read:	0.0001 secs, 0.0000 secs, 0.0002 secs
+
+Status code distribution:
+  [200]	62 responses
+
+
+
+
+[2025-09-22T18:39:43+03:00] phase=cycle2_burst duration=15s qps=160 concurrency=32
+
+Summary:
+  Total:	18.4684 secs
+  Slowest:	15.9330 secs
+  Fastest:	0.8991 secs
+  Average:	7.4476 secs
+  Requests/sec:	4.0610
+  
+  Total data:	225 bytes
+  Size/request:	3 bytes
+
+Response time histogram:
+  0.899 [1]	|■■
+  2.402 [1]	|■■
+  3.906 [7]	|■■■■■■■■■■■■■■■■
+  5.409 [13]	|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+  6.913 [18]	|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+  8.416 [10]	|■■■■■■■■■■■■■■■■■■■■■■
+  9.919 [3]	|■■■■■■■
+  11.423 [9]	|■■■■■■■■■■■■■■■■■■■■
+  12.926 [11]	|■■■■■■■■■■■■■■■■■■■■■■■■
+  14.430 [0]	|
+  15.933 [2]	|■■■■
+
+
+Latency distribution:
+  10% in 3.8783 secs
+  25% in 5.1822 secs
+  50% in 6.6217 secs
+  75% in 10.2320 secs
+  90% in 12.0546 secs
+  95% in 12.5573 secs
+  0% in 0.0000 secs
+
+Details (average, fastest, slowest):
+  DNS+dialup:	0.0005 secs, 0.8991 secs, 15.9330 secs
+  DNS-lookup:	0.0000 secs, 0.0000 secs, 0.0000 secs
+  req write:	0.0000 secs, 0.0000 secs, 0.0001 secs
+  resp wait:	7.4471 secs, 0.8989 secs, 15.9319 secs
+  resp read:	0.0001 secs, 0.0000 secs, 0.0003 secs
+
+Status code distribution:
+  [200]	75 responses
+
+
+
+
+[2025-09-22T18:40:02+03:00] phase=cycle3_prep duration=15s qps=15 concurrency=5
+
+Summary:
+  Total:	15.3842 secs
+  Slowest:	2.3036 secs
+  Fastest:	0.7021 secs
+  Average:	1.3338 secs
+  Requests/sec:	3.7051
+  
+  Total data:	171 bytes
+  Size/request:	3 bytes
+
+Response time histogram:
+  0.702 [1]	|■■■
+  0.862 [4]	|■■■■■■■■■■■
+  1.022 [8]	|■■■■■■■■■■■■■■■■■■■■■
+  1.183 [9]	|■■■■■■■■■■■■■■■■■■■■■■■■
+  1.343 [15]	|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+  1.503 [8]	|■■■■■■■■■■■■■■■■■■■■■
+  1.663 [0]	|
+  1.823 [2]	|■■■■■
+  1.983 [3]	|■■■■■■■■
+  2.143 [3]	|■■■■■■■■
+  2.304 [4]	|■■■■■■■■■■■
+
+
+Latency distribution:
+  10% in 0.9968 secs
+  25% in 1.0989 secs
+  50% in 1.2013 secs
+  75% in 1.4070 secs
+  90% in 2.1050 secs
+  95% in 2.3009 secs
+  0% in 0.0000 secs
+
+Details (average, fastest, slowest):
+  DNS+dialup:	0.0001 secs, 0.7021 secs, 2.3036 secs
+  DNS-lookup:	0.0000 secs, 0.0000 secs, 0.0000 secs
+  req write:	0.0000 secs, 0.0000 secs, 0.0001 secs
+  resp wait:	1.3336 secs, 0.7020 secs, 2.3035 secs
+  resp read:	0.0001 secs, 0.0000 secs, 0.0006 secs
+
+Status code distribution:
+  [200]	57 responses
+
+
+
+
+[2025-09-22T18:40:17+03:00] phase=cycle3_burst duration=15s qps=160 concurrency=32
+
+Summary:
+  Total:	18.0625 secs
+  Slowest:	15.5603 secs
+  Fastest:	4.3928 secs
+  Average:	8.3357 secs
+  Requests/sec:	3.6540
+  
+  Total data:	198 bytes
+  Size/request:	3 bytes
+
+Response time histogram:
+  4.393 [1]	|■■
+  5.510 [5]	|■■■■■■■■■■■
+  6.626 [8]	|■■■■■■■■■■■■■■■■■
+  7.743 [10]	|■■■■■■■■■■■■■■■■■■■■■
+  8.860 [19]	|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+  9.977 [16]	|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+  11.093 [1]	|■■
+  12.210 [2]	|■■■■
+  13.327 [1]	|■■
+  14.444 [1]	|■■
+  15.560 [2]	|■■■■
+
+
+Latency distribution:
+  10% in 6.1005 secs
+  25% in 6.8612 secs
+  50% in 8.5981 secs
+  75% in 9.2031 secs
+  90% in 11.3634 secs
+  95% in 13.6615 secs
+  0% in 0.0000 secs
+
+Details (average, fastest, slowest):
+  DNS+dialup:	0.0006 secs, 4.3928 secs, 15.5603 secs
+  DNS-lookup:	0.0000 secs, 0.0000 secs, 0.0000 secs
+  req write:	0.0000 secs, 0.0000 secs, 0.0001 secs
+  resp wait:	8.3350 secs, 4.3927 secs, 15.5589 secs
+  resp read:	0.0001 secs, 0.0000 secs, 0.0002 secs
+
+Status code distribution:
+  [200]	66 responses
+
+
+
+
+[2025-09-22T18:40:35+03:00] phase=cycle4_prep duration=15s qps=15 concurrency=5
+
+Summary:
+  Total:	15.7708 secs
+  Slowest:	2.2036 secs
+  Fastest:	0.8918 secs
+  Average:	1.3601 secs
+  Requests/sec:	3.6143
+  
+  Total data:	171 bytes
+  Size/request:	3 bytes
+
+Response time histogram:
+  0.892 [1]	|■■■
+  1.023 [8]	|■■■■■■■■■■■■■■■■■■■■■■■
+  1.154 [9]	|■■■■■■■■■■■■■■■■■■■■■■■■■■
+  1.285 [8]	|■■■■■■■■■■■■■■■■■■■■■■■
+  1.417 [14]	|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+  1.548 [3]	|■■■■■■■■■
+  1.679 [5]	|■■■■■■■■■■■■■■
+  1.810 [2]	|■■■■■■
+  1.941 [1]	|■■■
+  2.072 [2]	|■■■■■■
+  2.204 [4]	|■■■■■■■■■■■
+
+
+Latency distribution:
+  10% in 1.0048 secs
+  25% in 1.1064 secs
+  50% in 1.3041 secs
+  75% in 1.5912 secs
+  90% in 2.0066 secs
+  95% in 2.2008 secs
+  0% in 0.0000 secs
+
+Details (average, fastest, slowest):
+  DNS+dialup:	0.0001 secs, 0.8918 secs, 2.2036 secs
+  DNS-lookup:	0.0000 secs, 0.0000 secs, 0.0000 secs
+  req write:	0.0000 secs, 0.0000 secs, 0.0002 secs
+  resp wait:	1.3599 secs, 0.8917 secs, 2.2035 secs
+  resp read:	0.0001 secs, 0.0000 secs, 0.0010 secs
+
+Status code distribution:
+  [200]	57 responses
+
+
+
+
+[2025-09-22T18:40:51+03:00] phase=cycle4_burst duration=15s qps=160 concurrency=32
+
+Summary:
+  Total:	19.8463 secs
+  Slowest:	18.9698 secs
+  Fastest:	1.0968 secs
+  Average:	7.7252 secs
+  Requests/sec:	3.8294
+  
+  Total data:	228 bytes
+  Size/request:	3 bytes
+
+Response time histogram:
+  1.097 [1]	|■■■
+  2.884 [13]	|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+  4.671 [8]	|■■■■■■■■■■■■■■■■■■■■
+  6.459 [16]	|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+  8.246 [3]	|■■■■■■■■
+  10.033 [8]	|■■■■■■■■■■■■■■■■■■■■
+  11.821 [8]	|■■■■■■■■■■■■■■■■■■■■
+  13.608 [14]	|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+  15.395 [1]	|■■■
+  17.182 [2]	|■■■■■
+  18.970 [2]	|■■■■■
+
+
+Latency distribution:
+  10% in 2.1941 secs
+  25% in 4.4075 secs
+  50% in 7.3009 secs
+  75% in 11.8990 secs
+  90% in 12.6613 secs
+  95% in 15.8753 secs
+  0% in 0.0000 secs
+
+Details (average, fastest, slowest):
+  DNS+dialup:	0.0007 secs, 1.0968 secs, 18.9698 secs
+  DNS-lookup:	0.0000 secs, 0.0000 secs, 0.0000 secs
+  req write:	0.0000 secs, 0.0000 secs, 0.0001 secs
+  resp wait:	7.7243 secs, 1.0967 secs, 18.9679 secs
+  resp read:	0.0001 secs, 0.0000 secs, 0.0002 secs
+
+Status code distribution:
+  [200]	76 responses
+
+
+

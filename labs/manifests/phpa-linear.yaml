@@ -1,0 +1,27 @@
+apiVersion: syswe.me/v1alpha1
+kind: PredictiveHorizontalPodAutoscaler
+metadata:
+  name: phpa-linear
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: php-apache
+  minReplicas: 1
+  maxReplicas: 10
+  syncPeriod: 10000
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 60
+  models:
+    - type: Linear
+      name: linear-default
+      perSyncPeriod: 1
+      calculationTimeout: 20000
+      linear:
+        lookAhead: 20000
+        historySize: 8

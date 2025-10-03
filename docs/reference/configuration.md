@@ -108,6 +108,58 @@ here](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
 List of statistical models to apply.
 See [the models section for details](../../user-guide/models).
 
+### Supported Model Types
+
+- GBDT:
+  - `type: GBDT`
+  - Block: `gbdt`
+    - `historySize` (int, >=1): how many past evaluations to retain.
+    - `lags` (int, >=1): number of lagged replica values used as features.
+    - `lookAhead` (int, ms, >=0): prediction horizon in milliseconds.
+  - Shared fields: `name`, `perSyncPeriod`, `calculationTimeout`, `startInterval`, `resetDuration`.
+  - Details and example: see user guide Models → GBDT.
+
+- Linear:
+  - `type: Linear`
+  - Block: `linear`
+    - `historySize` (int, >=1)
+    - `lookAhead` (int, ms, >=1)
+  - Details and example: see user guide Models → Linear Regression.
+
+- HoltWinters:
+  - `type: HoltWinters`
+  - Block: `holtWinters`
+    - Key fields: `alpha`, `beta`, `gamma`, `trend`, `seasonal`, `seasonalPeriods`, `storedSeasons`
+    - Optional: `dampedTrend`, `initializationMethod`, `initialLevel`, `initialTrend`, `initialSeasonal`, `runtimeTuningFetchHook`
+  - Details and example: see user guide Models → Holt‑Winters.
+
+- XGBoost:
+  - `type: XGBoost`
+  - Block: `xgboost`
+    - `historySize` (int, >=1)
+    - `lags` (int, >=1)
+    - `lookAhead` (int, ms, >=0)
+  - Behavior mirrors GBDT with lag features and iterative lookahead.
+  - Details: see user guide Models and the example in `/examples/simple-xgboost`.
+
+- VAR:
+  - `type: VAR`
+  - Block: `var`
+    - `historySize` (int, >=1)
+    - `lags` (int, >=1)
+    - `lookAhead` (int, ms, >=0)
+  - Multivariate with time-derived signals; fit compactly and forecast steps ahead; output integer replicas.
+  - Example: `/examples/simple-var`.
+
+- CatBoost:
+  - `type: CatBoost`
+  - Block: `catboost`
+    - `historySize` (int, >=1)
+    - `lags` (int, >=1)
+    - `lookAhead` (int, ms, >=0)
+  - Gradient boosting with symmetric trees; runtime uses compact on-the-fly training on lag features with iterative lookahead.
+  - Example: `/examples/simple-catboost`.
+
 ## metrics
 
 List of metrics to target for evaluating replica counts.

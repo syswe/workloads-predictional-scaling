@@ -56,7 +56,7 @@ jobs:
       env:
         DOCKER_USER: ${{ secrets.DOCKER_USER }}
         DOCKER_PASS: ${{ secrets.DOCKER_PASS }}
-      if: ${{ github.event_name != 'pull_request' && (github.event_name == 'release' || github.ref == 'refs/heads/master') && github.repository == 'jthomperoo/predictive-horizontal-pod-autoscaler' }}
+      if: ${{ github.event_name != 'pull_request' && (github.event_name == 'release' || github.ref == 'refs/heads/master') && github.repository == 'syswe/predictive-horizontal-pod-autoscaler' }}
       run: |
 
         if [ ${{ github.event_name }} == "release" ]; then
@@ -67,15 +67,15 @@ jobs:
 
         echo "$DOCKER_PASS" | docker login --username=$DOCKER_USER --password-stdin
 
-        docker push jthomperoo/predictive-horizontal-pod-autoscaler:${VERSION}
+        docker push syswe/predictive-horizontal-pod-autoscaler:${VERSION}
 
         if [ ${{ github.event_name }} == "release" ]; then
-          docker tag jthomperoo/predictive-horizontal-pod-autoscaler:${VERSION} jthomperoo/predictive-horizontal-pod-autoscaler:latest
-          docker push jthomperoo/predictive-horizontal-pod-autoscaler:latest
+          docker tag syswe/predictive-horizontal-pod-autoscaler:${VERSION} syswe/predictive-horizontal-pod-autoscaler:latest
+          docker push syswe/predictive-horizontal-pod-autoscaler:latest
         fi
 
     - name: Bundle YAML config
-      if: ${{ github.event_name == 'release' && github.repository == 'jthomperoo/predictive-horizontal-pod-autoscaler' }}
+      if: ${{ github.event_name == 'release' && github.repository == 'syswe/predictive-horizontal-pod-autoscaler' }}
       run: |
 
         # Variables to sub into k8s templates
@@ -90,7 +90,7 @@ jobs:
         helm package helm/
 
     - name: Deploy helm package
-      if: ${{ github.event_name == 'release' && github.repository == 'jthomperoo/predictive-horizontal-pod-autoscaler' }}
+      if: ${{ github.event_name == 'release' && github.repository == 'syswe/predictive-horizontal-pod-autoscaler' }}
       uses: Shopify/upload-to-release@1.0.0
       with:
         name: predictive-horizontal-pod-autoscaler-${{ github.ref_name }}.tgz

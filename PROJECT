@@ -1,20 +1,20 @@
-domain: jamiethompson.me
+domain: syswe.me
 layout:
 - go.kubebuilder.io/v3
 plugins:
   manifests.sdk.operatorframework.io/v2: {}
   scorecard.sdk.operatorframework.io/v2: {}
 projectName: predictive-horizontal-pod-autoscaler
-repo: github.com/jthomperoo/predictive-horizontal-pod-autoscaler
+repo: github.com/syswe/predictive-horizontal-pod-autoscaler
 resources:
 - api:
     crdVersion: v1
     namespaced: true
   controller: true
-  domain: jamiethompson.me
-  group: jamiethompson.me
+  domain: syswe.me
+  group: syswe.me
   kind: PredictiveHorizontalPodAutoscaler
-  path: github.com/jthomperoo/predictive-horizontal-pod-autoscaler/api/v1alpha1
+  path: github.com/syswe/predictive-horizontal-pod-autoscaler/api/v1alpha1
   version: v1alpha1
   webhooks:
     defaulting: true

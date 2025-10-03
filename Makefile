@@ -1,4 +1,4 @@
-REGISTRY = jthomperoo
+REGISTRY = syswe
 NAME = predictive-horizontal-pod-autoscaler
 VERSION = latest
 
@@ -18,7 +18,7 @@ deploy: generate
 
 lint: generate
 	@echo "=============Linting============="
-	go run honnef.co/go/tools/cmd/staticcheck@v0.4.2 ./...
+	go run honnef.co/go/tools/cmd/staticcheck@v0.6.1 ./...
 	pylint algorithms --rcfile=.pylintrc
 
 format:

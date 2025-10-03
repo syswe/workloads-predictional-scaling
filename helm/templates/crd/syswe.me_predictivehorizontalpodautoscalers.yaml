@@ -5,9 +5,9 @@ metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.9.2
   creationTimestamp: null
-  name: predictivehorizontalpodautoscalers.jamiethompson.me
+  name: predictivehorizontalpodautoscalers.syswe.me
 spec:
-  group: jamiethompson.me
+  group: syswe.me
   names:
     kind: PredictiveHorizontalPodAutoscaler
     listKind: PredictiveHorizontalPodAutoscalerList
@@ -842,6 +842,86 @@ spec:
                       - historySize
                       - lookAhead
                       type: object
+                    gbdt:
+                      description: gbdt is the configuration to use for the Gradient Boosted Decision Trees model, it will only be used if the type is set to 'GBDT'.
+                      properties:
+                        historySize:
+                          description: historySize is how many timestamped replica counts should be stored for this model, with older timestamped replica counts being removed from the data as new ones are added.
+                          minimum: 1
+                          type: integer
+                        lags:
+                          description: lags is how many previous replica values to feed as features to the GBDT at prediction time.
+                          minimum: 1
+                          type: integer
+                        lookAhead:
+                          description: lookAhead is how far in the future to predict in milliseconds. The runtime algorithm converts this into N steps ahead based on the median interval in the replica history.
+                          minimum: 0
+                          type: integer
+                      required:
+                      - historySize
+                      - lags
+                      - lookAhead
+                      type: object
+                    xgboost:
+                      description: xgboost is the configuration to use for the XGBoost model, it will only be used if the type is set to 'XGBoost'.
+                      properties:
+                        historySize:
+                          description: historySize is how many timestamped replica counts should be stored for this model, with older timestamped replica counts being removed from the data as new ones are added.
+                          minimum: 1
+                          type: integer
+                        lags:
+                          description: lags is how many previous replica values to feed as features to the XGBoost at prediction time.
+                          minimum: 1
+                          type: integer
+                        lookAhead:
+                          description: lookAhead is how far in the future to predict in milliseconds. The runtime algorithm converts this into N steps ahead based on the median interval in the replica history.
+                          minimum: 0
+                          type: integer
+                      required:
+                      - historySize
+                      - lags
+                      - lookAhead
+                      type: object
+                    var:
+                      description: var is the configuration to use for the Vector Autoregression model, it will only be used if the type is set to 'VAR'.
+                      properties:
+                        historySize:
+                          description: historySize is how many timestamped replica counts should be stored for this model, with older timestamped replica counts being removed from the data as new ones are added.
+                          minimum: 1
+                          type: integer
+                        lags:
+                          description: lags is the maximum lag order to consider.
+                          minimum: 1
+                          type: integer
+                        lookAhead:
+                          description: lookAhead is how far in the future to predict in milliseconds.
+                          minimum: 0
+                          type: integer
+                      required:
+                      - historySize
+                      - lags
+                      - lookAhead
+                      type: object
+                    catboost:
+                      description: catboost is the configuration to use for the CatBoost model, it will only be used if the type is set to 'CatBoost'.
+                      properties:
+                        historySize:
+                          description: historySize is how many timestamped replica counts should be stored for this model, with older timestamped replica counts being removed as new ones are added.
+                          minimum: 1
+                          type: integer
+                        lags:
+                          description: lags is how many previous replica values to feed as features at prediction time.
+                          minimum: 1
+                          type: integer
+                        lookAhead:
+                          description: lookAhead is how far in the future to predict in milliseconds.
+                          minimum: 0
+                          type: integer
+                      required:
+                      - historySize
+                      - lags
+                      - lookAhead
+                      type: object
                     name:
                       description: name is the name of the model, this can be any
                         arbitrary name and is just used to distinguish between models
@@ -882,6 +962,10 @@ spec:
                       enum:
                       - Linear
                       - HoltWinters
+                      - GBDT
+                      - XGBoost
+                      - VAR
+                      - CatBoost
                       type: string
                   required:
                   - name

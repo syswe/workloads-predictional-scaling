@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <title>Predictive Horizontal Pod Autoscaler - Kapsamlı Türkçe Rehber</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #f7f7f9;
+      --panel: #ffffff;
+      --text: #1f2933;
+      --muted: #52606d;
+      --accent: #1d4ed8;
+      --border: #d2d6dc;
+      --code-bg: #1f2933;
+      --code-text: #f3f4f6;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0f172a;
+        --panel: #111827;
+        --text: #e5e7eb;
+        --muted: #9ca3af;
+        --accent: #60a5fa;
+        --border: #1f2937;
+        --code-bg: #0b1120;
+        --code-text: #e2e8f0;
+      }
+    }
+
+    body {
+      margin: 0;
+      font-family: "Inter", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(180deg, var(--bg) 0%, #ffffff 45%);
+      color: var(--text);
+    }
+
+    header {
+      background: var(--panel);
+      border-bottom: 1px solid var(--border);
+      padding: 2.5rem 1.5rem 2rem;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 2rem;
+      letter-spacing: -0.02em;
+    }
+
+    header p {
+      margin: 0.5rem 0 0;
+      max-width: 50rem;
+      color: var(--muted);
+    }
+
+    nav {
+      margin-top: 1.5rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    nav a {
+      text-decoration: none;
+      background: rgba(29, 78, 216, 0.08);
+      color: var(--accent);
+      padding: 0.5rem 0.9rem;
+      border-radius: 0.6rem;
+      font-size: 0.95rem;
+      transition: background 0.2s ease, transform 0.2s ease;
+    }
+
+    nav a:hover {
+      background: rgba(29, 78, 216, 0.16);
+      transform: translateY(-1px);
+    }
+
+    main {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 4rem;
+      display: grid;
+      gap: 2rem;
+    }
+
+    section {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 1.25rem;
+      padding: 2rem;
+      box-shadow: 0 12px 35px rgba(15, 23, 42, 0.06);
+    }
+
+    section h2 {
+      margin-top: 0;
+      font-size: 1.5rem;
+      letter-spacing: -0.01em;
+    }
+
+    section h3 {
+      margin-top: 2rem;
+      font-size: 1.2rem;
+    }
+
+    p {
+      line-height: 1.65;
+      margin: 0.85rem 0 0.85rem;
+    }
+
+    ul, ol {
+      margin: 0.75rem 0 0.75rem 1.5rem;
+      line-height: 1.6;
+    }
+
+    .highlight {
+      border-left: 4px solid var(--accent);
+      padding-left: 1rem;
+      margin: 1.5rem 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    pre {
+      background: var(--code-bg);
+      color: var(--code-text);
+      padding: 1rem 1.2rem;
+      border-radius: 0.9rem;
+      overflow-x: auto;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+
+    code {
+      font-family: "JetBrains Mono", "Fira Code", Consolas, monospace;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin: 1.5rem 0;
+    }
+
+    th, td {
+      border: 1px solid var(--border);
+      padding: 0.75rem 0.9rem;
+      text-align: left;
+    }
+
+    th {
+      background: rgba(29, 78, 216, 0.08);
+      color: var(--accent);
+    }
+
+    footer {
+      text-align: center;
+      padding: 2rem 1.5rem 3rem;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .badge-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin: 1rem 0 0;
+    }
+
+    .badge {
+      background: rgba(15, 118, 110, 0.1);
+      color: #0f766e;
+      padding: 0.35rem 0.7rem;
+      border-radius: 1rem;
+      font-size: 0.85rem;
+    }
+
+    .toc-grid {
+      display: grid;
+      gap: 1.2rem;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      margin-top: 1.2rem;
+    }
+
+    .toc-card {
+      border: 1px solid var(--border);
+      border-radius: 1rem;
+      padding: 1rem 1.2rem;
+      background: rgba(255,255,255,0.65);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .toc-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 16px 35px rgba(15, 23, 42, 0.08);
+    }
+
+    .toc-card h3 {
+      margin-top: 0;
+      font-size: 1.1rem;
+    }
+
+    .toc-card p {
+      margin: 0.5rem 0 0;
+      font-size: 0.92rem;
+      color: var(--muted);
+    }
+
+    .timeline {
+      display: grid;
+      gap: 1.5rem;
+      border-left: 3px solid var(--border);
+      padding-left: 1.5rem;
+      margin: 1.5rem 0;
+    }
+
+    .timeline-step {
+      position: relative;
+      padding-left: 0.5rem;
+    }
+
+    .timeline-step::before {
+      content: "";
+      position: absolute;
+      left: -1.95rem;
+      top: 0.4rem;
+      width: 0.75rem;
+      height: 0.75rem;
+      background: var(--accent);
+      border-radius: 50%;
+      box-shadow: 0 0 0 4px rgba(29, 78, 216, 0.15);
+    }
+
+    .mini-grid {
+      display: grid;
+      gap: 1.2rem;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      margin: 1.2rem 0 0;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 0.9rem;
+      padding: 1.2rem;
+      background: rgba(17, 24, 39, 0.02);
+    }
+
+    .card strong {
+      display: block;
+      margin-bottom: 0.4rem;
+    }
+
+    .callout {
+      border-radius: 0.9rem;
+      border: 1px solid rgba(249, 115, 22, 0.35);
+      background: rgba(249, 115, 22, 0.08);
+      padding: 1rem 1.2rem;
+      color: #b45309;
+      margin: 1.5rem 0;
+    }
+
+    .success {
+      border: 1px solid rgba(34, 197, 94, 0.35);
+      background: rgba(34, 197, 94, 0.12);
+      color: #166534;
+    }
+
+    a.inline {
+      color: var(--accent);
+      text-decoration: none;
+      border-bottom: 1px dashed rgba(29, 78, 216, 0.4);
+    }
+
+    a.inline:hover {
+      border-bottom-color: rgba(29, 78, 216, 0.8);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Predictive Horizontal Pod Autoscaler</h1>
+    <p>
+      PHPAs (Predictive Horizontal Pod Autoscalers) projesi için uçtan uca Türkçe rehber. Operatör kurulumu, model yapılandırmaları, eğitim ve benchmark süreçleri, gözlemleme ve sorun giderme adımlarını tek bir sayfada toplar.
+    </p>
+    <nav>
+      <a href="#giris">Giriş</a>
+      <a href="#mimari">Mimari</a>
+      <a href="#kurulum">Kurulum</a>
+      <a href="#models">Modeller</a>
+      <a href="#veri">Veri &amp; Eğitim</a>
+      <a href="#phpa-crd">PHPA CRD</a>
+      <a href="#ornekler">Örnekler</a>
+      <a href="#benchmark">Benchmark</a>
+      <a href="#isletim">İşletim</a>
+      <a href="#sorun">Sorun Giderme</a>
+      <a href="#kaynaklar">Ek Kaynaklar</a>
+    </nav>
+  </header>
+
+  <main>
+    <section id="giris">
+      <h2>1. Giriş</h2>
+      <p>
+        Predictive Horizontal Pod Autoscaler (PHPA), Kubernetes Horizontal Pod Autoscaler (HPA) mantığını genişleterek geleceğe dönük yük tahminleri üretir. Tahminler, istatistiksel veya makine öğrenmesi modelleriyle üretilir ve istenen pod sayısını proaktif şekilde ayarlamak için kullanılır.
+      </p>
+      <div class="badge-list">
+        <span class="badge">Kubernetes v1.23+</span>
+        <span class="badge">Go tabanlı operatör</span>
+        <span class="badge">Çoklu model desteği</span>
+        <span class="badge">Proaktif ölçekleme</span>
+      </div>
+      <div class="highlight">
+        Tipik senaryolar: Öğle yemeği yoğunluğu yaşayan servisler, kampanya lansmanları, yığılmalı trafik dalgaları veya bot saldırıları gibi tahmin edilebilir paternler.
+      </div>
+      <div class="toc-grid">
+        <a class="toc-card" href="#kurulum">
+          <h3>Operatör ve Altyapı</h3>
+          <p>Helm veya manifest ile dağıtım, Metrics Server ve örnek uygulama kurulumu.</p>
+        </a>
+        <a class="toc-card" href="#models">
+          <h3>Model Ekosistemi</h3>
+          <p>Holt-Winters, Linear, GBDT, XGBoost, VAR, CatBoost ve çoklu model ortalamaları.</p>
+        </a>
+        <a class="toc-card" href="#benchmark">
+          <h3>Benchmark &amp; Senaryolar</h3>
+          <p>Offline eğitim, online PHPA testleri ve gerçek trafik benzetimleri.</p>
+        </a>
+        <a class="toc-card" href="#isletim">
+          <h3>İşletim ve Gözlem</h3>
+          <p>ConfigMap veri inceleme, log analizi, politika ayarları.</p>
+        </a>
+      </div>
+    </section>
+
+    <section id="mimari">
+      <h2>2. Mimari Genel Bakış</h2>
+      <p>
+        PHPA operatörü, <code>PredictiveHorizontalPodAutoscaler</code> özel kaynağını izler ve standart HPA hesaplamalarını çalıştırdıktan sonra seçili modellerin tahminleriyle birleşik bir karar üretir. Operatör tüm işleyişi Go ile uygular (<code>main.go</code> ve <code>internal/</code> paketleri).
+      </p>
+      <h3>Temel bileşenler</h3>
+      <ul>
+        <li><strong>CRD</strong>: <code>syswe.me/v1alpha1</code> API grubu, model tanımlarını ve karar mantıklarını içerir.</li>
+        <li><strong>Controller</strong>: <code>deploy/local-operator.yaml</code> veya Helm chart ile gelen operatör deployment.</li>
+        <li><strong>Metrics</strong>: <code>k8s.gcr.io/metrics-server</code> (veya varsa mevcut kurulum). CPU, custom metrics gibi veriler toplanır.</li>
+        <li><strong>Model çalıştırıcıları</strong>: <code>internal/prediction</code> altındaki paketler runtime modellerinin yeniden eğitilmesini ve tahmin sunulmasını sağlar.</li>
+        <li><strong>ConfigMap veri depolaması</strong>: Her PHPA kaydı için <code>predictive-horizontal-pod-autoscaler-&lt;isim&gt;-data</code> ConfigMap'inde geçmiş saklanır.</li>
+      </ul>
+      <h3>Karar seçicileri</h3>
+      <p>
+        Birden fazla model kullanıldığında <code>decisionType</code> alanı (maximum, minimum, mean, median) sonucu belirler. Örneğin çoklu model (GBDT + XGBoost + VAR) dağıtımında ortalama değer kullanılır.
+      </p>
+      <div class="mini-grid">
+        <div class="card">
+          <strong>Kaynak dosyası</strong>
+          <p><code>api/v1alpha1/predictivehorizontalpodautoscaler_types.go</code></p>
+        </div>
+        <div class="card">
+          <strong>Kontrol döngüsü</strong>
+          <p><code>internal/controller/phpa_controller.go</code> (Operatör reconcile döngüsü)</p>
+        </div>
+        <div class="card">
+          <strong>Model arayüzü</strong>
+          <p><code>internal/prediction/interfaces.go</code> ve alt implementasyonlar</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="kurulum">
+      <h2>3. Operatör Kurulumu ve Altyapı Hazırlığı</h2>
+      <h3>3.1 Ön koşullar</h3>
+      <ul>
+        <li>Kubernetes kümesi (ör. Docker Desktop, kind, k3d).</li>
+        <li><code>kubectl</code>, <code>helm</code>, <code>jq</code>, <code>go</code>.</li>
+        <li>İsteğe bağlı: <code>hey</code> yük testi aracı (<code>go install github.com/rakyll/hey@latest</code>).</li>
+      </ul>
+      <div class="callout">
+        Yerel test için <code>kind</code> önerilir. Örnek: <code>kind create cluster --name phpa-lab --wait 120s</code>.
+      </div>
+      <h3>3.2 Metrics Server</h3>
+      <pre><code>kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+kubectl -n kube-system patch deploy/metrics-server \
+  -p '{"spec":{"template":{"spec":{"containers":[{"name":"metrics-server","args":["--cert-dir=/tmp","--secure-port=10250","--kubelet-preferred-address-types=InternalIP,Hostname,ExternalIP","--kubelet-insecure-tls"]}]}}}}'
+</code></pre>
+      <h3>3.3 Operatör dağıtımı</h3>
+      <p><strong>Helm</strong></p>
+      <pre><code>helm upgrade --install predictive-horizontal-pod-autoscaler-operator ./helm \
+  --namespace default \
+  --set mode=cluster
+</code></pre>
+      <p><strong>Manifest</strong></p>
+      <pre><code>kubectl apply -f deploy/local-operator.yaml</code></pre>
+      <h3>3.4 Hızlı başlangıç scripti</h3>
+      <pre><code>bash scripts/phpa-start.sh -m catboost --start-load
+# Katmanlar:
+# 1) CRD yükleme
+# 2) Metrics Server doğrulama
+# 3) Operatör dağıtımı
+# 4) php-apache örnek uygulaması
+# 5) Seçili model için PHPA (gbdt/xgboost/var/catboost/multi)
+</code></pre>
+      <h3>3.5 Temizlik</h3>
+      <pre><code>bash scripts/phpa-stop.sh --deep          # Operatör + CRD + uygulama temizliği
+kind delete cluster --name phpa-lab       # Yerel küme kaldırma</code></pre>
+    </section>
+
+    <section id="models">
+      <h2>4. Model Ekosistemi</h2>
+      <p>
+        PHPA, hem klasik zaman serisi hem de makine öğrenmesi modellerini destekler. Modeller çalışma zamanında son N gözlemle yeniden eğitilir.
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>Model</th>
+            <th>Tür</th>
+            <th>Dosya / CLI</th>
+            <th>Açıklama</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Holt-Winters</td>
+            <td>İstatistiksel</td>
+            <td><code>examples/simple-holt-winters/phpa.yaml</code></td>
+            <td>Mevsimsellik + trend için uygun, alfa/beta/gamma ayarları yapılabilir.</td>
+          </tr>
+          <tr>
+            <td>Linear</td>
+            <td>Regresyon</td>
+            <td><code>examples/simple-linear/phpa.yaml</code></td>
+            <td>Basit trend tahmini; <code>lookAhead</code> ve <code>historySize</code> kritik.</td>
+          </tr>
+          <tr>
+            <td>GBDT</td>
+            <td>ML (scikit-learn)</td>
+            <td><code>algorithms/gbdt/train_gbdt.py</code></td>
+            <td>Gradient Boosted Trees; kısa pencerelerde güçlü.</td>
+          </tr>
+          <tr>
+            <td>XGBoost</td>
+            <td>ML (xgboost)</td>
+            <td><code>algorithms/xgboost/train_xgboost.py</code></td>
+            <td>Özellikle büyük veri setlerinde daha esnek hiperparametreler.</td>
+          </tr>
+          <tr>
+            <td>VAR</td>
+            <td>İstatistiksel (statsmodels)</td>
+            <td><code>algorithms/var/train_var.py</code></td>
+            <td>Çok değişkenli veri; zaman özelliklerini dahili türetiyor.</td>
+          </tr>
+          <tr>
+            <td>CatBoost</td>
+            <td>ML (catboost)</td>
+            <td><code>algorithms/catboost/train_catboost.py</code></td>
+            <td>Kategorik özellikler ve küçük veri setlerinde kararlı sonuç.</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="highlight">
+        Çoklu model kombinasyonu için <code>examples/multi-model/phpa.yaml</code> dosyasındaki mean karar stratejisini inceleyin.
+      </div>
+    </section>
+
+    <section id="veri">
+      <h2>5. Veri Yönetimi ve Eğitim Süreçleri</h2>
+      <h3>5.1 Senaryo üretimi</h3>
+      <p><code>tools/generate_scenarios.py</code> ile 10 senaryoluk veri setleri üretebilirsiniz.</p>
+      <pre><code>python tools/generate_scenarios.py --scenario spike --points 720 --step 20 --split 0.7 --outdir benchmark/data
+</code></pre>
+      <h3>5.2 Offline eğitimi toplu çalıştırma</h3>
+      <pre><code>bash scripts/offline-benchmark.sh --train benchmark/data/spike/train.csv \
+  --test benchmark/data/spike/test.csv --prefix spike
+
+# Tüm senaryolar
+for s in steady spike ramp_up daily_seasonality weekday_weekend noisy stepwise multi_spike zero_dip bursty_poisson; do
+  bash scripts/offline-benchmark.sh --train benchmark/data/$s/train.csv \
+    --test benchmark/data/$s/test.csv --prefix $s;
+done
+</code></pre>
+      <h3>5.3 Eğitim sonucu</h3>
+      <ul>
+        <li><code>train/models/&lt;model&gt;_model/runs/&lt;run-id&gt;/metrics.json</code></li>
+        <li><code>tools/compare_models.py</code> ile CSV çıktı: <code>model,run,rmse,mae,mape</code></li>
+      </ul>
+      <div class="callout success">
+        Eğitim koşullarını belgelemek için <code>benchmark/summary.csv</code> gibi birleşik CSV dosyaları oluşturun.
+      </div>
+    </section>
+
+    <section id="phpa-crd">
+      <h2>6. PHPA CRD Yapılandırması</h2>
+      <p>
+        PHPA tanımları, geleneksel HPA alanlarına ek olarak aşağıdaki kilit bölümlere sahiptir:
+      </p>
+      <ul>
+        <li><strong><code>models</code></strong>: Bir veya daha fazla model, her biri <code>type</code>, <code>name</code> ve model spesifik ayarları içerir.</li>
+        <li><strong><code>decisionType</code></strong>: Tahmin birleşim stratejisi.</li>
+        <li><strong><code>calculationTimeout</code></strong>: Model hesaplaması için milisaniye cinsinden zaman aşımı.</li>
+        <li><strong><code>perSyncPeriod</code></strong>: Kaçıncı <code>syncPeriod</code>’da bir model çalışsın.</li>
+        <li><strong>Hook mekanizmaları</strong>: <code>runtimeTuningFetchHook</code> ile HTTP temelli dinamik ayarlar.</li>
+      </ul>
+      <pre><code>apiVersion: syswe.me/v1alpha1
+kind: PredictiveHorizontalPodAutoscaler
+metadata:
+  name: simple-catboost
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: php-apache
+  minReplicas: 1
+  maxReplicas: 10
+  syncPeriod: 20000
+  decisionType: maximum
+  models:
+    - type: CatBoost
+      name: simple-catboost
+      catboost:
+        depth: 6
+        learningRate: 0.1
+        iterations: 400
+</code></pre>
+      <p>
+        CRD şeması detayları için <code>helm/templates/crd/syswe.me_predictivehorizontalpodautoscalers.yaml</code> ve <code>docs/reference/configuration.md</code> dosyalarını inceleyin.
+      </p>
+    </section>
+
+    <section id="ornekler">
+      <h2>7. Uygulama Örnekleri</h2>
+      <h3>7.1 Basit Modeller</h3>
+      <ul>
+        <li><code>examples/simple-linear</code>: Linear PHPA.</li>
+        <li><code>examples/simple-holt-winters</code>: Sezonluk trafik için Holt-Winters, yük testeri içerir.</li>
+      </ul>
+      <h3>7.2 Gelişmiş Modeller</h3>
+      <ul>
+        <li><code>examples/simple-gbdt</code>, <code>examples/simple-xgboost</code>, <code>examples/simple-var</code>, <code>examples/simple-catboost</code>.</li>
+        <li><code>examples/multi-model</code>: Ortalama karar stratejisiyle GBDT + XGBoost + VAR kombinasyonu.</li>
+      </ul>
+      <h3>7.3 Yük test aracı entegrasyonu</h3>
+      <p>
+        <code>scripts/run-php-benchmarks.sh</code> betiği, php-apache servisi için 10 gerçek senaryo üretir. Script şunları yapar:
+      </p>
+      <ol>
+        <li>Port-forward başlatır (<code>kubectl port-forward svc/php-apache</code>).</li>
+        <li>PHPA status ve CPU metriklerini belirli aralıklarla toplar.</li>
+        <li><code>hey</code> ile yük profilleri uygular: <em>steady_baseline</em>, <em>lunch_rush</em>, <em>marketing_spike</em> vb.</li>
+        <li>Sonuçları <code>benchmark/results/&lt;timestamp&gt;/</code> altında saklar.</li>
+      </ol>
+      <pre><code>bash scripts/run-php-benchmarks.sh --interval 10
+# Çıktı örneği: benchmark/results/20250922-182939/summary.csv</code></pre>
+    </section>
+
+    <section id="benchmark">
+      <h2>8. Benchmark ve Test Senaryoları</h2>
+      <p>
+        Rehber senaryoları, <code>BENCHMARK.md</code> belgesine dayanır. Her senaryo için offline + online test yapılabilir.
+      </p>
+      <h3>8.1 Senaryo listesi</h3>
+      <ul>
+        <li><strong>steady_baseline</strong>: Kararlı trafik.</li>
+        <li><strong>lunch_rush</strong>: Öğle yoğunluğu.</li>
+        <li><strong>marketing_spike</strong>: Pazarlama kampanyası.</li>
+        <li><strong>release_ramp</strong>: Yeni özellik lansmanı.</li>
+        <li><strong>weekend_waves</strong>: Dalgalı hafta sonu trafiği.</li>
+        <li><strong>flash_sale</strong>: Kısa süreli yüksek trafik.</li>
+        <li><strong>nightly_maintenance</strong>: Gece bakım arası.</li>
+        <li><strong>bot_attack</strong>: Yoğun bot saldırısı simülasyonu.</li>
+        <li><strong>sustained_demand</strong>: Uzun süreli yüksek talep.</li>
+        <li><strong>decay_after_peak</strong>: Zirve sonrası düşüş.</li>
+      </ul>
+      <h3>8.2 Örnek sonuç tablosu</h3>
+      <pre><code>scenario,avg_rps,weighted_avg_latency_s,peak_desired
+bot_attack,2.77,5.784,6.0
+sustained_demand,3.92,7.578,6.0
+flash_sale,3.83,4.895,5.0
+</code></pre>
+      <p>
+        Bu veriler, PHPA'nın tepki süresi, pod ölçeklenmesi ve CPU kullanımını aynı anda değerlendirmeyi sağlar. Tam çıktı için <code>benchmark/results/&lt;timestamp&gt;/summary.csv</code> dosyasını inceleyin.
+      </p>
+      <div class="timeline">
+        <div class="timeline-step">
+          <strong>Planlama</strong>: Senaryo seçimi, veri üretimi (<code>tools/generate_scenarios.py</code>).
+        </div>
+        <div class="timeline-step">
+          <strong>Offline Eğitim</strong>: <code>scripts/offline-benchmark.sh</code> ile model skorlarını üretin.
+        </div>
+        <div class="timeline-step">
+          <strong>Online Doğrulama</strong>: Operatörü çalıştırın, <code>scripts/run-php-benchmarks.sh</code> ile gerçek trafik uygulayın.
+        </div>
+        <div class="timeline-step">
+          <strong>Analiz</strong>: ConfigMap ve logları inceleyin, summary CSV'leri BI araçlarına aktarın.
+        </div>
+      </div>
+    </section>
+
+    <section id="isletim">
+      <h2>9. İşletim, Gözlem ve İyileştirme</h2>
+      <h3>9.1 İzleme komutları</h3>
+      <pre><code>kubectl describe phpa simple-catboost
+kubectl logs -l name=predictive-horizontal-pod-autoscaler -f
+kubectl get configmap predictive-horizontal-pod-autoscaler-simple-catboost-data -o json \
+  | jq -r '.data.data | fromjson | .modelHistories["simple-catboost"].replicaHistory[]'
+</code></pre>
+      <h3>9.2 Politika ayarları</h3>
+      <ul>
+        <li><code>behavior.scaleDown.stabilizationWindowSeconds</code>: Aşırı hızlı küçülmeyi engeller.</li>
+        <li><code>syncPeriod</code>: Model hesaplama sıklığı (varsayılan 15000 ms).</li>
+        <li><code>tolerance</code>: Ölçekleme tetik eşiği.</li>
+      </ul>
+      <h3>9.3 Kapasite planlama ipuçları</h3>
+      <ul>
+        <li>Her model için <code>calculationTimeout</code> değerini model eğitim süresine göre ayarlayın.</li>
+        <li>Kısa süreli yükler için <code>perSyncPeriod</code>'ü düşürerek daha sık tahmin alabilirsiniz.</li>
+        <li>ConfigMap boyutu büyürse <code>historySize</code> ve saklama sürelerini optimize edin.</li>
+      </ul>
+    </section>
+
+    <section id="sorun">
+      <h2>10. Sorun Giderme</h2>
+      <h3>10.1 Yaygın durumlar</h3>
+      <ul>
+        <li><strong>Model veri eksikliği</strong>: <code>modelHistories</code> boşsa, <code>syncPeriod</code> ve <code>startInterval</code> ayarlarını kontrol edin.</li>
+        <li><strong>Metrics Server hatası</strong>: <code>No metrics returned</code> mesajı varsa TLS patch uygulanıp uygulanmadığını doğrulayın.</li>
+        <li><strong>Yüksek latency</strong>: <code>scripts/run-php-benchmarks.sh</code> sonuçlarındaki <code>weighted_avg_latency_s</code> değerlerine bakarak karar stratejilerini gözden geçirin.</li>
+        <li><strong>Operatör crash</strong>: <code>kubectl logs</code> ile Go panic stack trace'lerini toplayın, <code>main.go</code> ve ilgili model paketlerini inceleyin.</li>
+      </ul>
+      <h3>10.2 Tanı araçları</h3>
+      <pre><code>kubectl get events --sort-by=.lastTimestamp
+kubectl top pods -A
+kubectl get phpa -A -o yaml
+</code></pre>
+      <div class="highlight">
+        Gerekirse <code>make run</code> ile operatörü lokal olarak çalıştırıp detaylı log elde edebilirsiniz.
+      </div>
+    </section>
+
+    <section id="kaynaklar">
+      <h2>11. Ek Kaynaklar</h2>
+      <ul>
+        <li>Proje kök dokümantasyonu: <code>docs/</code> klasörü</li>
+        <li>Kullanıcı rehberi: <code>docs/user-guide/models.md</code>, <code>docs/user-guide/custom-models.md</code></li>
+        <li>Yapılandırma referansı: <code>docs/reference/configuration.md</code></li>
+        <li>Benchmark rehberi: <code>BENCHMARK.md</code></li>
+        <li>Scriptler: <code>scripts/phpa-start.sh</code>, <code>scripts/phpa-stop.sh</code>, <code>scripts/run-php-benchmarks.sh</code></li>
+      </ul>
+      <p>
+        Bu sayfayı statik bir wiki veya portal içine almak için <code>docs/wiki/phpa-kapsamli-rehber-tr.html</code> dosyasını yayınlayabilir veya doküman jeneratörlerine (ör. MkDocs, BookStack, Wiki.js) entegre edebilirsiniz.
+      </p>
+    </section>
+  </main>
+
+  <footer>
+    Predictive Horizontal Pod Autoscaler &middot; Türkçe rehber — Son güncelleme: <span id="updated"></span>
+  </footer>
+
+  <script>
+    const el = document.getElementById('updated');
+    if (el) {
+      const formatter = new Intl.DateTimeFormat('tr-TR', { year: 'numeric', month: 'long', day: 'numeric' });
+      el.textContent = formatter.format(new Date());
+    }
+  </script>
+</body>
+</html>

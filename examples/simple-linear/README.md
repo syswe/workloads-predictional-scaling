@@ -73,7 +73,7 @@ based on calculated history.
 This example uses the following YAML to define the autoscaler:
 
 ```yaml
-apiVersion: jamiethompson.me/v1alpha1
+apiVersion: syswe.me/v1alpha1
 kind: PredictiveHorizontalPodAutoscaler
 metadata:
   name: simple-linear

@@ -1,1 +1,9 @@
 mode: cluster
+
+image:
+  repository: syswe/predictive-horizontal-pod-autoscaler
+  # If empty, defaults to chart version
+  tag: ""
+  pullPolicy: IfNotPresent
+  # Optional: list of imagePullSecrets names
+  pullSecrets: []

@@ -37,17 +37,21 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
-	"github.com/jthomperoo/k8shorizmetrics/v2"
-	"github.com/jthomperoo/k8shorizmetrics/v2/metricsclient"
-	"github.com/jthomperoo/k8shorizmetrics/v2/podsclient"
+	"github.com/syswe/k8shorizmetrics/v2"
+	"github.com/syswe/k8shorizmetrics/v2/metricsclient"
+	"github.com/syswe/k8shorizmetrics/v2/podsclient"
 
-	jamiethompsonmev1alpha1 "github.com/jthomperoo/predictive-horizontal-pod-autoscaler/api/v1alpha1"
-	"github.com/jthomperoo/predictive-horizontal-pod-autoscaler/internal/algorithm"
-	"github.com/jthomperoo/predictive-horizontal-pod-autoscaler/internal/controllers"
-	"github.com/jthomperoo/predictive-horizontal-pod-autoscaler/internal/hook/http"
-	"github.com/jthomperoo/predictive-horizontal-pod-autoscaler/internal/prediction"
-	"github.com/jthomperoo/predictive-horizontal-pod-autoscaler/internal/prediction/holtwinters"
-	"github.com/jthomperoo/predictive-horizontal-pod-autoscaler/internal/prediction/linear"
+	syswev1alpha1 "github.com/syswe/predictive-horizontal-pod-autoscaler/api/v1alpha1"
+	"github.com/syswe/predictive-horizontal-pod-autoscaler/internal/algorithm"
+	"github.com/syswe/predictive-horizontal-pod-autoscaler/internal/controllers"
+	"github.com/syswe/predictive-horizontal-pod-autoscaler/internal/hook/http"
+	"github.com/syswe/predictive-horizontal-pod-autoscaler/internal/prediction"
+	"github.com/syswe/predictive-horizontal-pod-autoscaler/internal/prediction/holtwinters"
+	"github.com/syswe/predictive-horizontal-pod-autoscaler/internal/prediction/gbdt"
+	"github.com/syswe/predictive-horizontal-pod-autoscaler/internal/prediction/xgboost"
+	"github.com/syswe/predictive-horizontal-pod-autoscaler/internal/prediction/varmodel"
+	"github.com/syswe/predictive-horizontal-pod-autoscaler/internal/prediction/catboost"
+	"github.com/syswe/predictive-horizontal-pod-autoscaler/internal/prediction/linear"
 	//+kubebuilder:scaffold:imports
 )
 
@@ -59,7 +63,7 @@ var (
 func init() {
 	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
 
-	utilruntime.Must(jamiethompsonmev1alpha1.AddToScheme(scheme))
+	utilruntime.Must(syswev1alpha1.AddToScheme(scheme))
 	//+kubebuilder:scaffold:scheme
 }
 
@@ -86,7 +90,7 @@ func main() {
 		Port:                   9443,
 		HealthProbeBindAddress: probeAddr,
 		LeaderElection:         enableLeaderElection,
-		LeaderElectionID:       "a07591f8.jamiethompson.me",
+		LeaderElectionID:       "a07591f8.syswe.me",
 		// LeaderElectionReleaseOnCancel defines if the leader should step down voluntarily
 		// when the Manager ends. This requires the binary to immediately end when the
 		// Manager is stopped, otherwise, this setting is unsafe. Setting this significantly
@@ -136,6 +140,18 @@ func main() {
 		Predicter: &prediction.ModelPredict{
 			Predicters: []prediction.Predicter{
 				&linear.Predict{
+					Runner: pyRunner,
+				},
+				&gbdt.Predict{
+					Runner: pyRunner,
+				},
+				&xgboost.Predict{
+					Runner: pyRunner,
+				},
+				&varmodel.Predict{
+					Runner: pyRunner,
+				},
+				&catboost.Predict{
 					Runner: pyRunner,
 				},
 				&holtwinters.Predict{

@@ -40,7 +40,7 @@ here](https://predictive-horizontal-pod-autoscaler.readthedocs.io/en/latest/user
   - `CrossVersionObjectReference` in the `scaleTargetRef` field.
   - `MetricSpec` in the `metrics` field.
   - `MetricStatus` in the `currentMetrics` field.
-- Upgraded to [k8shorizmetrics `v2.0.0`](https://github.com/jthomperoo/k8shorizmetrics/releases/tag/v2.0.0).
+- Upgraded to [k8shorizmetrics `v2.0.0`](https://github.com/syswe/k8shorizmetrics/releases/tag/v2.0.0).
 - Upgraded from `autoscaling/v2beta2` to `autoscaling/v2`.
 - Upgraded to Go `v1.19`.
 ### Removed
@@ -90,16 +90,16 @@ available: <https://custom-pod-autoscaler.readthedocs.io/en/latest/reference/con
 
 ## [v0.10.0] - 2022-05-14
 ### Changed
-- Removed dependency on `jthomperoo/horizontal-pod-autoscaler` in favour of `jthomperoo/k8shorizmetrics`.
-- Bump `jthomperoo/custom-pod-autoscaler` to `v2.6.0`.
+- Removed dependency on `syswe/horizontal-pod-autoscaler` in favour of `syswe/k8shorizmetrics`.
+- Bump `syswe/custom-pod-autoscaler` to `v2.6.0`.
 - Upgrade to Go `v1.17`.
 
 ## [v0.9.0] - 2021-12-28
 ### Added
 - Support for `argoproj.io/v1alpha1` `Rollout` resource.
 ### Changed
-- Bump `jthomperoo/custom-pod-autoscaler` to `v2.3.0`
-- Bump `jthomperoo/horizontal-pod-autoscaler` to `v0.8.0`
+- Bump `syswe/custom-pod-autoscaler` to `v2.3.0`
+- Bump `syswe/horizontal-pod-autoscaler` to `v0.8.0`
 
 ## [v0.8.0] - 2021-08-15
 ### Changed
@@ -173,38 +173,38 @@ Holt-Winters configuration.
 - Added the ability to use Linear Regression models to predict future scaling.
 
 [Unreleased]:
-https://github.com/jthomperoo/predictive-horizontal-pod-autoscaler/compare/v0.13.2...HEAD
+https://github.com/syswe/predictive-horizontal-pod-autoscaler/compare/v0.13.2...HEAD
 [v0.13.2]:
-https://github.com/jthomperoo/predictive-horizontal-pod-autoscaler/compare/v0.13.1...v0.13.2
+https://github.com/syswe/predictive-horizontal-pod-autoscaler/compare/v0.13.1...v0.13.2
 [v0.13.1]:
-https://github.com/jthomperoo/predictive-horizontal-pod-autoscaler/compare/v0.13.0...v0.13.1
+https://github.com/syswe/predictive-horizontal-pod-autoscaler/compare/v0.13.0...v0.13.1
 [v0.13.0]:
-https://github.com/jthomperoo/predictive-horizontal-pod-autoscaler/compare/v0.12.0...v0.13.0
+https://github.com/syswe/predictive-horizontal-pod-autoscaler/compare/v0.12.0...v0.13.0
 [v0.12.0]:
-https://github.com/jthomperoo/predictive-horizontal-pod-autoscaler/compare/v0.11.2...v0.12.0
+https://github.com/syswe/predictive-horizontal-pod-autoscaler/compare/v0.11.2...v0.12.0
 [v0.11.2]:
-https://github.com/jthomperoo/predictive-horizontal-pod-autoscaler/compare/v0.11.1...v0.11.2
+https://github.com/syswe/predictive-horizontal-pod-autoscaler/compare/v0.11.1...v0.11.2
 [v0.11.1]:
-https://github.com/jthomperoo/predictive-horizontal-pod-autoscaler/compare/v0.11.0...v0.11.1
+https://github.com/syswe/predictive-horizontal-pod-autoscaler/compare/v0.11.0...v0.11.1
 [v0.11.0]:
-https://github.com/jthomperoo/predictive-horizontal-pod-autoscaler/compare/v0.10.0...v0.11.0
+https://github.com/syswe/predictive-horizontal-pod-autoscaler/compare/v0.10.0...v0.11.0
 [v0.10.0]:
-https://github.com/jthomperoo/predictive-horizontal-pod-autoscaler/compare/v0.9.0...v0.10.0
+https://github.com/syswe/predictive-horizontal-pod-autoscaler/compare/v0.9.0...v0.10.0
 [v0.9.0]:
-https://github.com/jthomperoo/predictive-horizontal-pod-autoscaler/compare/v0.8.0...v0.9.0
+https://github.com/syswe/predictive-horizontal-pod-autoscaler/compare/v0.8.0...v0.9.0
 [v0.8.0]:
-https://github.com/jthomperoo/predictive-horizontal-pod-autoscaler/compare/v0.7.0...v0.8.0
+https://github.com/syswe/predictive-horizontal-pod-autoscaler/compare/v0.7.0...v0.8.0
 [v0.7.0]:
-https://github.com/jthomperoo/predictive-horizontal-pod-autoscaler/compare/v0.6.0...v0.7.0
+https://github.com/syswe/predictive-horizontal-pod-autoscaler/compare/v0.6.0...v0.7.0
 [v0.6.0]:
-https://github.com/jthomperoo/predictive-horizontal-pod-autoscaler/compare/v0.5.0...v0.6.0
+https://github.com/syswe/predictive-horizontal-pod-autoscaler/compare/v0.5.0...v0.6.0
 [v0.5.0]:
-https://github.com/jthomperoo/predictive-horizontal-pod-autoscaler/compare/v0.4.0...v0.5.0
+https://github.com/syswe/predictive-horizontal-pod-autoscaler/compare/v0.4.0...v0.5.0
 [v0.4.0]:
-https://github.com/jthomperoo/predictive-horizontal-pod-autoscaler/compare/v0.3.0...v0.4.0
+https://github.com/syswe/predictive-horizontal-pod-autoscaler/compare/v0.3.0...v0.4.0
 [v0.3.0]:
-https://github.com/jthomperoo/predictive-horizontal-pod-autoscaler/compare/v0.2.0...v0.3.0
+https://github.com/syswe/predictive-horizontal-pod-autoscaler/compare/v0.2.0...v0.3.0
 [v0.2.0]:
-https://github.com/jthomperoo/predictive-horizontal-pod-autoscaler/compare/v0.1.0...v0.2.0
+https://github.com/syswe/predictive-horizontal-pod-autoscaler/compare/v0.1.0...v0.2.0
 [v0.1.0]:
-https://github.com/jthomperoo/predictive-horizontal-pod-autoscaler/releases/tag/v0.1.0
+https://github.com/syswe/predictive-horizontal-pod-autoscaler/releases/tag/v0.1.0

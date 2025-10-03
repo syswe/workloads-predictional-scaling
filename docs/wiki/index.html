@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PHPA Wiki - Predictive Horizontal Pod Autoscaler Documentation</title>
+  <meta name="description" content="Comprehensive documentation for Predictive Horizontal Pod Autoscaler (PHPA) - Advanced Kubernetes autoscaling with machine learning predictions">
+  <meta name="keywords" content="kubernetes, autoscaling, machine learning, phpa, horizontal pod autoscaler, gbdt, xgboost, catboost, var">
+  <meta name="author" content="PHPA Team">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/x-icon" href="assets/images/favicon.ico">
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="assets/css/wiki.css">
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://phpa-wiki.example.com/">
+  <meta property="og:title" content="PHPA Wiki - Predictive Horizontal Pod Autoscaler Documentation">
+  <meta property="og:description" content="Advanced Kubernetes autoscaling with machine learning predictions">
+
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:url" content="https://phpa-wiki.example.com/">
+  <meta property="twitter:title" content="PHPA Wiki - Predictive Horizontal Pod Autoscaler Documentation">
+  <meta property="twitter:description" content="Advanced Kubernetes autoscaling with machine learning predictions">
+</head>
+<body>
+  <div class="wiki-container">
+    <!-- Sidebar Navigation -->
+    <nav class="wiki-sidebar" id="sidebar">
+      <div class="wiki-sidebar-header">
+        <a href="index.html" class="wiki-logo">
+          📊 PHPA Wiki
+        </a>
+        <span class="wiki-version">v0.13.2</span>
+      </div>
+
+      <div class="wiki-nav">
+        <div class="wiki-nav-section">
+          <div class="wiki-nav-section-title">Başlangıç</div>
+          <ul>
+            <li><a href="index.html">Ana Sayfa</a></li>
+            <li><a href="pages/getting-started.html">Hızlı Başlangıç</a></li>
+            <li><a href="pages/installation.html">Kurulum</a></li>
+          </ul>
+        </div>
+
+        <div class="wiki-nav-section">
+          <div class="wiki-nav-section-title">Kılavuzlar</div>
+          <ul>
+            <li><a href="pages/models.html">Modeller</a></li>
+            <li><a href="pages/configuration.html">Yapılandırma</a></li>
+            <li><a href="pages/examples.html">Örnekler</a></li>
+            <li><a href="pages/benchmarking.html">Benchmark</a></li>
+          </ul>
+        </div>
+
+        <div class="wiki-nav-section">
+          <div class="wiki-nav-section-title">İşletim</div>
+          <ul>
+            <li><a href="pages/operations.html">İşletim Rehberi</a></li>
+            <li><a href="pages/monitoring.html">İzleme & Gözlem</a></li>
+            <li><a href="pages/troubleshooting.html">Sorun Giderme</a></li>
+          </ul>
+        </div>
+
+        <div class="wiki-nav-section">
+          <div class="wiki-nav-section-title">Referans</div>
+          <ul>
+            <li><a href="pages/api-reference.html">API Referansı</a></li>
+            <li><a href="pages/cli-reference.html">CLI Referansı</a></li>
+            <li><a href="pages/changelog.html">Değişiklik Günlüğü</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="wiki-main">
+      <!-- Header -->
+      <header class="wiki-header">
+        <div class="wiki-header-content">
+          <div class="wiki-breadcrumb">
+            <span>Ana Sayfa</span>
+          </div>
+
+          <div class="wiki-header-actions">
+            <div class="wiki-search">
+              <input type="text" class="wiki-search-input" placeholder="Dokümantasyonda ara...">
+            </div>
+            <button class="wiki-theme-toggle" title="Tema Değiştir">🌙</button>
+            <button class="wiki-mobile-toggle" title="Menüyü Aç/Kapat">☰</button>
+          </div>
+        </div>
+      </header>
+
+      <!-- Page Content -->
+      <div class="wiki-content">
+        <!-- Page Header -->
+        <div class="wiki-page-header">
+          <h1 class="wiki-page-title">Predictive Horizontal Pod Autoscaler</h1>
+          <p class="wiki-page-description">
+            Makine öğrenmesi tabanlı tahminlerle gelişmiş Kubernetes otomatik ölçeklendirme sistemi
+          </p>
+          <div class="wiki-page-meta">
+            <span>📅 Son güncelleme: <span id="last-updated"></span></span>
+            <span>🚀 Versiyon: v0.13.2</span>
+            <span>📖 Okuma süresi: ~5 dakika</span>
+          </div>
+        </div>
+
+        <!-- Overview Cards -->
+        <div class="wiki-grid wiki-grid-3 mb-5">
+          <div class="wiki-card">
+            <div class="wiki-card-header">
+              <h3 class="wiki-card-title">🚀 Hızlı Başlangıç</h3>
+            </div>
+            <p>PHPA'yı dakikalar içinde kurun ve ilk tahminli otomatik ölçeklendirmenizi başlatın.</p>
+            <a href="pages/getting-started.html" class="wiki-nav-pill">Başlayın →</a>
+          </div>
+
+          <div class="wiki-card">
+            <div class="wiki-card-header">
+              <h3 class="wiki-card-title">🤖 Modeller</h3>
+            </div>
+            <p>GBDT, XGBoost, CatBoost ve VAR gibi gelişmiş makine öğrenmesi modellerini keşfedin.</p>
+            <a href="pages/models.html" class="wiki-nav-pill">Modelleri İnceleyin →</a>
+          </div>
+
+          <div class="wiki-card">
+            <div class="wiki-card-header">
+              <h3 class="wiki-card-title">📊 Benchmark</h3>
+            </div>
+            <p>Farklı senaryolarda model performanslarını karşılaştırın ve optimize edin.</p>
+            <a href="pages/benchmarking.html" class="wiki-nav-pill">Benchmark'a Bakın →</a>
+          </div>
+        </div>
+
+        <!-- What is PHPA Section -->
+        <section class="mb-5">
+          <h2>PHPA Nedir?</h2>
+          <p>
+            Predictive Horizontal Pod Autoscaler (PHPA), geleneksel Kubernetes HPA'nın yeteneklerini
+            makine öğrenmesi tabanlı tahmin modelleriyle genişleten gelişmiş bir otomatik ölçeklendirme sistemidir.
+          </p>
+
+          <div class="wiki-alert wiki-alert-info">
+            <strong>💡 Proaktif Ölçeklendirme:</strong> PHPA, yük artışlarını önceden tahmin ederek
+            performans düşüşü yaşanmadan önce kaynakları ölçeklendirir.
+          </div>
+
+          <h3>Temel Özellikler</h3>
+          <div class="wiki-grid wiki-grid-2">
+            <div>
+              <h4>🎯 Tahmin Modelleri</h4>
+              <ul>
+                <li><strong>GBDT:</strong> Gradient Boosted Decision Trees</li>
+                <li><strong>XGBoost:</strong> Extreme Gradient Boosting</li>
+                <li><strong>CatBoost:</strong> Categorical Boosting</li>
+                <li><strong>VAR:</strong> Vector Autoregression</li>
+                <li><strong>Holt-Winters:</strong> Üssel düzgünleştirme</li>
+                <li><strong>Linear:</strong> Doğrusal regresyon</li>
+              </ul>
+            </div>
+            <div>
+              <h4>⚙️ Gelişmiş Özellikler</h4>
+              <ul>
+                <li>Çoklu model kombinasyonu</li>
+                <li>Dinamik hiperparametre ayarlama</li>
+                <li>Gerçek zamanlı model eğitimi</li>
+                <li>Kapsamlı metrik desteği</li>
+                <li>Detaylı gözlem ve log</li>
+                <li>Mobil uyumlu arayüz</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <!-- Use Cases -->
+        <section class="mb-5">
+          <h2>Kullanım Senaryoları</h2>
+          <div class="wiki-grid wiki-grid-2">
+            <div class="wiki-card">
+              <h4>📈 Düzenli Trafik Artışları</h4>
+              <p>Öğle saatleri, akşam saatleri gibi düzenli yoğunluk dönemlerinde proaktif ölçeklendirme.</p>
+              <div class="wiki-nav-pills">
+                <span class="wiki-nav-pill">E-ticaret</span>
+                <span class="wiki-nav-pill">Medya</span>
+                <span class="wiki-nav-pill">Sosyal Ağlar</span>
+              </div>
+            </div>
+
+            <div class="wiki-card">
+              <h4>🚀 Kampanya Lansmanları</h4>
+              <p>Pazarlama kampanyaları, ürün lansmanları gibi öngörülebilir yük artışları.</p>
+              <div class="wiki-nav-pills">
+                <span class="wiki-nav-pill">Retail</span>
+                <span class="wiki-nav-pill">Gaming</span>
+                <span class="wiki-nav-pill">Fintech</span>
+              </div>
+            </div>
+
+            <div class="wiki-card">
+              <h4>🌊 Mevsimsel Dalgalanmalar</h4>
+              <p>Haftalık, aylık veya yıllık periyotlar halinde değişen trafik desenleri.</p>
+              <div class="wiki-nav-pills">
+                <span class="wiki-nav-pill">SaaS</span>
+                <span class="wiki-nav-pill">IoT</span>
+                <span class="wiki-nav-pill">Analytics</span>
+              </div>
+            </div>
+
+            <div class="wiki-card">
+              <h4>⚡ Kritik Performans</h4>
+              <p>Düşük latency gerektiren sistemlerde anlık tepki süresi optimizasyonu.</p>
+              <div class="wiki-nav-pills">
+                <span class="wiki-nav-pill">Banking</span>
+                <span class="wiki-nav-pill">Trading</span>
+                <span class="wiki-nav-pill">Real-time</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Architecture Overview -->
+        <section class="mb-5">
+          <h2>Mimari Genel Bakış</h2>
+          <p>
+            PHPA, Kubernetes operatör desenini kullanarak CRD (Custom Resource Definition)
+            tabanlı bir yaklaşımla çalışır.
+          </p>
+
+          <div class="wiki-card">
+            <h4>🏗️ Temel Bileşenler</h4>
+            <div class="wiki-grid wiki-grid-3">
+              <div>
+                <h5>Controller</h5>
+                <p>PHPA CRD'lerini izler ve otomatik ölçeklendirme kararlarını yönetir.</p>
+              </div>
+              <div>
+                <h5>Prediction Engine</h5>
+                <p>Seçili modelleri çalıştırarak gelecekteki kaynak ihtiyaçlarını tahmin eder.</p>
+              </div>
+              <div>
+                <h5>Metrics Collector</h5>
+                <p>Kubernetes Metrics Server'dan veri toplar ve geçmiş verilerini saklar.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="wiki-alert wiki-alert-success">
+            <strong>✅ Kubernetes Uyumluluğu:</strong> PHPA, mevcut HPA kaynaklarınızla
+            uyumlu çalışır ve aynı API'yi kullanır.
+          </div>
+        </section>
+
+        <!-- Model Comparison -->
+        <section class="mb-5">
+          <h2>Model Karşılaştırması</h2>
+          <p>Farklı tahmin modelleri farklı senaryolarda optimal performans gösterir:</p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Model</th>
+                <th>Tür</th>
+                <th>En İyi Kullanım</th>
+                <th>Eğitim Süresi</th>
+                <th>Doğruluk</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>GBDT</strong></td>
+                <td>Ensemble ML</td>
+                <td>Kısa-orta vadeli tahmin</td>
+                <td>Orta</td>
+                <td>Yüksek</td>
+              </tr>
+              <tr>
+                <td><strong>XGBoost</strong></td>
+                <td>Gradient Boosting</td>
+                <td>Karmaşık desenler</td>
+                <td>Orta-Uzun</td>
+                <td>Çok Yüksek</td>
+              </tr>
+              <tr>
+                <td><strong>CatBoost</strong></td>
+                <td>Gradient Boosting</td>
+                <td>Kategorik veriler</td>
+                <td>Kısa</td>
+                <td>Yüksek</td>
+              </tr>
+              <tr>
+                <td><strong>VAR</strong></td>
+                <td>Çok değişkenli</td>
+                <td>Zaman serisi bağımlılıkları</td>
+                <td>Kısa</td>
+                <td>Orta</td>
+              </tr>
+              <tr>
+                <td><strong>Holt-Winters</strong></td>
+                <td>İstatistiksel</td>
+                <td>Mevsimsel veriler</td>
+                <td>Çok Kısa</td>
+                <td>Orta-Yüksek</td>
+              </tr>
+              <tr>
+                <td><strong>Linear</strong></td>
+                <td>Regresyon</td>
+                <td>Basit trendler</td>
+                <td>Çok Kısa</td>
+                <td>Orta</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <!-- Quick Links -->
+        <section class="mb-5">
+          <h2>Hızlı Bağlantılar</h2>
+          <div class="wiki-grid wiki-grid-4">
+            <a href="pages/getting-started.html" class="wiki-card">
+              <h4>📚 Hızlı Başlangıç</h4>
+              <p>5 dakikada PHPA kurulumu</p>
+            </a>
+
+            <a href="pages/models.html" class="wiki-card">
+              <h4>🤖 Model Detayları</h4>
+              <p>Tüm modellerin kapsamlı rehberi</p>
+            </a>
+
+            <a href="pages/examples.html" class="wiki-card">
+              <h4>💼 Örnek Projeler</h4>
+              <p>Gerçek dünya kullanım örnekleri</p>
+            </a>
+
+            <a href="pages/troubleshooting.html" class="wiki-card">
+              <h4>🔧 Sorun Giderme</h4>
+              <p>Yaygın sorunlar ve çözümleri</p>
+            </a>
+          </div>
+        </section>
+
+        <!-- Recent Updates -->
+        <section class="mb-5">
+          <h2>Son Güncellemeler</h2>
+          <div class="wiki-card">
+            <h4>🎉 v0.13.2 Sürümü</h4>
+            <div class="wiki-grid wiki-grid-2">
+              <div>
+                <h5>✨ Yeni Özellikler</h5>
+                <ul>
+                  <li>CatBoost model desteği</li>
+                  <li>Multi-model ortalama stratejisi</li>
+                  <li>Gelişmiş benchmark araçları</li>
+                  <li>Dinamik hiperparametre tuning</li>
+                </ul>
+              </div>
+              <div>
+                <h5>🐛 Düzeltmeler</h5>
+                <ul>
+                  <li>Metrics Server TLS sorunları</li>
+                  <li>ConfigMap boyut optimizasyonu</li>
+                  <li>Memory leak düzeltmeleri</li>
+                  <li>Mobil arayüz iyileştirmeleri</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Page Navigation -->
+        <div class="wiki-page-navigation">
+          <a href="pages/getting-started.html" class="wiki-nav-next">Hızlı Başlangıç →</a>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <script src="assets/js/wiki.js"></script>
+  <script>
+    // Set last updated date
+    document.getElementById('last-updated').textContent = new Intl.DateTimeFormat('tr-TR', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    }).format(new Date());
+  </script>
+</body>
+</html>
