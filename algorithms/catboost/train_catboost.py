@@ -1,14 +1,22 @@
 import argparse
+import os
+import sys
+import json
+import time
+from datetime import datetime
+from pathlib import Path
+
+# Ensure the pip-installed catboost package is used instead of the local runtime helper.
+SCRIPT_DIR = Path(__file__).resolve().parent
+if str(SCRIPT_DIR) in sys.path:
+    sys.path.remove(str(SCRIPT_DIR))
+sys.path.append(str(SCRIPT_DIR))
+
 import pandas as pd
 import numpy as np
-import time
 import matplotlib.pyplot as plt
 from catboost import CatBoostRegressor
 from sklearn.metrics import mean_squared_error, mean_absolute_error
-import os
-import json
-import sys
-from datetime import datetime
 
 def validate_data(df, name):
     """Validate input data, handling different column names."""

@@ -1,16 +1,24 @@
 import argparse
-import pandas as pd
-import numpy as np
-import time
-import matplotlib.pyplot as plt
-import xgboost as xgb
-from sklearn.metrics import mean_squared_error, mean_absolute_error
 import os
-import json
 import sys
+import json
+import time
 import gc
 from datetime import datetime
 from contextlib import redirect_stdout
+from pathlib import Path
+
+# Ensure we import the site-packages xgboost module rather than the local runtime helper.
+SCRIPT_DIR = Path(__file__).resolve().parent
+if str(SCRIPT_DIR) in sys.path:
+    sys.path.remove(str(SCRIPT_DIR))
+sys.path.append(str(SCRIPT_DIR))
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import xgboost as xgb
+from sklearn.metrics import mean_squared_error, mean_absolute_error
 
 def validate_data(df, name):
     """Validate input data, handling different column names."""
