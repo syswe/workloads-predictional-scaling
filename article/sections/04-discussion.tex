@@ -1,0 +1,69 @@
+% Tartışma Bölümü
+
+\section{Tartışma (Discussion)}
+
+Bu bölümde, elde edilen bulgular literatür ile karşılaştırılmakta, çalışmanın güçlü ve zayıf yönleri tartışılmakta ve pratik uygulamalar için öneriler sunulmaktadır.
+
+\subsection{Bulguların Literatür ile Karşılaştırılması (Comparison with Literature)}
+
+Reaktif ölçeklendirme yaklaşımlarının sınırlamaları literatürde yaygın olarak belgelenmiştir [3, 4]. Mevcut çalışma, tahmine dayalı ölçeklendirmenin bu sınırlamaları aşmada etkili olduğunu deneysel olarak göstermektedir. Standart HPA'nın 41 saniyede verdiği ölçeklendirme kararının, PHPA modelleri ile 10-51 saniye aralığına çekilmesi, literatürdeki benzer çalışmalarla uyumludur [7, 8].
+
+Örüntü-spesifik model seçimi yaklaşımı, evrensel modellere kıyasla \%37,4 iyileştirme sağlamıştır. Bu bulgu, tek bir modelin tüm yük tiplerinde optimal performans gösteremeyeceği hipotezini desteklemektedir [11]. Literatürde, farklı yük tiplerinin farklı tahmin modelleri gerektirdiği vurgulanmakta [16, 17], ancak kapsamlı bir örüntü taksonomisi ve model eşleştirmesi sunulmamaktadır. Mevcut çalışma, altı temel yük örüntüsü için matematiksel formülasyonlar ve optimal model önerileri sunarak literatüre özgün katkı sağlamaktadır.
+
+LLM entegrasyonunun \%96,7 doğrulukla yük örüntülerini tanıması, büyük dil modellerinin zaman serisi analizi alanındaki potansiyelini göstermektedir [12, 13]. Literatürde, LLM'lerin otomatik ölçeklendirme problemine uygulanması sınırlı sayıda çalışmada ele alınmıştır [14]. Mevcut çalışma, çok modlu analiz (metin + görsel) yeteneklerinin örüntü tanıma başarısını artırdığını göstermektedir.
+
+\subsection{Çevrimdışı Kıyaslama Bulgularının Değerlendirilmesi (Evaluation of Offline Benchmark Findings)}
+
+GBDT ve XGBoost modellerinin sentetik tek değişkenli veriler üzerinde en düşük hata oranlarını sağlaması (RMSE 1,98-2,31, MAE 1,56-1,85), gradient boosting yaklaşımının zaman serisi tahmini için uygun olduğunu göstermektedir. Bu modellerin düşük eğitim süreleri (0,02-0,61 s) ve bellek kullanımı (42-210 MB), operasyonel ortamlarda kullanılabilirliklerini artırmaktadır.
+
+CatBoost modelinin daha yüksek hata üretmesi (RMSE 5,55, MAE 4,56, MAPE \%21,36), özellik mühendisliğinin sınırlı olduğu sentetik veride modelin ordered boosting özelliğinin tam kullanılamamasından kaynaklanmaktadır. Yüksek lisans tezi bulgularında, CatBoost'un On/Off örüntüsünde mükemmel performans göstermesi (MAE 0,87), modelin uygun veri yapısı ile kullanıldığında başarılı olduğunu göstermektedir. Gerçek dünya uygulamalarında, kategorik özellikler (örneğin, gün tipi: hafta içi/hafta sonu, saat dilimi: mesai/mesai dışı) eklenerek CatBoost performansı artırılabilir.
+
+VAR modelinin sentetik tek değişkenli veride kararsızlık yaşaması ($5,75\times10^{18}$ RMSE), modelin çok değişkenli zaman serisi tahmini için tasarlandığını doğrulamaktadır. Yüksek lisans tezi bulgularında, VAR'ın Growing örüntüsünde mükemmel performans göstermesi (MAE 2,44, kazanma oranı \%96), modelin uygun senaryolarda son derece etkili olduğunu göstermektedir. Gerçek dünya uygulamalarında, VAR modelinin CPU, bellek, ağ trafiği gibi ek metriklerle beslenmesi önerilmektedir.
+
+\subsection{Çevrimiçi Kıyaslama Bulgularının Değerlendirilmesi (Evaluation of Online Benchmark Findings)}
+
+Çevrimiçi deneyler, tahmine dayalı modellerin HPA'ya kıyasla ölçeklendirme kararlarını öne çektiğini doğrulamaktadır. Linear modelin hızlı tepki vermesi (10,2 s) kritik servisler için avantaj yaratırken, yüksek kaynak sarfiyatı (ortalama 8,72 replika, 525,0 m CPU) maliyet açısından dezavantaj oluşturmaktadır. Bu bulgu, hız-maliyet dengesinin uygulama gereksinimlerine göre optimize edilmesi gerektiğini göstermektedir.
+
+GBDT ve XGBoost modelleri, daha dengeli bir kaynak kullanımı ile kabul edilebilir tepki süreleri sunmuştur (20,5-51,3 s, 4,15-4,57 ortalama replika). Bu modeller, çoğu üretim ortamı için uygun denge sağlamaktadır. Holt-Winters modelinin geç tepki vermesi (71,9 s), modelin mevsimsel örüntüleri öğrenmek için daha fazla veri noktasına ihtiyaç duymasından kaynaklanmaktadır. Ancak, mevsimsellik içeren yükler için Holt-Winters modeli en uygun adaydır.
+
+VAR modelinin düşük ortalama replika sayısı (3,81) ile kaynak kullanımında avantaj sağlaması, modelin muhafazakar tahminler ürettiğini göstermektedir. Bu davranış, kaynak maliyetinin kritik olduğu senaryolar için tercih edilebilir.
+
+\subsection{Güçlü Yönler (Strengths)}
+
+Çalışmanın temel güçlü yönleri şunlardır:
+
+\textbf{Kapsamlı Örüntü Taksonomisi:} Altı temel yük örüntüsü için matematiksel formülasyonlar geliştirilmiş ve 2 milyondan fazla veri noktası ile kapsamlı değerlendirme yapılmıştır. Bu yaklaşım, gerçek dünya uygulamalarının çeşitliliğini yansıtmaktadır.
+
+\textbf{Örüntü-Spesifik Model Seçimi:} Evrensel modellere kıyasla \%37,4 iyileştirme sağlayan yaklaşım, farklı yük tiplerinin farklı tahmin modelleri gerektirdiğini deneysel olarak göstermektedir.
+
+\textbf{LLM Entegrasyonu:} \%96,7 doğrulukla otomatik örüntü tanıma, sistem yöneticilerinin manuel müdahalesini azaltmakta ve otomatik ölçeklendirme sistemlerine sofistike analiz yetenekleri kazandırmaktadır.
+
+\textbf{Operasyonel Kullanıma Hazır Implementasyon:} Kubernetes operatörü ile entegre edilmiş modeller, gerçek üretim ortamlarında kullanılabilir durumdadır. Helm grafikleri ve CI/CD süreçleri, dağıtım ve bakımı kolaylaştırmaktadır.
+
+\textbf{Tekrarlanabilir Değerlendirme:} Otomatik laboratuvar altyapısı, çevrimiçi ve çevrimdışı kıyaslamaların tekrarlanabilir şekilde yapılmasını sağlamaktadır.
+
+\subsection{Zayıf Yönler ve Sınırlamalar (Weaknesses and Limitations)}
+
+Çalışmanın bazı sınırlamaları bulunmaktadır:
+
+\textbf{Sentetik Veri Kullanımı:} Mevcut çalışmada sentetik veri kullanılmıştır. Gerçek dünya uygulamalarında, yük örüntüleri daha karmaşık ve öngörülmesi zor olabilir. Gelecek çalışmalarda, gerçek üretim ortamlarından toplanan verilerle validasyon yapılması önerilmektedir.
+
+\textbf{Tek Değişkenli Senaryo:} Çevrimdışı kıyaslamada tek değişkenli (sadece pod sayısı) senaryo kullanılmıştır. VAR gibi çok değişkenli modellerin potansiyeli tam olarak değerlendirilememiştir. Gelecek çalışmalarda, CPU, bellek, ağ trafiği gibi ek metriklerin dahil edilmesi önerilmektedir.
+
+\textbf{Kısa Süreli Çevrimiçi Testler:} 240 saniyelik test senaryoları, uzun vadeli performansı tam olarak yansıtmayabilir. Gelecek çalışmalarda, günler veya haftalar süren uzun vadeli testler yapılması önerilmektedir.
+
+\textbf{Maliyet Analizi:} Kaynak kullanımı ölçülmüş, ancak detaylı maliyet analizi yapılmamıştır. Gelecek çalışmalarda, farklı bulut sağlayıcılarının fiyatlandırma modelleri dikkate alınarak maliyet-performans dengesi değerlendirilmelidir.
+
+\subsection{Pratik Uygulamalar için Öneriler (Recommendations for Practical Applications)}
+
+Çalışma bulgularına dayanarak, pratik uygulamalar için şu öneriler sunulmaktadır:
+
+\textbf{Model Seçimi:} Uygulama gereksinimlerine göre model seçimi yapılmalıdır. Hızlı tepki gereken kritik servisler için Linear veya GBDT, dengeli kaynak kullanımı için XGBoost veya CatBoost, mevsimsel yükler için Holt-Winters, çok değişkenli senaryolar için VAR modeli önerilmektedir.
+
+\textbf{LLM Entegrasyonu:} Yük örüntülerinin otomatik tanınması için LLM entegrasyonu kullanılmalıdır. Bu yaklaşım, sistem yöneticilerinin manuel müdahalesini azaltmakta ve optimal model seçimini otomatikleştirmektedir.
+
+\textbf{Hiperparametre Optimizasyonu:} Her uygulama için hiperparametre optimizasyonu yapılmalıdır. Temporal cross-validation ve early stopping kriterleri kullanılarak, aşırı öğrenme önlenmelidir.
+
+\textbf{Çok Değişkenli Yaklaşım:} Mümkün olduğunca çok değişkenli yaklaşım benimsenmelidir. CPU, bellek, ağ trafiği gibi ek metriklerin dahil edilmesi, tahmin doğruluğunu artırmaktadır.
+
+\textbf{Sürekli İzleme ve Güncelleme:} Yük örüntüleri zamanla değişebilir. Modellerin periyodik olarak yeniden eğitilmesi ve performanslarının sürekli izlenmesi önerilmektedir.

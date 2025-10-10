@@ -1,0 +1,37 @@
+% Sonuçlar Bölümü
+
+\section{Sonuçlar (Conclusions)}
+
+Bu çalışmada, yüksek lisans tezi kapsamında geliştirilen örüntü-farkındalıklı tahmine dayalı yatay pod otomatik ölçeklendirici (PHPA) çerçevesinin syswe ad alanına taşınması ve operasyonel kullanıma hazır hale getirilmesi süreci belgelenmiştir. Elde edilen temel sonuçlar şu şekilde özetlenebilir:
+
+\textbf{Örüntü Taksonomisi ve Veri Seti:} Altı temel yük örüntüsü (mevsimsel, büyüyen, patlama, açık/kapalı, kaotik, basamaklı) için matematiksel formülasyonlar geliştirilmiş ve 600 farklı senaryo üzerinde 2 milyondan fazla veri noktası içeren kapsamlı bir veri seti oluşturulmuştur. Bu taksonomi, gerçek dünya uygulamalarının çeşitliliğini yansıtmakta ve sistematik değerlendirme imkanı sunmaktadır.
+
+\textbf{Örüntü-Spesifik Model Seçimi:} Yedi CPU-optimize makine öğrenmesi modeli (GBDT, XGBoost, CatBoost, VAR, Holt-Winters, Linear, Prophet) hiperparametre optimizasyonu ile eğitilmiş ve örüntü-spesifik model seçimi yaklaşımı ile evrensel modellere kıyasla \%37,4 ortalama MAE iyileştirmesi elde edilmiştir. Bu bulgu, tek bir modelin tüm yük tiplerinde optimal performans gösteremeyeceğini deneysel olarak doğrulamaktadır.
+
+\textbf{LLM Entegrasyonu:} Gemini 2.5 Pro büyük dil modeli entegrasyonu ile yük örüntülerinin otomatik tanınması \%96,7 doğrulukla gerçekleştirilmiştir. Çok modlu analiz (metin + görsel) yetenekleri, sistem yöneticilerinin manuel müdahalesini azaltmakta ve optimal model seçimini otomatikleştirmektedir.
+
+\textbf{Operasyonel Implementasyon:} GBDT, CatBoost, VAR ve XGBoost modelleri Kubernetes operatörü ile entegre edilmiş, Helm şemaları ve kod tabanı yeniden düzenlenmiş, CI/CD süreçleri güncellenmiştir. PHPA projesi syswe kimliği altında yeniden yayımlanabilir bir duruma gelmiş ve gerçek üretim ortamlarında kullanılabilir hale getirilmiştir.
+
+\textbf{Değerlendirme Altyapısı:} Çevrimiçi ve çevrimdışı kıyaslama senaryolarını otomatikleştiren laboratuvar altyapısı geliştirilmiştir. Bu altyapı, modellerin performanslarının tekrarlanabilir şekilde değerlendirilmesini sağlamakta ve bilimsel değerlendirme zemini oluşturmaktadır.
+
+\textbf{Deneysel Bulgular:} Çevrimdışı kıyaslamada, GBDT ve XGBoost modelleri en düşük hata oranlarını sağlamıştır (RMSE 1,98-2,31, MAE 1,56-1,85). Çevrimiçi kıyaslamada, tüm PHPA modelleri standart HPA'ya kıyasla daha hızlı ölçeklendirme kararları vermiş (10,2-71,9 s vs 41,0 s) ve proaktif kaynak yönetimi sağlamıştır.
+
+Bu kazanımlar, projenin hem akademik yayınlara temel oluşturabilecek tekrarlanabilir sonuçlar üretmesini hem de endüstriyel dağıtımlarda kullanılmasını kolaylaştırmaktadır. Çalışma, Kubernetes tabanlı otomatik ölçeklendirme alanında örüntü-farkındalıklı ve LLM-destekli yaklaşımların potansiyelini göstermektedir.
+
+\subsection{Gelecek Çalışmalar (Future Work)}
+
+Gelecek çalışmalar için şu yönler önerilmektedir:
+
+\textbf{Gerçek Dünya Validasyonu:} Farklı üretim ortamlarından toplanan gerçek verilerle kapsamlı validasyon yapılması, modellerin gerçek dünya performansının değerlendirilmesi.
+
+\textbf{Gelişmiş LLM Entegrasyonu:} Daha sofistike prompt mühendisliği teknikleri ve ensemble yöntemleri ile LLM performansının artırılması, farklı LLM modellerinin karşılaştırmalı değerlendirilmesi.
+
+\textbf{Örüntü Evrimi:} Yük örüntülerinin zamanla değişiminin otomatik olarak tespit edilmesi ve model seçiminin dinamik olarak güncellenmesi.
+
+\textbf{Maliyet Optimizasyonu:} Farklı bulut sağlayıcılarının fiyatlandırma modelleri dikkate alınarak maliyet-performans-doğruluk dengesi için çok amaçlı optimizasyon.
+
+\textbf{Çok Bulut Orkestrasyon:} Farklı bulut sağlayıcıları arasında akıllı kaynak yönetimi ve hiyerarşik ölçeklendirme stratejileri.
+
+\textbf{Kenar Bilişim Entegrasyonu:} Kenar-bulut sürekliliği için hiyerarşik ölçeklendirme ve dağıtık kaynak yönetimi.
+
+\textbf{İş Hedefi Entegrasyonu:} Ekonomik kısıtlar ve iş hedefleri ile çok amaçlı optimizasyon, SLA (Service Level Agreement) garantileri ile entegrasyon.

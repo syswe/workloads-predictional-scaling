@@ -1,0 +1,101 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[turkish]{babel}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{longtable}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{siunitx}
+\usepackage{enumitem}
+\geometry{left=25mm,right=25mm,top=30mm,bottom=30mm}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt}
+
+\title{Kubernetes Tabanlı Tahmine Dayalı Yatay Pod Otomatik Ölçeklendiricinin\\Yük Örüntüsü Farkındalığı ve Büyük Dil Modeli Entegrasyonu ile Geliştirilmesi}
+\author{}
+\date{Ekim 2025}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Kubernetes tabanlı konteyner orkestrasyon sistemlerinde reaktif ölçeklendirme yaklaşımları, ani yük değişimlerine geç tepki vermekte ve kaynak kullanımında verimsizliğe neden olmaktadır. Bu çalışma, yüksek lisans tezi kapsamında geliştirilen örüntü-farkındalıklı tahmine dayalı yatay pod otomatik ölçeklendirici (PHPA) çerçevesinin syswe ad alanına taşınması ve genişletilmesi sürecini belgelemektedir. Altı temel yük örüntüsü için matematiksel formülasyonlar geliştirilmiş ve 2 milyondan fazla veri noktası içeren kapsamlı bir veri seti oluşturulmuştur. Yedi CPU-optimize makine öğrenmesi modeli hiperparametre optimizasyonu ile eğitilmiş ve örüntü-spesifik model seçimi yaklaşımı ile evrensel modellere kıyasla \%37,4 ortalama iyileştirme elde edilmiştir. Büyük dil modeli entegrasyonu ile yük örüntülerinin otomatik tanınması \%96,7 doğrulukla gerçekleştirilmiştir. Mevcut çalışmada, GBDT, CatBoost, VAR ve XGBoost modelleri operatöre entegre edilmiş, çevrimiçi ve çevrimdışı kıyaslama senaryolarını otomatikleştiren laboratuvar altyapısı geliştirilmiştir. Deneysel sonuçlar, tahmine dayalı modellerin standart HPA'ya kıyasla ölçeklendirme kararlarını öne çektiğini göstermektedir.
+\end{abstract}
+
+\section{Giriş (Introduction)}
+
+Bulut tabanlı mikro servis mimarilerinin yaygınlaşması ile birlikte, konteyner orkestrasyon platformları modern yazılım altyapısının temel bileşenleri haline gelmiştir [1]. Kubernetes, konteyner yönetimi ve otomatik ölçeklendirme yetenekleri ile bu alanda öne çıkan açık kaynak platformdur [2]. Kubernetes Horizontal Pod Autoscaler (HPA), CPU ve bellek kullanımı gibi anlık metriklere dayalı reaktif ölçeklendirme sağlamakta, ancak ani yük değişimlerine geç tepki vermesi nedeniyle performans düşüşleri ve kaynak israfına yol açmaktadır [3, 4].
+
+Literatürde, reaktif ölçeklendirmenin sınırlamalarını aşmak için çeşitli tahmine dayalı yaklaşımlar önerilmiştir. Zaman serisi analizi yöntemleri [5, 6], makine öğrenmesi tabanlı tahmin modelleri [7, 8] ve derin öğrenme teknikleri [9, 10] kullanılarak gelecekteki kaynak ihtiyaçlarının önceden belirlenmesi hedeflenmiştir. Ancak mevcut çalışmalar, yük örüntülerinin çeşitliliğini yeterince dikkate almamakta ve tek bir evrensel model ile tüm senaryolara çözüm üretmeye çalışmaktadır [11].
+
+Son yıllarda, büyük dil modellerinin (LLM) zaman serisi analizi ve örüntü tanıma alanlarında gösterdiği başarı [12, 13], otomatik ölçeklendirme problemine yeni bir bakış açısı kazandırmıştır. LLM'lerin çok modlu analiz yetenekleri, yük örüntülerinin otomatik olarak tanınması ve uygun tahmin modelinin seçilmesi için kullanılabilmektedir [14].
+
+Bu çalışma, yazarın yüksek lisans tezi kapsamında geliştirilen örüntü-farkındalıklı Predictive Horizontal Pod Autoscaler (PHPA) çerçevesinin [15] syswe ad alanına taşınması ve operasyonel kullanıma hazır hale getirilmesi sürecini belgelemektedir.
+Yüksek lisans tezi çalışmasında, altı temel yük örüntüsü (mevsimsel, büyüyen, patlama, açık/kapalı, kaotik, basamaklı) için matematiksel formülasyonlar geliştirilmiş, 600 farklı senaryo üzerinde 2 milyondan fazla veri noktası içeren kapsamlı bir veri seti oluşturulmuş ve yedi farklı makine öğrenmesi modelinin (GBDT, XGBoost, CatBoost, VAR, Holt-Winters, Linear, Prophet) hiperparametre optimizasyonu ile eğitimi gerçekleştirilmiştir [15]. Örüntü-spesifik model seçimi yaklaşımı ile evrensel modellere kıyasla \%37,4 ortalama iyileştirme elde edilmiş, Gemini 2.5 Pro büyük dil modeli entegrasyonu ile yük örüntülerinin otomatik tanınması \%96,7 doğrulukla gerçekleştirilmiştir [15].
+
+Mevcut çalışmanın temel katkıları şu şekilde özetlenebilir:
+
+\begin{itemize}[noitemsep]
+  \item Yüksek lisans tezi kapsamında geliştirilen PHPA çerçevesinin syswe ad alanına taşınması ve sürdürülebilir bir ürün haline getirilmesi,
+  \item Python tabanlı kestirim modellerinin (GBDT, CatBoost, VAR, XGBoost) Kubernetes operatörü ile bütünleşik olacak biçimde eklenmesi,
+  \item Çevrimiçi ve çevrimdışı kıyaslama senaryolarını otomatikleştiren uçtan uca laboratuvar altyapısının geliştirilmesi,
+  \item Helm şablonları, CRD şemaları ve CI/CD süreçlerinin yeni kimlik ile yeniden düzenlenmesi,
+  \item Sentetik veri üzerinde model performanslarının karşılaştırmalı değerlendirilmesi ve gerçek Kubernetes kümesi üzerinde doğrulanması.
+\end{itemize}
+
+Makalenin geri kalan bölümleri şu şekilde organize edilmiştir: Bölüm 2'de materyal ve yöntem açıklanmakta, Bölüm 3'te deneysel bulgular sunulmakta, Bölüm 4'te sonuçlar tartışılmakta ve Bölüm 5'te çalışma sonuçlandırılmaktadır.
+
+\section{Materyal ve Yöntem (Material and Method)}
+
+Bu bölümde, yüksek lisans tezi kapsamında geliştirilen PHPA çerçevesinin temel bileşenleri özetlenmekte ve mevcut çalışmada gerçekleştirilen sistem entegrasyonu, model implementasyonu ve değerlendirme metodolojisi detaylandırılmaktadır.
+
+\subsection{Sistem Mimarisi (System Architecture)}
+
+PHPA çerçevesi üç ana modülden oluşmaktadır: (1) Örüntü Üretim Sistemi, (2) Makine Öğrenmesi Model Eğitim Çerçevesi ve (3) LLM Tabanlı Örüntü Tanıma Sistemi [15].
+
+Örüntü Üretim Sistemi, altı temel yük örüntüsü için matematiksel formülasyonlar kullanarak sentetik zaman serisi verileri üretmektedir. Makine Öğrenmesi Model Eğitim Çerçevesi, yedi farklı tahmin modelinin hiperparametre optimizasyonu ile eğitimini gerçekleştirmektedir. LLM Tabanlı Örüntü Tanıma Sistemi ise, yük örüntülerinin otomatik olarak tanınması ve uygun tahmin modelinin önerilmesi için büyük dil modellerini kullanmaktadır.
+
+Mevcut çalışmada, bu üç modül Kubernetes operatörü ile entegre edilerek operasyonel kullanıma hazır hale getirilmiştir. Go dilinde yazılmış operatör, Kubebuilder v3 çerçevesi kullanılarak geliştirilmiş ve Custom Resource Definition (CRD) aracılığıyla Kubernetes API'si ile etkileşim sağlamaktadır.
+
+\subsection{Yük Örüntüsü Taksonomisi (Workload Pattern Taxonomy)}
+
+Yüksek lisans tezi çalışmasında, gerçek dünya uygulamalarından elde edilen gözlemler doğrultusunda altı temel yük örüntüsü tanımlanmış ve matematiksel olarak formüle edilmiştir [15]:
+
+\textbf{Mevsimsel Örüntü (Seasonal):} Periyodik dalgalanmalar gösteren yük profilleri için:
+\begin{equation}
+P_t = B + \sum_{k=1}^{K} A_k \sin\left(\frac{2\pi t}{T_k} + \phi_k\right) + N_t
+\end{equation}
+burada $B$ temel yük seviyesi, $A_k$ genlik, $T_k$ periyot, $\phi_k$ faz kayması ve $N_t$ Gaussian gürültüdür.
+
+\textbf{Büyüyen Örüntü (Growing):} Zaman içinde artan trend gösteren yükler için:
+\begin{equation}
+P_t = B + G \cdot f(t) + S \cdot \sin\left(\frac{2\pi h_t}{24}\right) + N_t
+\end{equation}
+burada $G$ büyüme oranı, $f(t)$ büyüme fonksiyonu, $S$ günlük dalgalanma genliği ve $h_t$ günün saatidir.
+
+\textbf{Patlama Örüntü (Burst):} Ani ve kısa süreli yük artışları için:
+\begin{equation}
+P_t = B + \sum_{i=1}^{N_b} B_i \cdot g(t-t_i, d_i) \cdot \mathbb{1}_{t_i \leq t < t_i+d_i} + N_t
+\end{equation}
+burada $B_i$ patlama yoğunluğu, $g$ patlama şekil fonksiyonu, $t_i$ başlangıç zamanı ve $d_i$ patlama süresidir.
+
+\textbf{Açık/Kapalı Örüntü (On/Off):} İki seviye arasında geçiş yapan yükler için:
+\begin{equation}
+P_t = \begin{cases}
+P_{high} + N_t^{high} & \text{eğer } S_t = 1 \\
+P_{low} + N_t^{low} & \text{eğer } S_t = 0
+\end{cases}
+\end{equation}
+burada $S_t$ durum değişkeni, $P_{high}$ ve $P_{low}$ yük seviyeleridir.
+
+\textbf{Kaotik Örüntü (Chaotic):} Düzensiz ve öngörülmesi zor yük profilleri için çok bileşenli karmaşık formülasyonlar kullanılmaktadır.
+
+\textbf{Basamaklı Örüntü (Stepped):} Seviye değişimleri gösteren yükler için:
+\begin{equation}
+P_t = B_{base} + L_t \cdot S_{step} + S \cdot \sin\left(\frac{2\pi h_t}{24}\right) + N_t
+\end{equation}
+burada $L_t$ mevcut seviye indeksi ve $S_{step}$ seviye adım büyüklüğüdür.
+
+Bu matematiksel formülasyonlar kullanılarak, 35 günlük periyotlar için 15 dakika granülaritesinde 600 farklı senaryo üretilmiş ve toplamda 2 milyondan fazla veri noktası oluşturulmuştur [15].

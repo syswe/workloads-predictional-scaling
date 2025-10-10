@@ -1,0 +1,62 @@
+% Bulgular Bölümü - Devamı
+
+\subsection{Çevrimiçi (Online) Deney Sonuçları (Online Benchmark Results)}
+
+Gerçek Kubernetes kümesi üzerinde yürütülen senaryoların çıktıları Tablo~\ref{tab:online}'da verilmiştir. 240 saniyelik test senaryolarında, standart HPA ve altı farklı PHPA modeli karşılaştırılmıştır.
+
+Standart HPA, 41 saniyede ilk ölçeklendirme kararını verirken, PHPA Linear modeli 10,2 saniyede tepki vererek en hızlı ölçeklendirmeyi gerçekleştirmiştir. Ancak Linear modelin agresif ölçekleme davranışı (ortalama 8,72 replika, zirve 10 replika), kaynak sarfiyatını önemli ölçüde artırmıştır (ortalama CPU 525,0 m).
+
+GBDT modeli, 20,5 saniyede ölçeklendirme kararı vererek dengeli bir performans sergilemiştir (ortalama 4,15 replika, ortalama CPU 460,3 m). CatBoost (30,8 s, 4,36 replika) ve XGBoost (51,3 s, 4,57 replika) modelleri de benzer dengeli davranış göstermiştir.
+
+VAR modeli, 41,1 saniyede ölçeklendirme kararı vererek standart HPA'ya yakın tepki süresi göstermiş, ancak daha düşük ortalama replika sayısı (3,81) ile kaynak kullanımında avantaj sağlamıştır.
+
+Holt-Winters modeli, 71,9 saniye ile en geç tepki veren model olmuştur. Bu durum, modelin mevsimsel örüntüleri öğrenmek için daha fazla veri noktasına ihtiyaç duymasından kaynaklanmaktadır.
+
+Tüm PHPA modelleri, standart HPA'ya kıyasla daha yüksek ortalama replika sayısı üreterek proaktif ölçeklendirme gerçekleştirmiştir. Bu yaklaşım, ani yük artışlarında performans düşüşlerini önlemekte, ancak kaynak maliyetini artırmaktadır.
+
+\begin{table}[h]
+    \centering
+    \caption{240 saniyelik çevrimiçi senaryolarda ölçülen göstergeler (Online benchmark metrics in 240-second scenarios).}
+    \label{tab:online}
+    \begin{tabular}{@{}lcccccc@{}}
+        \toprule
+        Senaryo & Süre (s) & Zirve Replika & İlk Ölçekleme (s) & CPU Ort. (m) & CPU Zirve (m) & Ort. Replika \\
+        \midrule
+        Standart HPA & 236 & 5,0 & 41,0 & 342,6 & 536,0 & 2,64 \\
+        PHPA Linear & 236 & 10,0 & 10,2 & 525,0 & 635,0 & 8,72 \\
+        PHPA Holt-Winters & 236 & 8,0 & 71,9 & 405,4 & 636,0 & 4,77 \\
+        PHPA GBDT & 236 & 5,0 & 20,5 & 460,3 & 558,0 & 4,15 \\
+        PHPA CatBoost & 236 & 5,0 & 30,8 & 486,4 & 559,0 & 4,36 \\
+        PHPA VAR & 236 & 5,0 & 41,1 & 417,3 & 577,0 & 3,81 \\
+        PHPA XGBoost & 236 & 5,0 & 51,3 & 496,0 & 594,0 & 4,57 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\subsection{Karşılaştırmalı Analiz (Comparative Analysis)}
+
+Yüksek lisans tezi bulguları ile mevcut çalışma sonuçları karşılaştırıldığında, örüntü-spesifik model seçiminin önemi bir kez daha doğrulanmaktadır. Tablo~\ref{tab:comparative}'de yüksek lisans tezi ve mevcut çalışma bulguları karşılaştırmalı olarak sunulmaktadır.
+
+Yüksek lisans tezi çalışmasında, 600 farklı senaryo üzerinde kapsamlı değerlendirme yapılmış ve her örüntü tipi için optimal model belirlenmiştir. Mevcut çalışmada ise, operasyonel kullanıma hazır hale getirilen modellerin gerçek Kubernetes kümesi üzerindeki performansları değerlendirilmiştir.
+
+GBDT modelinin hem yüksek lisans tezi bulgularında (MAE 1,89-2,45) hem de mevcut çalışmada (MAE 1,56) tutarlı performans göstermesi, modelin farklı örüntü tiplerine adaptasyon yeteneğini göstermektedir. XGBoost modelinin de benzer tutarlılık sergilemesi (tez MAE 1,89-2,45, mevcut MAE 1,85), histogram tabanlı ağaç yapısının etkinliğini doğrulamaktadır.
+
+CatBoost modelinin mevcut çalışmada daha yüksek hata üretmesi (MAE 4,56), sentetik tek değişkenli verinin modelin ordered boosting özelliğini tam olarak kullanamamasından kaynaklanmaktadır. Yüksek lisans tezi bulgularında, CatBoost'un On/Off örüntüsünde mükemmel performans göstermesi (MAE 0,87, kazanma oranı \%62), modelin uygun veri yapısı ile kullanıldığında başarılı olduğunu göstermektedir.
+
+\begin{table}[h]
+    \centering
+    \caption{Yüksek lisans tezi ve mevcut çalışma bulgularının karşılaştırması (Comparison of master thesis and current study findings).}
+    \label{tab:comparative}
+    \begin{tabular}{@{}lccc@{}}
+        \toprule
+        Model & Tez MAE Aralığı & Mevcut MAE & Performans Tutarlılığı \\
+        \midrule
+        GBDT & 1,89-2,45 & 1,56 & Yüksek \\
+        XGBoost & - & 1,85 & Yüksek \\
+        CatBoost & 0,87 (On/Off) & 4,56 & Orta \\
+        VAR & 2,44 (Growing) & Kararsız & Düşük \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+Çevrimiçi kıyaslama sonuçları, tahmine dayalı modellerin operasyonel ortamda başarıyla çalıştığını göstermektedir. Tüm PHPA modelleri, standart HPA'ya kıyasla daha hızlı ölçeklendirme kararları vermekte ve proaktif kaynak yönetimi sağlamaktadır. Model seçimi, uygulama gereksinimlerine göre yapılmalıdır: hızlı tepki gereken kritik servisler için Linear veya GBDT, dengeli kaynak kullanımı için XGBoost veya CatBoost, mevsimsel yükler için Holt-Winters modeli önerilmektedir.

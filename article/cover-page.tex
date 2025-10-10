@@ -1,0 +1,83 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[turkish]{babel}
+\usepackage{geometry}
+\geometry{left=25mm,right=25mm,top=30mm,bottom=30mm}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt}
+
+\begin{document}
+
+\begin{center}
+{\fontsize{14}{16}\selectfont\textbf{Kubernetes tabanlı tahmine dayalı yatay pod otomatik ölçeklendiricinin yük örüntüsü farkındalığı ve büyük dil modeli entegrasyonu ile geliştirilmesi}}
+
+\vspace{0.5cm}
+
+{\fontsize{14}{16}\selectfont\textbf{(Development of Kubernetes-based predictive horizontal pod autoscaler with workload pattern awareness and large language model integration)}}
+\end{center}
+
+\vspace{1cm}
+
+\noindent
+\textbf{Canberk Duman}$^{1*}$, \textbf{Süleyman Eken}$^{1}$
+
+\vspace{0.5cm}
+
+\noindent
+$^{1}$Kocaeli Üniversitesi, Bilişim Sistemleri Mühendisliği Bölümü, 41001, Kocaeli, Türkiye
+
+\vspace{0.5cm}
+
+\noindent
+canberkdmn@gmail.com, suleyman.eken@kocaeli.edu.tr
+
+\vspace{1cm}
+
+\noindent
+\textbf{Öne Çıkanlar (Highlights)}
+
+\begin{itemize}
+    \item Altı matematiksel yük örüntüsü taksonomisi ve 2 milyondan fazla veri noktası
+    \item Örüntü-spesifik model seçimi ile \%37,4 tahmin doğruluğu iyileştirmesi
+    \item Büyük dil modeli entegrasyonu ile \%96,7 örüntü sınıflandırma başarısı
+\end{itemize}
+
+\vspace{0.5cm}
+
+\noindent
+\textbf{Highlights}
+
+\begin{itemize}
+    \item Six mathematical workload pattern taxonomy with over 2 million data points
+    \item 37.4\% forecasting accuracy improvement through pattern-specific model selection
+    \item 96.7\% pattern classification success with large language model integration
+\end{itemize}
+
+\vspace{1cm}
+
+\noindent
+\textbf{Türkçe Öz}
+
+\noindent
+Kubernetes tabanlı konteyner orkestrasyon sistemlerinde reaktif ölçeklendirme yaklaşımları, ani yük değişimlerine geç tepki vermekte ve kaynak kullanımında verimsizliğe neden olmaktadır. Bu çalışma, yüksek lisans tezi kapsamında geliştirilen örüntü-farkındalıklı tahmine dayalı yatay pod otomatik ölçeklendirici (PHPA) çerçevesinin syswe ad alanına taşınması ve genişletilmesi sürecini belgelemektedir. Altı temel yük örüntüsü (mevsimsel, büyüyen, patlama, açık/kapalı, kaotik, basamaklı) için matematiksel formülasyonlar geliştirilmiş ve 2 milyondan fazla veri noktası içeren kapsamlı bir veri seti oluşturulmuştur. Yedi CPU-optimize makine öğrenmesi modeli (GBDT, XGBoost, CatBoost, VAR, Holt-Winters, Linear, Prophet) hiperparametre optimizasyonu ile eğitilmiş ve örüntü-spesifik model seçimi yaklaşımı ile evrensel modellere kıyasla \%37,4 ortalama iyileştirme elde edilmiştir. Büyük dil modeli (Gemini 2.5 Pro) entegrasyonu ile yük örüntülerinin otomatik tanınması \%96,7 doğrulukla gerçekleştirilmiştir. Mevcut çalışmada, GBDT, CatBoost, VAR ve XGBoost modelleri operatöre entegre edilmiş, Helm şemaları ve kod tabanı yeniden düzenlenmiş, çevrimiçi ve çevrimdışı kıyaslama senaryolarını otomatikleştiren laboratuvar altyapısı geliştirilmiştir. Deneysel sonuçlar, tahmine dayalı modellerin standart HPA'ya kıyasla ölçeklendirme kararlarını öne çektiğini ve kaynak kullanımında denge sağladığını göstermektedir.
+
+\vspace{0.5cm}
+
+\noindent
+\textbf{Anahtar Kelimeler:} Kubernetes, tahmine dayalı ölçeklendirme, makine öğrenmesi, büyük dil modelleri, örüntü tanıma
+
+\vspace{1cm}
+
+\noindent
+\textbf{Abstract}
+
+\noindent
+Reactive scaling approaches in Kubernetes-based container orchestration systems respond late to sudden load changes and cause inefficiency in resource utilization. This study documents the process of migrating and extending the pattern-aware predictive horizontal pod autoscaler (PHPA) framework, developed within the scope of a master's thesis, to the syswe namespace. Mathematical formulations were developed for six fundamental workload patterns (seasonal, growing, burst, on/off, chaotic, stepped), and a comprehensive dataset containing over 2 million data points was created. Seven CPU-optimized machine learning models (GBDT, XGBoost, CatBoost, VAR, Holt-Winters, Linear, Prophet) were trained with hyperparameter optimization, and a 37.4\% average improvement was achieved compared to universal models through pattern-specific model selection approach. Automatic recognition of workload patterns was realized with 96.7\% accuracy through large language model (Gemini 2.5 Pro) integration. In the current study, GBDT, CatBoost, VAR, and XGBoost models were integrated into the operator, Helm schemas and codebase were reorganized, and a laboratory infrastructure automating online and offline benchmarking scenarios was developed. Experimental results show that predictive models advance scaling decisions compared to standard HPA and provide balance in resource utilization.
+
+\vspace{0.5cm}
+
+\noindent
+\textbf{Keywords:} Kubernetes, predictive scaling, machine learning, large language models, pattern recognition
+
+\end{document}

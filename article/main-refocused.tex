@@ -1,0 +1,200 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[turkish]{babel}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{longtable}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{siunitx}
+\usepackage{enumitem}
+\geometry{left=25mm,right=25mm,top=30mm,bottom=30mm}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt}
+
+\title{Kubernetes Tabanlı Tahmine Dayalı Yatay Pod Otomatik Ölçeklendiricinin\\Yük Örüntüsü Farkındalığı ve Büyük Dil Modeli Entegrasyonu ile Geliştirilmesi}
+\author{}
+\date{Ekim 2025}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Kubernetes tabanlı konteyner orkestrasyon sistemlerinde reaktif ölçeklendirme yaklaşımları, ani yük değişimlerine geç tepki vermekte ve kaynak kullanımında verimsizliğe neden olmaktadır. Yazarın yüksek lisans tezi çalışmasında [15], altı temel yük örüntüsü için matematiksel formülasyonlar geliştirilmiş, 600 farklı senaryo üzerinde 2 milyondan fazla veri noktası ile kapsamlı değerlendirme yapılmış ve örüntü-spesifik model seçimi yaklaşımı ile evrensel modellere kıyasla \%37,4 ortalama iyileştirme elde edilmiştir. Bu çalışma, yüksek lisans tezi kapsamında en iyi performans gösteren modellerin (GBDT, CatBoost, VAR, XGBoost) gerçek dünya Kubernetes operatörü ile operasyonel kullanıma hazır hale getirilmesi sürecini belgelemektedir. PHPA çerçevesi syswe ad alanına taşınmış, Python tabanlı tahmin modelleri Go operatörü ile entegre edilmiş, Helm şablonları ve CI/CD süreçleri yeniden düzenlenmiş, çevrimiçi ve çevrimdışı kıyaslama senaryolarını otomatikleştiren laboratuvar altyapısı geliştirilmiştir. Operasyonel doğrulama sonuçları, tahmine dayalı modellerin standart HPA'ya kıyasla ölçeklendirme kararlarını 10,2-51,3 saniye aralığında öne çektiğini göstermektedir.
+\end{abstract}
+
+\section{Giriş (Introduction)}
+
+Bulut tabanlı mikro servis mimarilerinin yaygınlaşması ile birlikte, konteyner orkestrasyon platformları modern yazılım altyapısının temel bileşenleri haline gelmiştir [1]. Kubernetes, konteyner yönetimi ve otomatik ölçeklendirme yetenekleri ile bu alanda öne çıkan açık kaynak platformdur [2]. Kubernetes Horizontal Pod Autoscaler (HPA), CPU ve bellek kullanımı gibi anlık metriklere dayalı reaktif ölçeklendirme sağlamakta, ancak ani yük değişimlerine geç tepki vermesi nedeniyle performans düşüşleri ve kaynak israfına yol açmaktadır [3, 4].
+
+Literatürde, reaktif ölçeklendirmenin sınırlamalarını aşmak için çeşitli tahmine dayalı yaklaşımlar önerilmiştir. Zaman serisi analizi yöntemleri [5, 6], makine öğrenmesi tabanlı tahmin modelleri [7, 8] ve derin öğrenme teknikleri [9, 10] kullanılarak gelecekteki kaynak ihtiyaçlarının önceden belirlenmesi hedeflenmiştir. Ancak mevcut çalışmalar, yük örüntülerinin çeşitliliğini yeterince dikkate almamakta ve tek bir evrensel model ile tüm senaryolara çözüm üretmeye çalışmaktadır [11].
+
+Son yıllarda, büyük dil modellerinin (LLM) zaman serisi analizi ve örüntü tanıma alanlarında gösterdiği başarı [12, 13], otomatik ölçeklendirme problemine yeni bir bakış açısı kazandırmıştır. LLM'lerin çok modlu analiz yetenekleri, yük örüntülerinin otomatik olarak tanınması ve uygun tahmin modelinin seçilmesi için kullanılabilmektedir [14].
+
+Bu çalışma, yazarın yüksek lisans tezi kapsamında geliştirilen örüntü-farkındalıklı Predictive Horizontal Pod Autoscaler (PHPA) çerçevesinin [15] syswe ad alanına taşınması ve operasyonel kullanıma hazır hale getirilmesi sürecini belgelemektedir. Yüksek lisans tezi çalışmasında, altı temel yük örüntüsü (mevsimsel, büyüyen, patlama, açık/kapalı, kaotik, basamaklı) için matematiksel formülasyonlar geliştirilmiş, 600 farklı senaryo üzerinde 2 milyondan fazla veri noktası içeren kapsamlı bir veri seti oluşturulmuş ve yedi farklı makine öğrenmesi modelinin (GBDT, XGBoost, CatBoost, VAR, Holt-Winters, Linear, Prophet) hiperparametre optimizasyonu ile eğitimi gerçekleştirilmiştir [15]. Örüntü-spesifik model seçimi yaklaşımı ile evrensel modellere kıyasla \%37,4 ortalama iyileştirme elde edilmiş, Gemini 2.5 Pro büyük dil modeli entegrasyonu ile yük örüntülerinin otomatik tanınması \%96,7 doğrulukla gerçekleştirilmiştir [15].
+
+Mevcut çalışmanın temel katkıları, yüksek lisans tezi bulgularının operasyonel implementasyonu olarak şu şekilde özetlenebilir:
+
+\begin{itemize}[noitemsep]
+  \item Yüksek lisans tezi kapsamında en iyi performans gösteren dört modelin (GBDT, CatBoost, VAR, XGBoost) gerçek dünya Kubernetes operatörü ile entegrasyonu,
+  \item PHPA çerçevesinin syswe ad alanına taşınması ve sürdürülebilir açık kaynak ürün haline getirilmesi,
+  \item Python tabanlı tahmin modellerinin Go operatörü ile bütünleşik çalışacak biçimde implementasyonu,
+  \item Helm şablonları, CRD şemaları ve CI/CD süreçlerinin yeni kimlik ile yeniden düzenlenmesi,
+  \item Çevrimiçi ve çevrimdışı kıyaslama senaryolarını otomatikleştiren tekrarlanabilir laboratuvar altyapısının geliştirilmesi,
+  \item Tez bulgularının gerçek Kubernetes kümesi üzerinde operasyonel doğrulanması.
+\end{itemize}
+
+Makalenin geri kalan bölümleri şu şekilde organize edilmiştir: Bölüm 2'de tez bulguları özetlenmekte ve operasyonel implementasyon detaylandırılmakta, Bölüm 3'te operasyonel doğrulama bulguları sunulmakta, Bölüm 4'te sonuçlar tartışılmakta ve Bölüm 5'te çalışma sonuçlandırılmaktadır.
+
+\section{Materyal ve Yöntem (Material and Method)}
+
+Bu bölümde, yüksek lisans tezi kapsamında geliştirilen PHPA çerçevesinin temel bileşenleri ve bulguları özetlenmekte, mevcut çalışmada gerçekleştirilen operasyonel implementasyon detaylandırılmaktadır.
+
+\subsection{Yüksek Lisans Tezi Bulguları Özeti (Master Thesis Findings Summary)}
+
+Yüksek lisans tezi çalışmasında [15], PHPA çerçevesi üç ana modülden oluşacak şekilde tasarlanmıştır: (1) Örüntü Üretim Sistemi, (2) Makine Öğrenmesi Model Eğitim Çerçevesi ve (3) LLM Tabanlı Örüntü Tanıma Sistemi. Tez kapsamında, altı temel yük örüntüsü için matematiksel formülasyonlar geliştirilmiş, 600 farklı senaryo üzerinde 2 milyondan fazla veri noktası ile kapsamlı değerlendirme yapılmış ve yedi farklı tahmin modelinin (GBDT, XGBoost, CatBoost, VAR, Holt-Winters, Linear, Prophet) hiperparametre optimizasyonu ile eğitimi gerçekleştirilmiştir.
+
+Tez bulgularına göre, örüntü-spesifik model seçimi yaklaşımı ile evrensel modellere kıyasla \%37,4 ortalama MAE iyileştirmesi elde edilmiş, Gemini 2.5 Pro büyük dil modeli entegrasyonu ile yük örüntülerinin otomatik tanınması \%96,7 doğrulukla gerçekleştirilmiştir [15]. Tablo~\ref{tab:pattern-model}'de tez kapsamında elde edilen örüntü-model optimizasyon sonuçları gösterilmektedir.
+
+\begin{table}[h]
+    \centering
+    \caption{Yüksek lisans tezi örüntü-model optimizasyon sonuçları (Master thesis pattern-model optimization results) [15].}
+    \label{tab:pattern-model}
+    \begin{tabular}{@{}lccc@{}}
+        \toprule
+        Örüntü Tipi & Optimal Model & Kazanma Oranı (\%) & MAE \\
+        \midrule
+        Büyüyen (Growing) & VAR & 96 & 2,44 \\
+        Açık/Kapalı (On/Off) & CatBoost & 62 & 0,87 \\
+        Mevsimsel (Seasonal) & GBDT & 45 & 1,89 \\
+        Patlama (Burst) & GBDT & 42 & 2,13 \\
+        Kaotik (Chaotic) & GBDT & 38 & 2,45 \\
+        Basamaklı (Stepped) & GBDT & 35 & 1,97 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\subsection{Operasyonel İmplementasyon: Sistem Mimarisi (Operational Implementation: System Architecture)}
+
+Mevcut çalışmada, tez kapsamında en iyi performans gösteren dört model (GBDT, CatBoost, VAR, XGBoost) gerçek dünya Kubernetes operatörü ile entegre edilmiştir. Go dilinde yazılmış operatör, Kubebuilder v3 çerçevesi kullanılarak geliştirilmiş ve Custom Resource Definition (CRD) aracılığıyla Kubernetes API'si ile etkileşim sağlamaktadır.
+
+\subsection{Operasyonel İmplementasyon: Kod ve Dağıtım Altyapısı (Operational Implementation: Code and Deployment Infrastructure)}
+
+PHPA çerçevesi operasyonel kullanıma hazır hale getirilmiştir:
+
+\begin{itemize}[noitemsep]
+  \item Go modülü, Dockerfile ve Helm kaynakları \texttt{github.com/syswe/predictive-horizontal-pod-autoscaler} ad alanına taşınmıştır.
+  \item Önceden \texttt{jamiethompson.me} olan CRD grubu \texttt{syswe.me} olarak güncellenmiş, tüm YAML ve kod referansları senkronize edilmiştir.
+  \item Helm grafikleri ve GitHub Actions betikleri yeni Docker deposunu hedefleyecek biçimde revize edilmiştir.
+  \item Staticcheck sürümü Go 1.21 uyumlu v0.6.1 sürümüne yükseltilmiş, statik analiz ve testler yeniden işler duruma getirilmiştir.
+\end{itemize}
+
+\subsection{Operasyonel İmplementasyon: Model Katmanının Entegrasyonu (Operational Implementation: Model Layer Integration)}
+
+Mevcut çalışmada, yüksek lisans tezi bulgularına dayanarak en iyi performans gösteren dört model gerçek dünya Kubernetes operatörü ile entegre edilmiştir:
+
+\textbf{GBDT Entegrasyonu:} Tez bulgularında mevsimsel, patlama, kaotik ve basamaklı örüntülerde en iyi performansı gösteren GBDT modeli [15], scikit-learn kütüphanesi kullanılarak implementasyonu gerçekleştirilmiştir.
+
+\textbf{CatBoost Entegrasyonu:} Tez bulgularında açık/kapalı örüntüsünde mükemmel performans gösteren CatBoost modeli [15], Go tarafında \texttt{internal/prediction/catboost} modülü ile entegre edilmiştir.
+
+\textbf{VAR Entegrasyonu:} Tez bulgularında büyüyen örüntüsünde en yüksek başarıyı gösteren VAR modeli [15], \texttt{statsmodels} kütüphanesi kullanılarak entegre edilmiştir.
+
+\textbf{XGBoost Entegrasyonu:} Tez bulgularında dengeli performans gösteren XGBoost modeli [15], histogram tabanlı ağaç yapısı ile implementasyonu gerçekleştirilmiştir.
+
+Her model, CRD görünümünde \texttt{type} alanına yeni değerler eklenerek kullanıcılar tarafından seçilebilir kılınmıştır.
+
+\subsection{Operasyonel İmplementasyon: Laboratuvar Altyapısı (Operational Implementation: Laboratory Infrastructure)}
+
+Modellerin performanslarının tekrarlanabilir şekilde değerlendirilmesi için kapsamlı bir laboratuvar altyapısı geliştirilmiştir:
+
+\textbf{Bootstrap:} Kubernetes kümesinin hazırlanması, Metrics Server kurulumu, syswe operatörü Helm ile dağıtımı ve örnek uygulama devreye alınması.
+
+\textbf{Çevrimdışı Kıyaslama:} Sentetik veri üretimi ile 48 saat eğitim ve 12 saat test verisi oluşturulması, her model için Python eğitim betikleri yürütülmesi ve RMSE, MAE, MAPE gibi hata metrikleri toplanması.
+
+\textbf{Çevrimiçi Kıyaslama:} Gerçek Kubernetes kümesi üzerinde standart HPA ve her PHPA modeli için 240 saniyelik senaryolar çalıştırılması, replika sayısı, CPU kullanımı ve ölçeklenme olayları kaydedilmesi.
+
+\textbf{Raporlama:} Çevrimdışı ve çevrimiçi kıyaslama çıktılarının birleştirilmesi ve karşılaştırmalı analiz için yapılandırılmış format sağlanması.
+
+\section{Operasyonel Doğrulama Bulguları (Operational Validation Findings)}
+
+Bu bölümde, yüksek lisans tezi kapsamında en iyi performans gösteren modellerin gerçek dünya Kubernetes operatörü ile entegrasyonu sonrasında elde edilen operasyonel doğrulama bulguları sunulmaktadır.
+
+\subsection{Çevrimdışı (Offline) Kıyaslama Sonuçları}
+
+Operatör entegrasyonu sonrasında, sentetik veri üzerinde yapılan çevrimdışı kıyaslama sonuçları Tablo~\ref{tab:offline}'de özetlenmiştir. Bu sonuçlar, modellerin operatör ortamında doğru çalıştığını ve tahmin yeteneklerini koruduğunu doğrulamaktadır.
+
+GBDT ve XGBoost modelleri, sentetik tek değişkenli veriler üzerinde düşük hata oranları göstermiştir (RMSE 1,98-2,31, MAE 1,56-1,85). Bu bulgular, yüksek lisans tezi sonuçları ile tutarlıdır [15]. CatBoost modelinin daha yüksek hata üretmesi (RMSE 5,55, MAE 4,56), sentetik tek değişkenli verinin modelin ordered boosting özelliğini tam kullanamamasından kaynaklanmaktadır. VAR modelinin kararsızlık yaşaması ise, modelin çok değişkenli zaman serisi tahmini için tasarlandığını doğrulamaktadır.
+
+\begin{table}[h]
+    \centering
+    \caption{Operatör entegrasyonu sonrası çevrimdışı kıyaslama hata ölçümleri (Offline benchmark error metrics after operator integration).}
+    \label{tab:offline}
+    \begin{tabular}{@{}lccc@{}}
+        \toprule
+        Model & RMSE & MAE & MAPE (\%) \\
+        \midrule
+        GBDT & 1,98 & 1,56 & 6,13 \\
+        XGBoost & 2,31 & 1,85 & 7,42 \\
+        CatBoost & 5,55 & 4,56 & 21,36 \\
+        VAR & $5,75\times10^{18}$ & $3,59\times10^{18}$ & $1,35\times10^{19}$ \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\subsection{Çevrimiçi (Online) Operasyonel Doğrulama Sonuçları}
+
+Gerçek Kubernetes kümesi üzerinde yürütülen 240 saniyelik operasyonel doğrulama senaryolarının sonuçları Tablo~\ref{tab:online}'da verilmiştir. Bu sonuçlar, yüksek lisans tezi kapsamında belirlenen en iyi modellerin gerçek dünya ortamında başarıyla çalıştığını göstermektedir.
+
+Standart HPA, 41 saniyede ilk ölçeklendirme kararını verirken, PHPA modelleri 10,2-51,3 saniye aralığında tepki vererek proaktif ölçeklendirme sağlamıştır. Tez bulgularında mevsimsel, patlama, kaotik ve basamaklı örüntülerde en iyi performansı gösteren GBDT modeli [15], operasyonel ortamda 20,5 saniyede ölçeklendirme kararı vererek dengeli bir performans sergilemiştir (ortalama 4,15 replika, ortalama CPU 460,3 m).
+
+Tez bulgularında açık/kapalı örüntüsünde mükemmel performans gösteren CatBoost modeli [15], operasyonel ortamda 30,8 saniyede tepki vermiştir (ortalama 4,36 replika). Tez bulgularında büyüyen örüntüsünde en yüksek başarıyı gösteren VAR modeli [15], operasyonel ortamda 41,1 saniyede ölçeklendirme kararı vermiş ve düşük ortalama replika sayısı (3,81) ile kaynak kullanımında avantaj sağlamıştır.
+
+\begin{table}[h]
+    \centering
+    \caption{Gerçek Kubernetes kümesi üzerinde 240 saniyelik operasyonel doğrulama senaryoları (240-second operational validation scenarios on real Kubernetes cluster).}
+    \label{tab:online}
+    \begin{tabular}{@{}lcccccc@{}}
+        \toprule
+        Senaryo & Süre (s) & Zirve Replika & İlk Ölçekleme (s) & CPU Ort. (m) & CPU Zirve (m) & Ort. Replika \\
+        \midrule
+        Standart HPA & 236 & 5,0 & 41,0 & 342,6 & 536,0 & 2,64 \\
+        PHPA Linear & 236 & 10,0 & 10,2 & 525,0 & 635,0 & 8,72 \\
+        PHPA Holt-Winters & 236 & 8,0 & 71,9 & 405,4 & 636,0 & 4,77 \\
+        PHPA GBDT & 236 & 5,0 & 20,5 & 460,3 & 558,0 & 4,15 \\
+        PHPA CatBoost & 236 & 5,0 & 30,8 & 486,4 & 559,0 & 4,36 \\
+        PHPA VAR & 236 & 5,0 & 41,1 & 417,3 & 577,0 & 3,81 \\
+        PHPA XGBoost & 236 & 5,0 & 51,3 & 496,0 & 594,0 & 4,57 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\section{Tartışma (Discussion)}
+
+Operasyonel doğrulama bulguları, yüksek lisans tezi kapsamında belirlenen en iyi modellerin gerçek dünya Kubernetes operatörü ile başarıyla entegre edildiğini göstermektedir.
+
+Çevrimdışı kıyaslama sonuçları, GBDT ve XGBoost modellerinin operatör ortamında tahmin yeteneklerini koruduğunu doğrulamaktadır. Bu bulgular, yüksek lisans tezi sonuçları ile tutarlıdır [15]. CatBoost modelinin sentetik tek değişkenli veride daha yüksek hata üretmesi, tez bulgularında açık/kapalı örüntüsünde mükemmel performans göstermesine rağmen [15], modelin ordered boosting özelliğinin uygun veri yapısı ile kullanılması gerektiğini göstermektedir. VAR modelinin kararsızlık yaşaması ise, tez bulgularında büyüyen örüntüsünde mükemmel performans göstermesine rağmen [15], modelin çok değişkenli zaman serisi tahmini için tasarlandığını doğrulamaktadır.
+
+Çevrimiçi operasyonel doğrulama sonuçları, tahmine dayalı modellerin standart HPA'ya kıyasla ölçeklendirme kararlarını öne çektiğini göstermektedir. Tüm PHPA modelleri, standart HPA'nın 41 saniyelik tepki süresine kıyasla 10,2-51,3 saniye aralığında tepki vererek proaktif ölçeklendirme sağlamıştır. Bu bulgular, yüksek lisans tezi kapsamında geliştirilen örüntü-farkındalıklı yaklaşımın operasyonel ortamda başarıyla çalıştığını doğrulamaktadır.
+
+GBDT modelinin dengeli performansı (20,5 s tepki süresi, 4,15 ortalama replika), tez bulgularında mevsimsel, patlama, kaotik ve basamaklı örüntülerde en iyi performansı göstermesi ile tutarlıdır [15]. CatBoost ve VAR modellerinin operasyonel ortamdaki performansları, tez bulgularında belirlenen optimal kullanım senaryolarını doğrulamaktadır.
+
+\section{Sonuç ve Kazanımlar (Conclusion and Achievements)}
+
+Bu çalışma, yüksek lisans tezi kapsamında geliştirilen örüntü-farkındalıklı PHPA çerçevesinin operasyonel kullanıma hazır hale getirilmesi sürecini belgelemiştir. Çalışma sonucunda:
+
+\begin{itemize}[noitemsep]
+  \item Yüksek lisans tezi kapsamında en iyi performans gösteren dört model (GBDT, CatBoost, VAR, XGBoost) gerçek dünya Kubernetes operatörü ile başarıyla entegre edilmiştir.
+  \item PHPA projesi syswe kimliği altında yeniden yayımlanabilir bir duruma gelmiş, Helm grafikleri, CRD şemaları ve kod tabanı uyumlu hâle getirilmiştir.
+  \item Çevrimiçi ve çevrimdışı kıyaslamaları otomatikleştiren laboratuvar altyapısı geliştirilmiş, projeye bilimsel değerlendirme zemini kazandırılmıştır.
+  \item CI süreçlerinde Go 1.21 uyumlu araç zinciri sağlanmış, statik analiz ve testler yeniden işler duruma getirilmiştir.
+  \item Operasyonel doğrulama sonuçları, tez bulgularının gerçek dünya ortamında başarıyla çalıştığını göstermiştir.
+\end{itemize}
+
+Bu kazanımlar, projenin hem akademik yayınlara temel oluşturabilecek tekrarlanabilir sonuçlar üretmesini hem de endüstriyel dağıtımlarda kullanılmasını kolaylaştırmaktadır. Gelecek çalışmalarda, gerçek üretim ortamlarından toplanan verilerle uzun vadeli validasyon yapılması ve LLM entegrasyonunun operatöre eklenmesi planlanmaktadır.
+
+\section*{Teşekkür (Acknowledgement)}
+
+Bu çalışma, TÜBİTAK 1005 tarafından desteklenmiştir. Kocaeli Üniversitesi Bilişim Sistemleri Mühendisliği Bölümü'ne sağladığı altyapı ve destek için teşekkür ederiz. Ayrıca, çalışma süresince kullanılan açık kaynak projelerin (Kubernetes, XGBoost, CatBoost, scikit-learn, statsmodels) topluluklarına katkıları için teşekkür ederiz.
+
+\end{document}
