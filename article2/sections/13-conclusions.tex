@@ -1,0 +1,16 @@
+\section{Sonuçlar ve Gelecek Çalışmalar (Conclusions and Future Work)}
+
+Bu çalışmada, örüntü-farkındalıklı tahmine dayalı yatay pod otomatik ölçeklendirici (PHPA) çerçevesi syswe ad alanına taşınmış, üretim kullanımına uygun olacak şekilde Kubernetes operatörü ile bütünleştirilmiş ve çevrimdışı/çevrimiçi deneylerle doğrulanmıştır. Altı temel yük örüntüsü için matematiksel formülasyonlar ve geniş kapsamlı veri seti, örüntü-spesifik model seçimi ilkesiyle birleştirilmiştir. LLM tabanlı otomatik örüntü tanıma önceki çalışmanın bir parçasıdır ve bu makalenin kapsamı dışındadır. Operatörde GBDT, XGBoost, CatBoost ve VAR modelleri aktif edilmiştir.
+
+Deneysel bulgular, GBDT ve XGBoost'un pratikte dengeli ve güçlü seçenekler olduğunu; Linear'ın hızlı fakat maliyetli, Holt–Winters'ın mevsimsellik için uygun, VAR'ın çok değişkenli bağlamla güçlenen bir aday olduğunu göstermektedir. Tüm PHPA modelleri, standart HPA'ya kıyasla ölçeklendirme kararlarını öne çekerek gecikme kaynaklı performans kayıplarını azaltmıştır.
+
+\subsection{Gelecek Çalışmalar}
+
+\begin{itemize}[noitemsep]
+  \item \textbf{Gerçek Dünya Doğrulaması:} Farklı üretim ortamlarından toplanan verilerle uzun süreli (gün/hafta) deneyler.
+  \item \textbf{Gelişmiş LLM Entegrasyonu:} İleri prompt mühendisliği, ansambllar ve birden çok LLM ile karşılaştırmalı değerlendirme.
+  \item \textbf{Örüntü Evrimi:} Örüntü değişimlerinin otomatik tespiti ve dinamik model geçişleri.
+  \item \textbf{Maliyet Optimizasyonu:} Bulut sağlayıcılarına özgü fiyatlandırmalarla çok amaçlı maliyet-performans-doğruluk optimizasyonu.
+  \item \textbf{Çok Bulut ve Kenar Bilişim:} Dağıtık kaynak yönetimi ve hiyerarşik ölçeklendirme stratejileri.
+  \item \textbf{İş Hedefi Entegrasyonu:} SLA hedefleri ve ekonomik kısıtlarla birlikte karar politikalarının uyarlanması.
+\end{itemize}

@@ -1,0 +1,31 @@
+\section{Deney Düzeneği (Experimental Setup)}
+
+Deneyler, proje kapsamında sunulan \texttt{labs} altyapısı ile otomatikleştirilmiştir. Bu altyapı; kurulum (bootstrap), çevrimdışı kıyaslama (offline), çevrimiçi kıyaslama (online), raporlama (report) ve temizlik (destroy) adımlarını \texttt{make} hedefleriyle tek komutta çalıştırır.
+
+\subsection{Ön Koşullar}
+
+Docker Desktop + Kubernetes, \texttt{kubectl}, \texttt{helm}, \texttt{python3}, \texttt{pip}, \texttt{make} ve \texttt{docker} gereklidir. Depo kökünde \texttt{pip install -r requirements-dev.txt} ile Python bağımlılıkları kurulmalıdır.
+
+\subsection{Bootstrap}
+
+Kubernetes kümesinde Metrics Server kurulumu gerçekleştirilir, PHPA operatörü Helm ile dağıtılır, örnek uygulama ve yük üreticisi devreye alınır. Bu adım, tüm deneylerin standart bir ortamda yürütülmesini sağlar.
+
+\noindent \textit{Komut:} \texttt{make -C labs bootstrap}
+
+\subsection{Çevrimdışı Kıyaslama}
+
+Sentetik veri üretimi ile 48 saat eğitim ve 12 saat test verisi oluşturulur. Python eğitim betikleri GBDT, XGBoost, CatBoost ve VAR için çalıştırılır; RMSE/MAE/MAPE metrikleri toplanır ve \texttt{output/offline} altında özetlenir. Böylece modellerin saf kestirim kabiliyetleri kontrol altında karşılaştırılır.
+
+\noindent \textit{Komut:} \texttt{make -C labs offline}
+
+\subsection{Çevrimiçi Kıyaslama}
+
+Gerçek Kubernetes kümesi üzerinde, standart HPA ve her PHPA modeli için 240 saniyelik senaryolar sıra ile çalıştırılır. Replika sayısı, CPU kullanımı ve ölçeklenme olayları zaman damgaları ile kaydedilir. Deney sonunda \texttt{analyze\_online.py} özet CSV ve Markdown çıktıları üretir.
+
+\noindent \textit{Komut:} \texttt{make -C labs online}
+
+\subsection{Raporlama ve Temizlik}
+
+\texttt{generate\_report.py}, çevrimdışı ve çevrimiçi çıktıları birleştirerek \texttt{output/report.md} dosyasını üretir. Deneyler tamamlandıktan sonra \texttt{make destroy} ile operatör, CRD ve örnek kaynaklar temizlenir.
+
+\noindent \textit{Komutlar:} \texttt{make -C labs report} ve \texttt{make -C labs destroy}

@@ -1,0 +1,8 @@
+\section{Sistem Mimarisi (System Architecture)}
+
+PHPA çerçevesi; örüntü üretimi ve veri hazırlama, model eğitimi ve seçimi, LLM tabanlı örüntü tanıma ve operatör entegrasyonundan oluşan uçtan uca bir mimari sunar. Veri akışı şu adımlarla ilerler: (i) Sentetik örüntü verisi oluşturulur ve gerçek dünya davranışlarını yansıtacak biçimde kalibre edilir; (ii) CPU-optimize tahmin modelleri, örüntü-spesifik hiperparametre optimizasyonu ile eğitilir; (iii) LLM katmanı, CSV ve grafikten örüntü sınıfını otomatik saptar ve uygun aday modelleri önerir; (iv) Operatör, CRD ve algoritma koşucuları (runner) ile kestirimleri ölçeklendirme kararına entegre eder.
+
+Bu mimari, hem çevrimdışı araştırma (benchmark) döngülerini hem de gerçek Kubernetes kümesinde çevrimiçi deneyleri destekler. Projede sunulan laboratuvar (labs) altyapısı; bootstrap, offline/online deney, raporlama ve temizlik adımlarını tek komutla otomatikleştirir. Böylece hem akademik değerlendirme hem de pratik doğrulama senaryoları tekrarlanabilir şekilde icra edilir.
+
+Operasyonel açıdan, PHPA operatörü Kubernetes HPA davranışları ile uyumlu olacak şekilde çalışır; `syncPeriod` üzerinden periyotlandırılmış bir döngü ile mevcut metriklerden yalın HPA hedefi üretir, ardından bir veya birden fazla tahmin modeli ile ileriye dönük replika tahmini yaparak “karar tipi” (ör. maksimum, ortalama, medyan) stratejilerine göre nihai ölçeklendirme kararını verir.
+

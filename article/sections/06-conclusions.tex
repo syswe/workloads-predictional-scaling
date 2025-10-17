@@ -8,7 +8,7 @@ Bu çalışmada, yüksek lisans tezi kapsamında geliştirilen örüntü-farkın
 
 \textbf{Örüntü-Spesifik Model Seçimi:} Yedi CPU-optimize makine öğrenmesi modeli (GBDT, XGBoost, CatBoost, VAR, Holt-Winters, Linear, Prophet) hiperparametre optimizasyonu ile eğitilmiş ve örüntü-spesifik model seçimi yaklaşımı ile evrensel modellere kıyasla \%37,4 ortalama MAE iyileştirmesi elde edilmiştir. Bu bulgu, tek bir modelin tüm yük tiplerinde optimal performans gösteremeyeceğini deneysel olarak doğrulamaktadır.
 
-\textbf{LLM Entegrasyonu:} Gemini 2.5 Pro büyük dil modeli entegrasyonu ile yük örüntülerinin otomatik tanınması \%96,7 doğrulukla gerçekleştirilmiştir. Çok modlu analiz (metin + görsel) yetenekleri, sistem yöneticilerinin manuel müdahalesini azaltmakta ve optimal model seçimini otomatikleştirmektedir.
+\textbf{(Bağlam) LLM Bulguları:} Önceki çalışmada, Gemini 2.5 Pro ile yük örüntülerinin otomatik tanınması \%96,7 doğrulukla raporlanmıştır. LLM entegrasyonu bu makalenin deneysel kapsamına dahil değildir; burada yalnızca arka plan olarak referans verilmiştir.
 
 \textbf{Operasyonel Implementasyon:} GBDT, CatBoost, VAR ve XGBoost modelleri Kubernetes operatörü ile entegre edilmiş, Helm şemaları ve kod tabanı yeniden düzenlenmiş, CI/CD süreçleri güncellenmiştir. PHPA projesi syswe kimliği altında yeniden yayımlanabilir bir duruma gelmiş ve gerçek üretim ortamlarında kullanılabilir hale getirilmiştir.
 
@@ -16,7 +16,7 @@ Bu çalışmada, yüksek lisans tezi kapsamında geliştirilen örüntü-farkın
 
 \textbf{Deneysel Bulgular:} Çevrimdışı kıyaslamada, GBDT ve XGBoost modelleri en düşük hata oranlarını sağlamıştır (RMSE 1,98-2,31, MAE 1,56-1,85). Çevrimiçi kıyaslamada, tüm PHPA modelleri standart HPA'ya kıyasla daha hızlı ölçeklendirme kararları vermiş (10,2-71,9 s vs 41,0 s) ve proaktif kaynak yönetimi sağlamıştır.
 
-Bu kazanımlar, projenin hem akademik yayınlara temel oluşturabilecek tekrarlanabilir sonuçlar üretmesini hem de endüstriyel dağıtımlarda kullanılmasını kolaylaştırmaktadır. Çalışma, Kubernetes tabanlı otomatik ölçeklendirme alanında örüntü-farkındalıklı ve LLM-destekli yaklaşımların potansiyelini göstermektedir.
+Bu kazanımlar, projenin hem akademik yayınlara temel oluşturabilecek tekrarlanabilir sonuçlar üretmesini hem de endüstriyel dağıtımlarda kullanılmasını kolaylaştırmaktadır. Çalışma, Kubernetes tabanlı otomatik ölçeklendirme alanında örüntü-farkındalıklı yaklaşımların potansiyelini göstermekle birlikte, LLM-destekli bileşen bu makalede uygulanmamış ve yalnızca önceki çalışmanın bir çıktısı olarak anılmıştır.
 
 \subsection{Gelecek Çalışmalar (Future Work)}
 

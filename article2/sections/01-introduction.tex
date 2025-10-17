@@ -1,0 +1,21 @@
+\section{Giriş (Introduction)}
+
+Bulut tabanlı mikro servis mimarilerinin yaygınlaşması ile birlikte, konteyner orkestrasyon platformları modern yazılım altyapısının temel bileşenleri haline gelmiştir. Kubernetes, konteyner yönetimi ve otomatik ölçeklendirme yetenekleri ile bu alanda öne çıkan açık kaynak platformdur. Kubernetes Horizontal Pod Autoscaler (HPA), CPU ve bellek kullanımı gibi anlık metriklere dayalı reaktif ölçeklendirme sağlamakta, ancak ani yük değişimlerine geç tepki vermesi nedeniyle performans düşüşleri ve kaynak israfına yol açabilmektedir.
+
+Literatürde reaktif ölçeklendirmenin sınırlamalarını aşmak üzere tahmine dayalı yaklaşımlar önerilmiş; zaman serisi analizi, makine öğrenmesi ve derin öğrenme teknikleri ile gelecekteki kaynak ihtiyaçlarının önceden kestirimi hedeflenmiştir. Bununla birlikte, pek çok çalışmanın yük örüntülerinin çeşitliliğini yeterince dikkate almayan “tek model her senaryoya uyar” varsayımıyla sınırlı kaldığı görülmektedir.
+
+Bu çalışma, yazarın yüksek lisans tezi kapsamında geliştirilen örüntü-farkındalıklı Predictive Horizontal Pod Autoscaler (PHPA) çerçevesinin syswe ad alanına taşınması ve üretim ortamına hazır hale getirilmesini konu almaktadır. Altı temel yük örüntüsü (mevsimsel, büyüyen, patlama, açık/kapalı, kaotik, basamaklı) için matematiksel formülasyonlar geliştirilmiş; 600 senaryoda 2 milyondan fazla veri noktası üretilmiş; yedi farklı CPU-optimize tahmin modeli için hiperparametre optimizasyonu uygulanmıştır. Örüntü-spesifik model seçimi yaklaşımı ile evrensel modellere kıyasla ortalama %37,4 iyileştirme sağlanmıştır. LLM tabanlı örüntü tanıma önceki çalışmanın bir parçası olup bu makalenin kapsamı dışındadır; burada odak, en iyi modellerin operatör entegrasyonu ve deneysel doğrulanmasıdır.
+
+Mevcut projede, GBDT, CatBoost, VAR ve XGBoost modelleri Kubernetes operatörü ile bütünleşik çalışacak şekilde uygulanmış; Helm şablonları ve CRD şemaları güncellenmiş; çevrimiçi ve çevrimdışı kıyaslama senaryolarını uçtan uca otomatikleştiren laboratuvar (labs) altyapısı geliştirilmiştir. Deneysel sonuçlar, tahmine dayalı modellerin standart HPA'ya kıyasla ölçeklendirme kararlarını anlamlı ölçüde öne çektiğini ve kaynak kullanımında daha dengeli noktalar sunduğunu göstermektedir.
+
+\subsection{Katkılar (Contributions)}
+
+Bu makalenin başlıca katkıları şunlardır:
+
+\begin{itemize}[noitemsep]
+  \item Örüntü taksonomisi ve 2M+ veri noktası ile sistematik değerlendirme zemini,
+  \item Örüntü-spesifik model seçimi ile ortalama %37,4 doğruluk iyileştirmesi,
+  \item (Bağlam) Önceki çalışmadan LLM bulguları; bu makalede uygulanmamıştır,
+  \item PHPA operator entegrasyonu: GBDT, CatBoost, VAR, XGBoost,
+  \item Tekrarlanabilir laboratuvar: çevrimdışı/çevrimiçi kıyaslama ve otomatik raporlama.
+\end{itemize}

@@ -1,0 +1,27 @@
+\section{Operatör ve Uygulama (Operator Implementation)}
+
+PHPA, Kubernetes üzerinde bir Operatör olarak çalışır. Temel yapı taşları; CRD (CustomResourceDefinition), denetleyici (controller), model geçmişi depolaması ve algoritma koşucu (runner) katmanıdır. Operatör; mevcut metriklerle klasik HPA hedefini hesaplar, ardından bir veya daha fazla tahmin modelini çalıştırarak ileriye dönük replika değerlerini üretir ve seçilen karar tipine göre (maksimum, minimum, ortalama, medyan) nihai ölçeklendirme kararını verir.
+
+\subsection{CRD ve API}
+
+`PredictiveHorizontalPodAutoscaler` (v1alpha1) kaynak türü; ölçeklenecek hedefi (`scaleTargetRef`), min/max replika sınırlarını, kullanılacak metrikleri, senkronizasyon periyodunu (`syncPeriod`) ve \texttt{models} listesi üzerinden model yapılandırmalarını içerir. Model türleri (Linear, HoltWinters, GBDT, XGBoost, VAR, CatBoost) enum ile sınırlandırılmıştır. Her model için veri geçmişi boyutu (`historySize`), bakılacak gecikme sayısı (`lags`) ve ileriye bakış süresi (`lookAhead`) gibi ayarlar sağlanır. Holt–Winters için \textit{alpha, beta, gamma}, mevsimsellik ve sönümlü trend gibi ileri seçenekler ile HTTP tabanlı \textit{runtime tuning hook} desteği bulunmaktadır.
+
+\subsection{Algoritma Koşucu (Runner)}
+
+Operatör çalışma zamanında, JSON iletilen \texttt{replicaHistory} ve model parametrelerini hafif Python uygulamalarına aktarır (ör. \texttt{algorithms/catboost/catboost.py}). Bu betikler; lag özelliklerini üretir, tek adım ya da iteratif ileri bakış ile tamsayı bir replika tahmini üretir ve standard output üzerinden geri döndürür. Bir \texttt{calculationTimeout} süresi içinde cevap üretilemezse hesaplama atlanır.
+
+\subsection{Ölçek Davranışı ve Stratejiler}
+
+Operatör; HPA ile eşdeğer yukarı-aşağı ölçekleme politikalarını, stabilizasyon pencerelerini ve olay geçmişi kaydını korur. Birden fazla modelin kullanıldığı senaryolarda \texttt{decisionType} alanı ile maksimum, minimum, ortalama ya da medyan üzerinde karar verilir. Bu yaklaşım, farklı modellerin güçlü yönlerini birleştirme esnekliği sağlamaktadır.
+
+\subsection{Model Geçmişi ve Kalıcılık}
+
+Model geçmişi depolaması, \texttt{PredictiveHorizontalPodAutoscalerData} yapısı ile bir ConfigMap içinde sürdürülür; her model için \texttt{replicaHistory} dizisi ve \texttt{syncPeriodsPassed} bilgisi tutulur. Bu sayede model geçmişi yeniden başlatmalar veya seyrek hesaplama döngüleri boyunca korunur; \texttt{perSyncPeriod} ile uyumlu şekilde modelin hesaplama sıklığı denetlenir.
+
+\subsection{Koşucu ve Genişletilebilirlik}
+
+Çalışma zamanı koşucu arayüzü, komut çağrısı ve çıktı ayrıştırma sorumluluklarını izole ederek operatöre yeni modeller eklemeyi kolaylaştırır. Örneğin CatBoost (\texttt{algorithms/catboost/catboost.py}), Holt–Winters (\texttt{algorithms/holt\_winters/holt\_winters.py}) ve VAR (\texttt{algorithms/var/var.py}) için aynı şablon korunur: girdide \texttt{replicaHistory}, çıktıda tek tamsayı replika kestirimi.
+
+\subsection{Doğrulama ve Ölçek Davranışı}
+
+Model yapılandırmaları \texttt{validation} katmanında doğrulanır; eksik alanlar veya tip uyuşmazlıkları erken aşamada raporlanır. \texttt{scalebehavior} mantığı yukarı/aşağı ölçekleme politikaları ile stabilizasyon pencerelerini uygular; \texttt{decisionType} ise birden fazla model çıktısında nihai kararın nasıl alınacağını belirler (maksimum, minimum, ortalama, medyan).

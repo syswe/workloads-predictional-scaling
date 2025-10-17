@@ -1,0 +1,10 @@
+\section{İlgili Çalışmalar (Related Work)}
+
+Kubernetes HPA belgelendirmesi ve temel otomatik ölçeklendirme ilkeleri, metrik-tabanlı reaktif karar mekanizmaları ile sınırlıdır. Reaktif yaklaşımlar, gecikmeler ortaya çıktıktan sonra devreye girdikleri için ani yük sıçramalarında hedef Servis Düzeyi Anlaşması (SLA) göstergelerini korumakta yetersiz kalabilmektedir. Çeşitli araştırmalar, tahmine dayalı stratejilerin bu boşluğu doldurabileceğini göstermektedir: zaman serisi kestirimi ve öğrenme tabanlı modellerle geleceğe dönük replika ihtiyaçları öngörülerek ölçeklendirme kararları öne çekilebilir.
+
+Zaman serisi alanında Box–Jenkins ve Exponential Smoothing gibi klasik yöntemlerin yanında, Holt–Winters mevsimsellik modelleri üretim sistemlerinde pratikte sıkça değerlendirilmektedir. Makine öğrenmesi tarafında ise ağaç-tabanlı gradient boosting yöntemleri (GBDT, XGBoost, CatBoost) düşük hesaplama maliyeti ve yüksek öngörü performansı nedeniyle kurumsal ortamlarda yaygın olarak benimsenmektedir. Çok değişkenli zaman serisi için VAR gibi istatistiksel yöntemler, ek bağlamsal metrikler (CPU, bellek, ağ) ile beslendiğinde güçlü performans potansiyeli taşımaktadır.
+
+Son dönemde, büyük dil modellerinin (LLM) zaman serisi ve örüntü tanıma problemlerine uygulanması gündeme gelmiştir. Zaman serisi yeniden-işleme (reprogramming), sıfır-atış (zero-shot) kestirim ve çok modlu (metin + görsel) analiz yaklaşımları ile LLM’ler geleneksel yöntemlere tamamlayıcı kabiliyetler eklemektedir. Bu çalışmada, LLM’ler yük örüntüsünün otomatik saptanması ve uygun tahmin modelinin önerimi için kullanılmış, böylece operasyonel iş akışına akıllı seçim katmanı eklenmiştir.
+
+Özetle literatür, proaktif ölçeklendirmenin etkinliğini desteklerken, tek modelin tüm örüntülere “en iyi” çözüm olamayacağını, örüntü-spesifik seçimin kritik önem taşıdığını ortaya koymaktadır. Bu makale, altı temel örüntü için matematiksel formülasyonlar ve model eşleştirmesi sunarak; ayrıca LLM entegrasyonu ile otomatik örüntü tanıma sağlayarak literatüre bütüncül ve tekrarlanabilir bir çerçeve katkısı yapmaktadır.
+

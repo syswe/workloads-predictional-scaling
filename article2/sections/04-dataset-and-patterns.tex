@@ -1,0 +1,40 @@
+\section{Veri Seti ve Örüntüler (Dataset and Patterns)}
+
+Araştırmanın temelini oluşturan örüntü taksonomisi, gerçek dünya iş yüklerinin geniş bir yelpazesini kapsayacak şekilde tasarlanmıştır. Altı temel örüntü sınıfı için matematiksel formülasyonlar belirlenmiş ve 35 günlük, 15 dakikalık örnekleme aralığında senaryolar üretilmiştir. Bu kapsamda 600 senaryo boyunca 2 milyondan fazla zaman serisi veri noktası elde edilmiştir.
+
+\subsection{Matematiksel Formülasyonlar}
+
+\textbf{Mevsimsel (Seasonal)}
+\begin{equation}
+P_t = B + \sum_k A_k \sin\left(\frac{2\pi t}{T_k} + \phi_k\right) + N_t
+\end{equation}
+
+\textbf{Büyüyen (Growing)}
+\begin{equation}
+P_t = B + G\cdot f(t) + S \cdot \sin\left(\frac{2\pi h_t}{24}\right) + N_t
+\end{equation}
+
+\textbf{Patlama (Burst)}
+\begin{equation}
+P_t = B + \sum_i B_i\, g(t - t_i, d_i)\, \mathbf{1}_{t_i \le t < t_i + d_i} + N_t
+\end{equation}
+
+\textbf{Açık/Kapalı (On/Off)}
+\begin{equation}
+P_t = \begin{cases}
+P_{high} + N_t^{high} & \text{eğer } S_t = 1 \\
+P_{low} + N_t^{low} & \text{eğer } S_t = 0
+\end{cases}
+\end{equation}
+
+\textbf{Kaotik (Chaotic)}: Çok bileşenli, düzensiz ve öngörülmesi güç süreçlerin bir bileşimi olarak modellenir.
+
+\textbf{Basamaklı (Stepped)}
+\begin{equation}
+P_t = B_{base} + L_t \cdot S_{step} + S \cdot \sin\left(\frac{2\pi h_t}{24}\right) + N_t
+\end{equation}
+
+\subsection{Kalibrasyon ve Gerçekçilik}
+
+Örüntü parametreleri, gerçek dünya kaynak kullanım günlükleri (ör. kurumsal web servisleri, spor etkinlikleri sırasında dalgalanan trafik, NASA web günlükleri gibi literatürde rastlanan aşırı yük durumları) göz önünde bulundurularak kalibre edilmiştir. Tek değişkenli senaryolar, operatörün çalışma modeline paralel olacak şekilde pod sayısı üzerinden kurgulanmış; çok değişkenli potansiyeli göstermek üzere zaman bileşenleri ve türetik özellikler de veri setine eklenmiştir. Bu yaklaşım, hem istatistiksel değerlendirme hem de operasyonel entegrasyon açısından dengeli bir temel sunmaktadır.
+

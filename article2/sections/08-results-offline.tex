@@ -1,0 +1,22 @@
+\section{Bulgular — Çevrimdışı (Offline Results)}
+
+Sentetik veri üzerinde yapılan deneylerde, aşağıdaki hata metrikleri elde edilmiştir. VAR'ın tek değişkenli sentetik veride kararsızlığa düştüğü not edilmelidir; bu model çok değişkenli girişler için tasarlanmıştır.
+
+\begin{table}[h]
+    \centering
+    \caption{Offline deneylerde raporlanan hata ölçümleri (RMSE, MAE, MAPE).}
+    \label{tab:offline}
+    \begin{tabular}{@{}lccc@{}}
+        \toprule
+        Model & RMSE & MAE & MAPE (\%) \\
+        \midrule
+        GBDT & 1.98 & 1.56 & 6.13 \\
+        XGBoost & 2.31 & 1.85 & 7.42 \\
+        CatBoost & 5.55 & 4.56 & 21.36 \\
+        VAR & $5.75\times10^{18}$ & $3.59\times10^{18}$ & $1.35\times10^{19}$ \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+GBDT ve XGBoost, düşük hata oranları ve hızlı eğitim süreleriyle pratik kullanım için öne çıkmıştır. CatBoost'un performansı, sentetik tek değişkenli veride sınırlı kalmış; gerçek dünyada kategorik/türetik özelliklerle daha iyi sonuçlar beklenmektedir. VAR ise çok değişkenli bağlam gereksinimi nedeniyle tek değişkenli senaryoda uygun değildir.
+

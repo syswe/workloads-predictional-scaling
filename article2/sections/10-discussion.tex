@@ -1,0 +1,25 @@
+\section{Tartışma (Discussion)}
+
+Elde edilen bulgular, tahmine dayalı ölçeklendirmenin reaktif HPA yaklaşımının sınırlamalarını pratikte aşabildiğini göstermektedir. Özellikle ilk ölçeklendirme kararının 10–51 saniye aralığına çekilmesi, kısa süreli piklerde gecikme kaynaklı performans kayıplarını azaltır. Ancak bu kazanımın maliyet tarafına yansıdığı (daha yüksek ortalama replika/CPU) unutulmamalıdır. Bu nedenle model seçimi, uygulamanın iş hedefleri (gecikme toleransı, maliyet bütçesi, SLA) ile uyumlu olmalıdır.
+
+\subsection{Çevrimdışı Bulguların Yorumu}
+
+GBDT ve XGBoost, düşük hata ve hızlı eğitim/çıkarım özellikleri ile üretim dostu seçeneklerdir. CatBoost, kategorik/zengin özellik seti gereksinimi nedeniyle tek değişkenli sentetik senaryoda geri kalsa da gerçek veri bağlamında güçlenebilir. VAR'ın tek değişkenli senaryoda başarısız olması beklenen bir sonuçtur; modelin doğası gereği çok değişkenli bağlam (CPU, bellek, ağ trafiği, I/O) ile beslendiğinde anlamlı hale gelir.
+
+\subsection{Çevrimiçi Bulguların Yorumu}
+
+Linear model, kritik servislerde gerekli olabilecek agresif ön-ölçeklemeyi sağlar; ancak maliyetli olabilir. GBDT/XGBoost, çoğu mikro servis için dengeli profildir. Holt–Winters, mevsimsellik içeren iş yüklerinde güçlüdür. VAR, kaynak kısıtı baskın senaryolarda (maliyet odaklı) düşünülebilir; daha fazla bağlamsal metrik ile güçlendirilmelidir.
+
+\subsection{(Bağlam) LLM Entegrasyonunun Katkısı}
+
+LLM tabanlı örüntü tanıma, önceki çalışmanın bir parçası olarak operasyon ekibinin manuel analiz yükünü azaltır ve doğru model sınıfının hızlı seçimini kolaylaştırır. %96,7 doğruluk seviyesi, pratikte yüksek bir yardımcı sinyal anlamına gelmektedir. Not: Bu makalede LLM uygulanmamış, yalnızca bağlamsal arka plan olarak ele alınmıştır.
+
+\subsection{Pratik Öneriler}
+
+\begin{itemize}[noitemsep]
+  \item \textbf{Model Seçimi:} Hız-kalite-maliyet üçlemesini göz önünde bulundurun; kritik uçlar için Linear/GBDT, genel kullanım için XGBoost/CatBoost, mevsimsellik için Holt–Winters.
+  \item \textbf{Çok Değişkenlilik:} VAR ve benzeri yöntemler için CPU, bellek, ağ, disk I/O gibi ek metrikleri veri akışına dahil edin.
+  \item \textbf{Hiperparametreler:} Temporal CV ve erken durdurma ile periyodik yeniden ayarlama planlayın.
+  \item \textbf{Operasyon:} `decisionType` (max/mean/median) stratejisini servisin SLA’ına göre seçin; agresif veya muhafazakâr politika belirleyin.
+  \item \textbf{Gözlemleme:} Model performansını sürekli izleyin; dağıtım sonrası drift/evrim için uyarı eşiği ve yeniden eğitim tetikleyicileri belirleyin.
+\end{itemize}

@@ -1,0 +1,29 @@
+\section{Modeller ve Optimizasyon (Models and Optimization)}
+
+Bu çalışmada yedi model ailesi değerlendirilmiştir: Linear, Holt–Winters, GBDT, XGBoost, CatBoost, VAR ve Prophet. Operasyonel entegrasyon kapsamında GBDT, XGBoost, CatBoost ve VAR modelleri operatör tarafından çalıştırılabilir hale getirilmiştir. Modellerin seçiminde temel hedefler; (i) CPU üstüne optimize düşük gecikmeli kestirim, (ii) sınırlı hafıza tüketimi, (iii) örüntüye göre uyarlanabilir hiperparametreler ve (iv) operator tarafında hızlı ardışık tahmin yeteneğidir.
+
+\subsection{Özellik (Feature) Tasarımı}
+
+Tek değişkenli zaman serileri için lag tabanlı özellikler (örn. son $k$ adım), hareketli ortalama/medyan pencereleri ve zaman tabanlı bileşenler (saat, gün, haftanın günü) kullanılmıştır. Amaç; ağaç tabanlı modellerin güçlü olduğu ayrım sınırlarını zenginleştirmek ve VAR gibi yöntemler için çok değişkenli bağlam oluşturmaktır.
+
+\subsection{Hiperparametre Optimizasyonu}
+
+Model hiperparametreleri örüntü-spesifik olarak ayarlanmış, zamanın yönünü koruyan temporal çapraz doğrulama stratejileri ile doğrulanmış ve erken durdurma kriterleri ile aşırı öğrenme engellenmiştir. Böylece hem kestirim isabeti hem de çalışma süresi arasında pratik denge elde edilmiştir.
+
+\subsection{Model Aileleri — Özet}
+
+\textbf{Linear:} Basit ve hızlıdır; kritik durumlarda agresif erken tepki için tercih edilebilir. \texttt{lookAhead} ve sınırlı \texttt{historySize} ile düşük hesaplama maliyeti sağlar.
+
+\textbf{Holt–Winters:} Mevsimsellik ve trend için uygundur. \textit{alpha, beta, gamma} ile düzey, eğilim ve mevsimsellik yumuşatma katsayıları ayarlanır; \texttt{seasonalPeriods} ve \texttt{storedSeasons} ile dönem uzunluğu ve hafıza sınırı kontrol edilir.
+
+\textbf{GBDT/XGBoost:} Ağaç-tabanlı gradient boosting ailesi, zengin özellik seti ile kuvvetli performans ve hız sunar. Temporal CV ve erken durdurma ile aşırı öğrenme engellenir; \texttt{lags} ve \texttt{lookAhead} işletim anında etkili parametrelerdir.
+
+\textbf{CatBoost:} Kategorik özelliklerle güçlüdür. Tek değişkenli sentetik veride sınırlı görünse de gerçek dünyada türetik/kategorik özniteliklerle performansı yükselir. Operatör tarafında iteratif ileri bakışla hızlı çıkarım yapılır.
+
+\textbf{VAR:} Çok değişkenli zaman serileri için uygundur. Zaman bileşenleri ve diğer metriklerle beslendiğinde anlamlı kestirim yapar; tek değişkenli senaryolarda kararsızlık gösterebilir.
+
+\textbf{Prophet:} Araştırma sürecinde referans amaçlı değerlendirilmiştir; operatör entegrasyonu kapsamda değildir.
+
+\subsection{Örüntü-Spesifik Model Seçimi}
+
+Yüksek lisans tezinde gösterildiği üzere, tek bir evrensel model yerine örüntü-spesifik seçim ortalama %37,4 MAE iyileştirmesi sağlamaktadır. Bu çalışmada da aynı ilke korunmuş ve operatör seviyesinde LLM tabanlı otomatik örüntü tanıma ile aday modellerin önerimi birleştirilmiştir. Kritik servisler için hızlı tepki (Linear/GBDT), dengeli maliyet-performans (XGBoost/CatBoost), mevsimsellik (Holt–Winters) ve çok değişkenli bağlam (VAR) ilkeleriyle seçim stratejileri tanımlanmıştır.

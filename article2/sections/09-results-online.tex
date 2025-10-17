@@ -1,0 +1,25 @@
+\section{Bulgular — Çevrimiçi (Online Results)}
+
+Gerçek Kubernetes kümesi üzerinde yürütülen 240 saniyelik senaryolarda, standart HPA ve altı farklı PHPA modeli karşılaştırılmıştır.
+
+\begin{table}[h]
+    \centering
+    \caption{240 saniyelik çevrimiçi senaryolarda ölçülen göstergeler (Online benchmark metrics).}
+    \label{tab:online}
+    \begin{tabular}{@{}lcccccc@{}}
+        \toprule
+        Senaryo & Süre (s) & Zirve Replika & İlk Ölçekleme (s) & CPU Ort. (m) & CPU Zirve (m) & Ort. Replika \\
+        \midrule
+        Standart HPA & 236 & 5.0 & 41.0 & 342.6 & 536.0 & 2.64 \\
+        PHPA Linear & 236 & 10.0 & 10.2 & 525.0 & 635.0 & 8.72 \\
+        PHPA Holt-Winters & 236 & 8.0 & 71.9 & 405.4 & 636.0 & 4.77 \\
+        PHPA GBDT & 236 & 5.0 & 20.5 & 460.3 & 558.0 & 4.15 \\
+        PHPA CatBoost & 236 & 5.0 & 30.8 & 486.4 & 559.0 & 4.36 \\
+        PHPA VAR & 236 & 5.0 & 41.1 & 417.3 & 577.0 & 3.81 \\
+        PHPA XGBoost & 236 & 5.0 & 51.3 & 496.0 & 594.0 & 4.57 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+Tüm PHPA modelleri, standart HPA'ya kıyasla ilk ölçeklendirme zamanını öne çekmiştir. Linear model en hızlı tepkiyi vermiş; ancak yüksek ortalama replika ve CPU değeri ile maliyeti artırmıştır. GBDT ve XGBoost dengeli bir maliyet-tepki süresi bileşimi sunarken, Holt–Winters mevsimsellik içeren yüklerde uygun bir adaydır. VAR, muhafazakâr ortalama replika davranışıyla kaynak tasarrufu sağlayabilir.
+

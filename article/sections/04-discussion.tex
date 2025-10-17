@@ -10,7 +10,7 @@ Reaktif ölçeklendirme yaklaşımlarının sınırlamaları literatürde yaygı
 
 Örüntü-spesifik model seçimi yaklaşımı, evrensel modellere kıyasla \%37,4 iyileştirme sağlamıştır. Bu bulgu, tek bir modelin tüm yük tiplerinde optimal performans gösteremeyeceği hipotezini desteklemektedir [11]. Literatürde, farklı yük tiplerinin farklı tahmin modelleri gerektirdiği vurgulanmakta [16, 17], ancak kapsamlı bir örüntü taksonomisi ve model eşleştirmesi sunulmamaktadır. Mevcut çalışma, altı temel yük örüntüsü için matematiksel formülasyonlar ve optimal model önerileri sunarak literatüre özgün katkı sağlamaktadır.
 
-LLM entegrasyonunun \%96,7 doğrulukla yük örüntülerini tanıması, büyük dil modellerinin zaman serisi analizi alanındaki potansiyelini göstermektedir [12, 13]. Literatürde, LLM'lerin otomatik ölçeklendirme problemine uygulanması sınırlı sayıda çalışmada ele alınmıştır [14]. Mevcut çalışma, çok modlu analiz (metin + görsel) yeteneklerinin örüntü tanıma başarısını artırdığını göstermektedir.
+LLM entegrasyonunun \%96,7 doğrulukla yük örüntülerini tanıması, büyük dil modellerinin zaman serisi analizi alanındaki potansiyelini göstermektedir [12, 13]. Literatürde, LLM'lerin otomatik ölçeklendirme problemine uygulanması sınırlı sayıda çalışmada ele alınmıştır [14]. Bu bulgular önceki çalışmamızın bir parçasıdır ve bu makalenin deneysel kapsamına dahil değildir; mevcut çalışmada yalnızca operatör entegrasyonu ve deneysel doğrulama ele alınmıştır.
 
 \subsection{Çevrimdışı Kıyaslama Bulgularının Değerlendirilmesi (Evaluation of Offline Benchmark Findings)}
 
@@ -36,7 +36,7 @@ VAR modelinin düşük ortalama replika sayısı (3,81) ile kaynak kullanımınd
 
 \textbf{Örüntü-Spesifik Model Seçimi:} Evrensel modellere kıyasla \%37,4 iyileştirme sağlayan yaklaşım, farklı yük tiplerinin farklı tahmin modelleri gerektirdiğini deneysel olarak göstermektedir.
 
-\textbf{LLM Entegrasyonu:} \%96,7 doğrulukla otomatik örüntü tanıma, sistem yöneticilerinin manuel müdahalesini azaltmakta ve otomatik ölçeklendirme sistemlerine sofistike analiz yetenekleri kazandırmaktadır.
+\textbf{(Bağlam) LLM Bulguları:} Önceki çalışmada \%96,7 doğrulukla otomatik örüntü tanıma raporlanmıştır; bu makalede LLM uygulanmamış, kapsam dışı bırakılmıştır.
 
 \textbf{Operasyonel Kullanıma Hazır Implementasyon:} Kubernetes operatörü ile entegre edilmiş modeller, gerçek üretim ortamlarında kullanılabilir durumdadır. Helm grafikleri ve CI/CD süreçleri, dağıtım ve bakımı kolaylaştırmaktadır.
 
@@ -60,7 +60,7 @@ VAR modelinin düşük ortalama replika sayısı (3,81) ile kaynak kullanımınd
 
 \textbf{Model Seçimi:} Uygulama gereksinimlerine göre model seçimi yapılmalıdır. Hızlı tepki gereken kritik servisler için Linear veya GBDT, dengeli kaynak kullanımı için XGBoost veya CatBoost, mevsimsel yükler için Holt-Winters, çok değişkenli senaryolar için VAR modeli önerilmektedir.
 
-\textbf{LLM Entegrasyonu:} Yük örüntülerinin otomatik tanınması için LLM entegrasyonu kullanılmalıdır. Bu yaklaşım, sistem yöneticilerinin manuel müdahalesini azaltmakta ve optimal model seçimini otomatikleştirmektedir.
+\textbf{Model Tavsiyesi (LLM Yol Haritası):} LLM tabanlı örüntü tanıma, bu makalenin kapsamı dışında olup bir ön-adım olarak model tavsiyesi için kurumsal yol haritasında değerlendirilebilir.
 
 \textbf{Hiperparametre Optimizasyonu:} Her uygulama için hiperparametre optimizasyonu yapılmalıdır. Temporal cross-validation ve early stopping kriterleri kullanılarak, aşırı öğrenme önlenmelidir.
 
